@@ -29,12 +29,12 @@ def get_complement_list(username, is_female):
         complements.append('Hej, jestem Maja. Zaraz wskoczę Ci na jaja :sunglasses:')
         complements.append('Fajny siur <:maika_smug:982329631854170233>')
         complements.append('Czy Twój tata jest cukiernikiem? Bo niezłe z Ciebie ciacho :cookie:')
+        complements.append('Gdybyś był ziemniakiem, byłbyś dobrym ziemniakiem :sweat_smile:')
 
     if is_female:
         complements.append('Pokasz stupki pls :hot_face:')
         complements.append('Niezłe dojce :cow2:')
         complements.append('Masz może majtki w księżyce? Bo masz tyłek nie z tej ziemi :new_moon:')
-        complements.append('Gdybyś był ziemniakiem, byłbyś dobrym ziemniakiem :sweat_smile:')
         complements.append('Czy Twój tata jest ogrodnikiem? Bo masz cudowne arbuzy :melon: :melon:')
         complements.append('Hej, chyba jesteś kopciuszkiem... bo już widzę jak ta sukienka znika o połnocy :smirk:')
         complements.append('Gdybyś była kanapką w McDonald’s, nazywałabyś się McBeauty :drool:')
@@ -63,9 +63,13 @@ def get_complement_list(username, is_female):
         complements.append('Nic dziwnego że jako jedyna wyrwałaś Leyle :hot_face:')
     if username == 'KalinkaMaja':
         complements.append('Najlepsza samica w Warszawie :sunglasses: I nawet nie ma co z tym dyskutować :smirk:')
+        complements.append('Królowa przed którą Pajonk się kłania :hot_face: :tired_face:')
     if username == 'Katinka':
         complements.append('Każdą Kasię, dobrze pcha się :smirk:')
     if username == 'Piterson':
-        complements.append('Każdy wie że to Ty powiedziałeś tutaj rządzić! :heart:')
+        complements.append('Każdy wie że to Ty powinieneś tutaj rządzić! :heart:')
+    if username == 'RysiuBardzoSłodkaUWUSamicaAlfa':
+        complements.append('Dziewczyna z jajami większymi niż niejeden facet na serwerze :sunglasses:')
+        complements.append('Niby groźna, ale jednak słodka UwU')
 
     return complements
