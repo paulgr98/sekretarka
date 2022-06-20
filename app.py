@@ -39,10 +39,11 @@ class Usr:
 
 
 pajonk = Usr()
+user_to_ban = Usr()
 
 # logger config
 handler = logging.StreamHandler()
-formatter = logging.Formatter('[%(levelname)s at %(asctime)s]: %(message)s', '%H:%M:%S')
+formatter = logging.Formatter('[%(levelname)s at %(asctime)s]: %(message)s', '%d.%m %H:%M:%S')
 handler.setFormatter(formatter)
 logger = logging.getLogger('discord')
 logger.addHandler(handler)
@@ -271,6 +272,7 @@ async def uwu(ctx):
 # ban command. but not actually baning anyone. just for fun
 @client.command()
 async def ban(ctx, member: discord.Member):
+    user_to_ban.user = member
     if member.name == 'PanPajonk':
         await ctx.send('Nie masz tu mocy :sunglasses:')
         return
@@ -291,7 +293,7 @@ async def on_reaction_add(reaction, user):
     # get the message from the bot that contains 'pod tą wiadomością i banujemy'
     message = reaction.message
     # get last use of ban command
-    messages = await message.channel.history(limit=50).flatten()
+    messages = await message.channel.history(limit=150).flatten()
     last_message = None
     for msg in reversed(messages):
         if f'{client.command_prefix}ban' in msg.content:
@@ -299,7 +301,7 @@ async def on_reaction_add(reaction, user):
             break
     if '5 ❤ pod tą wiadomością i banujemy' in message.content and message.author.bot is True:
         if reaction.emoji == str("\u2764\ufe0f") and reaction.count == 5:
-            await message.channel.send(f'No i banujemy {last_message.author.mention}!')
+            await message.channel.send(f'No i banujemy {user_to_ban.user.mention}!')
     elif '2 ❤ pod tą wiadomością i banujemy' in message.content and message.author.bot is True:
         if reaction.emoji == str("\u2764\ufe0f") and reaction.count == 2:
             await message.channel.send(f'No i banujemy {last_message.author.mention}! Na własne życzenie xD')
@@ -326,17 +328,14 @@ async def zw(ctx):
 
 # command to find gf or bf for the user
 @client.command()
-async def shipme(ctx, member: discord.Member = None):
-    if member is None:
-        member = ctx.author
-        
+async def shipme(ctx):      
     # get list of all users in the server
     users = ctx.guild.members
     # try to get user from already existing list for today
-    ship_id = get_users_match_for_today(str(ctx.guild.id), str(member.id))
+    ship_id = get_users_match_for_today(str(ctx.guild.id), str(ctx.author.id))
     if ship_id is not None:
         ship = client.get_user(int(ship_id))
-        await ctx.send(f'{member.mention} myślę, że najlepszy ship na dzisiaj dla Ciebie to... {ship.mention}!')
+        await ctx.send(f'{ctx.author.mention} myślę, że najlepszy ship na dzisiaj dla Ciebie to... {ship.mention}!')
         return
 
     # get list of users with role 'kobita'
@@ -353,14 +352,14 @@ async def shipme(ctx, member: discord.Member = None):
             males.append(u)
 
     # if messege author is in females, ship with males
-    if member in females:
+    if ctx.author in females:
         ship = random.choice(males)
     else:
         ship = random.choice(females)
 
     # save ship to file
-    save_users_match_for_today(ctx.guild.id, member.id, ship.id)
-    await ctx.send(f'{member.mention} myślę, że najlepszy ship na dzisiaj dla Ciebie to... {ship.mention}!')
+    save_users_match_for_today(ctx.guild.id, ctx.author.id, ship.id)
+    await ctx.send(f'{ctx.author.mention} myślę, że najlepszy ship na dzisiaj dla Ciebie to... {ship.mention}!')
 
 
 # command to get daily horoscopes for the user
