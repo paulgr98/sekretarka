@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 import config as cfg
 import youtube_dl
+from asyncprawcore import exceptions
 import logging
 # import streamrip
 import os
@@ -69,9 +70,12 @@ async def on_command_error(ctx, error):
         await ctx.send(f'Za szybko używasz komendy. Spróbuj znowu za {round(error.retry_after)} sekund')
     elif isinstance(error, commands.MissingPermissions):
         await ctx.send('Nie masz uprawnień do tej komendy')
+    elif isinstance(error, commands.BadArgument):
+        await ctx.send(f'Niepoprawne argumenty. Jeśli używasz {client.command_prefix}rdt, '
+                       f'upewnij się ze nazwa subreddit nie zawiera spacji')
     else:
         await ctx.send('Error! Insert kremówka! <a:jp2:985844814597742683>')
-        logger.exception(error)
+        logger.error(f'{error} ({error.__class__.__name__})')
 
 
 # print message that the bot is ready
@@ -158,7 +162,7 @@ async def demote(ctx):
 
 # get random post from given subreddit
 @client.command()
-async def rdt(ctx, subreddit: str = 'memes', limit: int = 100):
+async def rdt(ctx, subreddit: str = 'memes', limit: int = 50):
     if ctx.channel.name not in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
         await ctx.send(f'komendy {client.command_prefix}rdt można używać tylko na kanale ﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃')
         return
@@ -167,6 +171,10 @@ async def rdt(ctx, subreddit: str = 'memes', limit: int = 100):
     except commands.CommandError as e:
         await ctx.send(e)
         return
+    except (exceptions.Forbidden, exceptions.NotFound):
+        await ctx.send('Nie ma takiego subreddita, albo nie ma na nim obrazków :(')
+        return
+
     embed = discord.Embed(title=post['title'], color=0xFF5700)
     embed.set_author(name=post['author'])
     embed.set_image(url=post['url'])

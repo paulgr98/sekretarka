@@ -19,11 +19,11 @@ async def get_subreddit_random_hot(subreddit, user, limit):
         raise commands.CommandError('O Ty zboczuszku! :3 Ten subreddit jest NSFW!')
 
     # if the limit is above 100, get the limit number of hot posts
-    if limit > 100:
+    if limit > 50:
         hot = sub.hot(limit=limit)
     # if the limit is below 100, get 100 hot posts
     else:
-        hot = sub.hot(limit=100)
+        hot = sub.hot(limit=50)
 
     # get the posts with png, jpg, or gif extension
     async for submission in hot:
