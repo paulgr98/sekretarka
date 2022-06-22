@@ -31,6 +31,7 @@ ydl_opts = {
     }],
 }
 
+
 # my user class
 class Usr:
     def __init__(self):
@@ -39,7 +40,6 @@ class Usr:
 
 
 pajonk = Usr()
-user_to_ban = Usr()
 
 # logger config
 handler = logging.StreamHandler()
@@ -54,6 +54,7 @@ astro_api = "https://sameer-kumar-aztro-v1.p.rapidapi.com/"
 astro_api_headers = {
     "X-RapidAPI-Key": cfg.RAPID_API_KEY,
 }
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -269,20 +270,28 @@ async def uwu(ctx):
     await msg.reply(f"{uwuify(msg.content)} {random.choice(uwus)}")
 
 
+# dictionary to store members to ban with the id of the message as key
+to_ban = {}
+
+
 # ban command. but not actually baning anyone. just for fun
 @client.command()
 async def ban(ctx, member: discord.Member):
-    user_to_ban.user = member
+    # if there are more than 5 people to ban, remove the oldest one
+    if len(to_ban) > 5:
+        del to_ban[min(to_ban, key=to_ban.get)]
     if member.name == 'PanPajonk':
         await ctx.send('Nie masz tu mocy :sunglasses:')
-        return
-    if member.id == ctx.author.id:
-        await ctx.send(f'Tego chcesz? xD Spoko. 2 ❤ pod tą wiadomością i banujemy {ctx.author.mention}')
         return
     if member.id == client.user.id:
         await ctx.send('Tylko buk może mnie sondzić!')
         return
-    await ctx.send(f'5 ❤ pod tą wiadomością i banujemy {member.mention}!')
+    if member.id == ctx.author.id:
+        message = await ctx.send(f'Tego chcesz? xD Spoko. 2 ❤ pod tą wiadomością i banujemy {ctx.author.mention}')
+        to_ban[message.id] = member
+        return
+    message = await ctx.send(f'5 ❤ pod tą wiadomością i banujemy {member.mention}!')
+    to_ban[message.id] = member
 
 
 # if reaction is added to the ban message, count the heart reactions
@@ -290,21 +299,18 @@ async def ban(ctx, member: discord.Member):
 async def on_reaction_add(reaction, user):
     if user == client.user:
         return
-    # get the message from the bot that contains 'pod tą wiadomością i banujemy'
+    # get the message from reaction
     message = reaction.message
-    # get last use of ban command
-    messages = await message.channel.history(limit=150).flatten()
-    last_message = None
-    for msg in reversed(messages):
-        if f'{client.command_prefix}ban' in msg.content:
-            last_message = msg
-            break
-    if '5 ❤ pod tą wiadomością i banujemy' in message.content and message.author.bot is True:
-        if reaction.emoji == str("\u2764\ufe0f") and reaction.count == 5:
-            await message.channel.send(f'No i banujemy {user_to_ban.user.mention}!')
-    elif '2 ❤ pod tą wiadomością i banujemy' in message.content and message.author.bot is True:
-        if reaction.emoji == str("\u2764\ufe0f") and reaction.count == 2:
-            await message.channel.send(f'No i banujemy {last_message.author.mention}! Na własne życzenie xD')
+
+    # if the message is found in to_ban, ban the member
+    if message.id in to_ban:
+        member = to_ban[message.id]
+        if '5 ❤ pod tą wiadomością i banujemy' in message.content and message.author.bot is True:
+            if reaction.emoji == str("\u2764\ufe0f") and reaction.count == 5:
+                await message.channel.send(f'No i banujemy {member.mention}!')
+        elif '2 ❤ pod tą wiadomością i banujemy' in message.content and message.author.bot is True:
+            if reaction.emoji == str("\u2764\ufe0f") and reaction.count == 2:
+                await message.channel.send(f'No i banujemy {member.mention}! Na własne życzenie xD')
 
 
 # TODO: research how to make this work and implement it (streamrip may work)
@@ -328,7 +334,7 @@ async def zw(ctx):
 
 # command to find gf or bf for the user
 @client.command()
-async def shipme(ctx):      
+async def shipme(ctx):
     # get list of all users in the server
     users = ctx.guild.members
     # try to get user from already existing list for today
@@ -392,7 +398,8 @@ async def astro(ctx, sign: str):
     translator = Translator()
     description = response.json()['description']
     description_pl = translator.translate(description, src='en', dest='pl').text
-    mood_pl = translator.translate(response.json()['mood'], src='en', dest='pl').text
+    mood = response.json()['mood']
+    mood_pl = f"{translator.translate(mood, src='en', dest='pl').text} ({mood})"
     color_pl = translator.translate(response.json()['color'], src='en', dest='pl').text
     comp = response.json()['compatibility'].lower()
     comp_pl = sign_dict_reversed[comp]
