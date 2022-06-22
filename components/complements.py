@@ -5,7 +5,7 @@ def get_complement_list(username, is_female):
         f'{"Nudna" if is_female else "Nudny"} jesteś, nara :unamused:',
         'Niezły tak zwany ass ( ͡° ͜ʖ ͡°)',
         f'Zajebałam się w Tobie w chuj, będziesz {"moją szmaciurą" if is_female else "moim panem"}?',
-        'Dla Ciebie uznałabym nawet cebulę jako owoc UwU',
+        'Dla Ciebie kupiłabym nawet cebulę za 100 zł UwU',
         f'Gdyby sprzedawali wodę o smaku {username}, piłabym hektolitrami :heart:',
         'Twój głos jest jak tysiąc mruczących kotów :heart_eyes_cat: btw, jestem na kwasie',
         'Czy Twój tata jest saperem? Bo wyglądasz bombowo! :boom:',
@@ -49,6 +49,9 @@ def get_complement_list(username, is_female):
         complements.append('Przy Tobie klapki Kubota to chuj <:kanna_love:982387887872024626>')
     if username == 'Domijka':
         complements.append('Najładniejsza dziewczyna w Krakowie <:pepe_love:982328425551392828>')
+        complements.append('Gdybyś była facetem, byłabyś przystojniejsza niż Adriano :hot_face:')
+        complements.append('Weź idź se na pole, czy coś xDD')
+        complements.append('Jesteś gorętsza niż smok wawelski :hot_face:')
     if username == 'Ewelka':
         complements.append('Najsłodsza dziewczyna na serwerze :heart:')
     if username == 'aniadogadania':
@@ -71,5 +74,8 @@ def get_complement_list(username, is_female):
     if username == 'RysiuBardzoSłodkaUWUSamicaAlfa':
         complements.append('Dziewczyna z jajami większymi niż niejeden facet na serwerze :sunglasses:')
         complements.append('Niby groźna, ale jednak słodka UwU')
+    if username == 'PanPajonk':
+        complements.append('Twoja dziewczyna jest jak pierwiastek ze 100. Solidna 10, ale urojona xD')
+        complements.append('Tobie już nie potrzeba komplementów przystojniaku UwU')
 
     return complements
