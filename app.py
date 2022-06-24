@@ -547,10 +547,10 @@ async def stopwatch(ctx, action: str):
             return
         time_elapsed = time.time() - stopwatch_dict[ctx.author.id]
         # if the time is less than a minute, display it in seconds
-        await ctx.message.reply(f'Czas: {time_elapsed:.2f} sekund')
+        await ctx.message.reply(f'Czas: {time_elapsed:.2f} sek.')
         # if the time is more than a minute, display it in minutes and seconds
         if time_elapsed > 60:
-            await ctx.message.reply(f'Czas: {time_elapsed // 60:.2f} minut {time_elapsed % 60:.2f} sekund')
+            await ctx.message.reply(f'Czas: {time_elapsed // 60:.2f} min. {time_elapsed % 60:.2f} sek.')
         stopwatch_dict.pop(ctx.author.id)
     elif action == 'reset':
         if ctx.author.id not in stopwatch_dict:
