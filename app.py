@@ -7,6 +7,7 @@ import logging
 # import streamrip
 import os
 import datetime as dt
+import time
 import requests
 import random
 from components.uwuify import uwuify
@@ -527,6 +528,41 @@ async def coin(ctx):
     await ctx.send('Wypadła reszka!')
 
 
+# dictionary to save user id and their start time
+stopwatch_dict = {}
+
+
+# simple stopwatch command to measure time
+@client.command(aliases=['sw'])
+async def stopwatch(ctx, action: str):
+    if action == 'start':
+        if ctx.author.id in stopwatch_dict:
+            await ctx.message.reply('Twór timer już wystartował')
+            return
+        stopwatch_dict[ctx.author.id] = time.time()
+        await ctx.message.reply('Timer wystartował')
+    elif action == 'stop':
+        if ctx.author.id not in stopwatch_dict:
+            await ctx.message.reply('Nie wystartowałeś jeszcze timera')
+            return
+        time_elapsed = time.time() - stopwatch_dict[ctx.author.id]
+        # if the time is less than a minute, display it in seconds
+        await ctx.message.reply(f'Czas: {time_elapsed:.2f} sekund')
+        # if the time is more than a minute, display it in minutes and seconds
+        if time_elapsed > 60:
+            await ctx.message.reply(f'Czas: {time_elapsed // 60:.2f} minut {time_elapsed % 60:.2f} sekund')
+        stopwatch_dict.pop(ctx.author.id)
+    elif action == 'reset':
+        if ctx.author.id not in stopwatch_dict:
+            await ctx.message.reply('Nie wystartowałeś jeszcze timera')
+            return
+        stopwatch_dict[ctx.author.id] = time.time()
+        await ctx.message.reply('Zresetowano timer')
+    else:
+        await ctx.message.reply('Wpisz start, stop lub reset')
+        return
+
+
 # help command to show all commands
 @client.command()
 async def pomoc(ctx):
@@ -567,6 +603,9 @@ async def pomoc(ctx):
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}coin",
                     value="Rzuca monetą i wyświetla wynik (orzeł albo reszka)",
+                    inline=False)
+    embed.add_field(name=f"{client.command_prefix}sw [start/stop/reset]",
+                    value="Uruchamia stoper, zatrzymuje go, lub resetuje",
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}play [YT_url]",
                     value="Odtwarza utwór na podanym linku [YT_url]",
