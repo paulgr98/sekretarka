@@ -546,11 +546,13 @@ async def stopwatch(ctx, action: str):
             await ctx.message.reply('Nie wystartowałeś jeszcze timera')
             return
         time_elapsed = time.time() - stopwatch_dict[ctx.author.id]
-        # if the time is less than a minute, display it in seconds
-        await ctx.message.reply(f'Czas: {time_elapsed:.2f} sek.')
         # if the time is more than a minute, display it in minutes and seconds
         if time_elapsed > 60:
-            await ctx.message.reply(f'Czas: {time_elapsed // 60:.2f} min. {time_elapsed % 60:.2f} sek.')
+            await ctx.message.reply(f'Czas: {time_elapsed // 60:.0f} min. {time_elapsed % 60:.2f} sek.')
+        # if the time is less than a minute, display it in seconds
+        else:
+            await ctx.message.reply(f'Czas: {time_elapsed:.2f} sek.')
+        # delete the user's id from the dictionary
         stopwatch_dict.pop(ctx.author.id)
     elif action == 'reset':
         if ctx.author.id not in stopwatch_dict:
