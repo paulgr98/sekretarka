@@ -440,8 +440,9 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
                 "friday": "Piątek", "saturday": "Sobota", "sunday": "Niedziela"}
 
     if days == 0:
-        weather_json = get_current_weather(city)
-        if weather_json['cod'] in ['404', '400']:
+        current_weather_json = get_current_weather(city)
+        day_weather_json = get_x_day_forecast(city, days + 1)
+        if current_weather_json['cod'] in ['404', '400'] or day_weather_json['cod'] in ['404', '400']:
             await ctx.send(f'Nie znaleziono miasta {city}')
             return
 
@@ -451,32 +452,35 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
         day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
         day_of_week_pl = day_dict[day_of_week]
 
-        description = weather_json["weather"][0]["description"].capitalize()
-        temp = weather_json["main"]["temp"]
-        feels_like = weather_json["main"]["feels_like"]
-        pressure = weather_json["main"]["pressure"]
-        humidity = weather_json["main"]["humidity"]
-        sunset = weather_json["sys"]["sunset"]
-        sunrise = weather_json["sys"]["sunrise"]
-
+        day = day_weather_json['list'][days]
+        description = day["weather"][0]["description"].capitalize()
+        temp = current_weather_json["main"]["temp"]
+        temp_min = day["temp"]["min"]
+        temp_max = day["temp"]["max"]
+        feels_like = current_weather_json["main"]["feels_like"]
+        pressure = day["pressure"]
+        humidity = day["humidity"]
+        sunset = current_weather_json["sys"]["sunset"]
+        sunrise = current_weather_json["sys"]["sunrise"]
         sunrise = dt.datetime.fromtimestamp(sunrise).strftime('%H:%M')
         sunset = dt.datetime.fromtimestamp(sunset).strftime('%H:%M')
 
         embed = discord.Embed(title=f'Pogoda dla {city.title()}, {date} ({day_of_week_pl})', color=0x066FBF)
         embed.add_field(name='Opis', value=description, inline=False)
-        embed.add_field(name='Temperatura',
-                        value=f'Maksymalna: {float(temp):.1f} °C\nOdczuwalna: {float(feels_like):.1f} °C',
-                        inline=False)
+        embed.add_field(name='Temperatura', value=f'Aktualna: {float(temp):.1f} °C\n '
+                                                  f'Odczuwalna: {float(feels_like):.1f} °C\n\n'
+                                                  f'Maksymalna: {float(temp_max):.1f} °C\n'
+                                                  f'Minimalna: {float(temp_min):.1f} °C', inline=False)
         embed.add_field(name='Ciśnienie', value=f'{pressure} hPa', inline=False)
         embed.add_field(name='Wilgotność', value=f'{humidity}%', inline=False)
         embed.add_field(name='Słońce', value=f'Wschód: {sunrise}\nZachód: {sunset}', inline=False)
 
     else:
-        weather_json = get_x_day_forecast(city, days + 1)
-        if weather_json['cod'] in ['404', '400']:
+        day_weather_json = get_x_day_forecast(city, days + 1)
+        if day_weather_json['cod'] in ['404', '400']:
             await ctx.send(f'Nie znaleziono miasta {city}')
             return
-        day = weather_json['list'][days]
+        day = day_weather_json['list'][days]
         date = dt.datetime.fromtimestamp(day["dt"]).strftime('%d.%m.%Y')
         day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
         day_of_week_pl = day_dict[day_of_week]
