@@ -176,7 +176,11 @@ async def rdt(ctx, subreddit: str = 'memes', limit: int = 50):
         await ctx.send('Nie ma takiego subreddita, albo nie ma na nim obrazków :(')
         return
 
-    embed = discord.Embed(title=post['title'], color=0xFF5700)
+    title = post['title']
+    # if title is too long, cut it
+    if len(title) > 250:
+        title = title[:250] + '...'
+    embed = discord.Embed(title=title, color=0xFF5700)
     embed.set_author(name=post['author'])
     embed.set_image(url=post['url'])
     await ctx.send(embed=embed)
