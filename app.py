@@ -10,6 +10,7 @@ import datetime as dt
 import time
 import requests
 import random
+import asyncio
 from components.uwuify import uwuify
 from components.weather import get_current_weather, get_x_day_forecast
 from components.reddit import get_subreddit_random_hot
@@ -328,9 +329,9 @@ async def on_reaction_add(reaction, user):
 
 # TODO: research how to make this work and implement it (streamrip may work)
 # cut random  fragment from given YouTube video
-@client.command()
-async def cut(ctx, url: str):
-    pass
+# @client.command()
+# async def cut(ctx, url: str):
+#     pass
 
 
 @client.command()
@@ -567,6 +568,38 @@ async def stopwatch(ctx, action: str):
     else:
         await ctx.message.reply('Wpisz start, stop lub reset')
         return
+
+
+# command to get top 5 inactive users in the server by their last message time
+@client.command()
+async def inactive(ctx):
+    await ctx.send('Ok, poczekaj chwilę...')
+    # get all users in the server
+    users = ctx.guild.members
+    users_id = [user.id for user in users]
+    user_last_msg_time_dict = {}
+    messages = await ctx.channel.history(limit=10000).flatten()
+    # sort the messages by their timestamp from newest to oldest
+    messages.sort(key=lambda x: x.created_at, reverse=True)
+    for message in messages:
+        # if user is not a bot, and is not yet in the dictionary
+        # check if user is not yet in the dictionary and is still in the server
+        if message.author.id not in user_last_msg_time_dict and message.author.id in users_id:
+            # if the user is not a bot, add it to the dictionary
+            user = message.author
+            if not user.bot:
+                user_last_msg_time_dict[message.author.id] = message.created_at
+
+    # sort the users by their last message time from newest to oldest
+    user_last_msg_time_dict = sorted(user_last_msg_time_dict.items(), key=lambda x: x[1])
+    # get the top 5 users
+    msg_str = ''
+    for user_id, last_msg_time in user_last_msg_time_dict[:5]:
+        user = client.get_user(user_id)
+        msg_str += f'{user.name} - {last_msg_time.strftime("%d.%m.%Y %H:%M")}\n'
+    embed = discord.Embed(title='Najmniej aktywni użytkownicy', color=0x571E1E)
+    embed.add_field(name='TOP 5', value=msg_str, inline=False)
+    await ctx.send(embed=embed)
 
 
 # help command to show all commands

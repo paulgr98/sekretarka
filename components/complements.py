@@ -56,8 +56,6 @@ def get_complement_list(username, is_female):
         complements.append('Najsłodsza dziewczyna na serwerze :heart:')
     if username == 'aniadogadania':
         complements.append('Ania do kochania :heart: UwU')
-    if username == 'Xerox':
-        complements.append('Xerox > reszta serwera')
     if username == 'Adrianoo7oo':
         complements.append('Jesteś taki hot, że sama nie wiem co powiedzieć :hot_face: :hot_face:')
     if username == 'bogel':
@@ -71,9 +69,6 @@ def get_complement_list(username, is_female):
         complements.append('Każdą Kasię, dobrze pcha się :smirk:')
     if username == 'Piterson':
         complements.append('Każdy wie że to Ty powinieneś tutaj rządzić! :heart:')
-    if username == 'RysiuBardzoSłodkaUWUSamicaAlfa':
-        complements.append('Dziewczyna z jajami większymi niż niejeden facet na serwerze :sunglasses:')
-        complements.append('Niby groźna, ale jednak słodka UwU')
     if username == 'PanPajonk':
         complements.append('Twoja dziewczyna jest jak pierwiastek ze 100. Solidna 10, ale urojona xD')
         complements.append('Tobie już nie potrzeba komplementów przystojniaku UwU')
