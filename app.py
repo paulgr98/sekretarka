@@ -646,6 +646,9 @@ async def pomoc(ctx):
     embed.add_field(name=f"{client.command_prefix}sw [start/stop/reset]",
                     value="Uruchamia stoper, zatrzymuje go, lub resetuje",
                     inline=False)
+    embed.add_field(name=f"{client.command_prefix}inactive",
+                    value="Wyświetla TOP 5 najmniej aktywnych użytkowników",
+                    inline=False)
     embed.add_field(name=f"{client.command_prefix}play [YT_url]",
                     value="Odtwarza utwór na podanym linku [YT_url]",
                     inline=False)
