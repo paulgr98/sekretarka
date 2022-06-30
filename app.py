@@ -570,17 +570,32 @@ async def stopwatch(ctx, action: str):
         return
 
 
+search_running = False
+
+
 # command to get top 5 inactive users in the server by their last message time
 @client.command()
 async def inactive(ctx):
-    await ctx.send('Ok, poczekaj chwilę...')
+    global search_running
+    if ctx.author.name not in ('PanPajonk', 'Leylalala', 'Kidler'):
+        await ctx.send('Nie masz uprawnień do tej komendy')
+        return
+
+    if search_running:
+        await ctx.send('Już przeszukuję wiadomości, trochę cierpliwości...')
+        return
+
+    search_running = True
+    await ctx.send('Ok, poczekaj (dłuższą) chwilę...')
+
     # get all users in the server
     users = ctx.guild.members
     users_id = [user.id for user in users]
     user_last_msg_time_dict = {}
-    messages = await ctx.channel.history(limit=10000).flatten()
+    messages = await ctx.channel.history(limit=50000).flatten()
     # sort the messages by their timestamp from newest to oldest
     messages.sort(key=lambda x: x.created_at, reverse=True)
+
     for message in messages:
         # if user is not a bot, and is not yet in the dictionary
         # check if user is not yet in the dictionary and is still in the server
@@ -597,8 +612,10 @@ async def inactive(ctx):
     for user_id, last_msg_time in user_last_msg_time_dict[:5]:
         user = client.get_user(user_id)
         msg_str += f'{user.name} - {last_msg_time.strftime("%d.%m.%Y %H:%M")}\n'
+
     embed = discord.Embed(title='Najmniej aktywni użytkownicy', color=0x571E1E)
     embed.add_field(name='TOP 5', value=msg_str, inline=False)
+    search_running = False
     await ctx.send(embed=embed)
 
 
