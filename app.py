@@ -147,6 +147,9 @@ async def undo(ctx, amount=1):
 # complement command that send one random complement from predefined list
 @client.command()
 async def complement(ctx, member: discord.Member = None):
+    if ctx.channel.name not in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
+        await ctx.send(f'komendy {client.command_prefix}complement można używać tylko na kanale ﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃')
+        return
     # check for 'kobita' role in user's roles to check if the user is a female
     if member is None:
         is_female = 'kobita' in [role.name for role in ctx.author.roles]
