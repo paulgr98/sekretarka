@@ -44,27 +44,31 @@ def get_complement_list(username, is_female):
     if username == 'Leylalala':
         complements.append('Najładniejsza dziewczyna z Gliwic <:pepe_love:982328425551392828> '
                            'Oslo, niezłe dojce :smirk:')
+        complements.append('Każda cyganka się przy Tobie chowa, maleńka :hot_face:')
+        complements.append('Nic dziwnego że połowa serwera się w Tobie podkochuje :smirk:')
+        complements.append('Złamałaś więcej serc, niż Pajonk wytrychów w Skyrimie <:shy:936566489790685184>')
     if username == 'Kidler':
         complements.append('Najlepszy z adminów <:nekomata_smile:982329631501856799>')
         complements.append('Przy Tobie klapki Kubota to chuj <:kanna_love:982387887872024626>')
     if username == 'Domijka':
-        complements.append('Najładniejsza dziewczyna w Krakowie <:pepe_love:982328425551392828>')
+        complements.append('Najładniejsza dziewczyna w Krakowie (zaraz po Kalince) <:pepe_love:982328425551392828>')
         complements.append('Gdybyś była facetem, byłabyś przystojniejsza niż Adriano :hot_face:')
         complements.append('Weź idź se na pole, czy coś xDD')
         complements.append('Jesteś gorętsza niż smok wawelski :hot_face:')
-    if username == 'Ewelka':
-        complements.append('Najsłodsza dziewczyna na serwerze :heart:')
     if username == 'aniadogadania':
         complements.append('Ania do kochania :heart: UwU')
+        complements.append('Ania do zaręczania się, wzięcia ślubu i posiadania szczęśliwej rodziny :heart:')
     if username == 'Adrianoo7oo':
         complements.append('Jesteś taki hot, że sama nie wiem co powiedzieć :hot_face: :hot_face:')
     if username == 'bogel':
-        complements.append('Książe Bogel zawsze najlepszy :sunglasses:')
+        complements.append('Książe Bogel, mistrz photoshopa i wyrywania kobiet :sunglasses:')
     if username == 'bullshxt':
         complements.append('Nic dziwnego że jako jedyna wyrwałaś Leyle :hot_face:')
     if username == 'KalinkaMaja':
+        complements.append('Najładniejsza dziewczyna w Krakowie <:pepe_love:982328425551392828>')
         complements.append('Najlepsza samica w Warszawie :sunglasses: I nawet nie ma co z tym dyskutować :smirk:')
         complements.append('Królowa przed którą Pajonk się kłania :hot_face: :tired_face:')
+        complements.append('Niby stara jesteś, ale dusza i ciało, jak u 18 latki :smirk:')
     if username == 'Katinka':
         complements.append('Każdą Kasię, dobrze pcha się :smirk:')
     if username == 'Piterson':
