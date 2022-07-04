@@ -70,7 +70,7 @@ def get_complement_list(username, is_female):
     if username == 'Piterson':
         complements.append('Każdy wie że to Ty powinieneś tutaj rządzić! :heart:')
     if username == 'PanPajonk':
-        complements.append('Twoja dziewczyna jest jak pierwiastek ze 100. Solidna 10, ale urojona xD')
+        complements.append('Twoja dziewczyna jest jak pierwiastek z -100. Solidna 10, ale urojona xD')
         complements.append('Tobie już nie potrzeba komplementów przystojniaku UwU')
 
     return complements
