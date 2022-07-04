@@ -94,8 +94,12 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    message.content = message.content.lower()
-    await client.process_commands(message)
+    if message.content.startswith('$'):
+        # lower only the first part of the message
+        head = message.content.split(' ')[0]
+        tail = message.content.split(' ')[1:]
+        message.content = head.lower() + ' ' + ' '.join(tail)
+        await client.process_commands(message)
     if pajonk.is_busy:
         if f'<@{pajonk.user.id}>' in message.content:
             await message.channel.send('Prezes Pajonk obecnie jest zajęty. Spróbuj później')
@@ -619,6 +623,60 @@ async def inactive(ctx):
     await ctx.send(embed=embed)
 
 
+# command to create simple poll
+@client.command()
+async def poll(ctx, *, content: str):
+
+    def init_cap(s):
+        return s[0].upper() + s[1:]
+
+    # remove whitespaces from the beginning and end of the string
+    content = content.strip()
+    # if the string is empty, return
+    if not content:
+        await ctx.send('Nie wpisałeś treści')
+        return
+    # if the string is too long, return
+    if len(content) > 250:
+        await ctx.send('Za długa treść')
+        return
+
+    # replace whitespaces before and after ; sign
+    content = content.replace('; ', ';')
+    content = content.replace(' ;', ';')
+
+    # seprate the content into question and options (separated by ';')
+    content_list = content.split(';')
+    question = init_cap(content_list[0])
+    options = content_list[1:]
+
+    if len(options) < 2:
+        await ctx.send('Za mało odpowiedzi (min 2)')
+        return
+    if len(options) > 10:
+        await ctx.send('Za dużo odpowiedzi (max 10)')
+        return
+
+    # list of keycap numbers emojis for the options
+    number_emojis = [f"{num}\N{COMBINING ENCLOSING KEYCAP}" for num in range(1, 10)]
+
+    embed = discord.Embed(title=question, color=0x571E1E)
+    opt_str = ''
+    reactions = []
+
+    # add the options to the embed
+    for i, opt in enumerate(options):
+        opt_str += f'{number_emojis[i]} {opt}\n'
+        reactions.append(number_emojis[i])
+
+    embed.add_field(name='Odpowiedzi', value=opt_str, inline=False)
+
+    msg = await ctx.send(embed=embed)
+    # add reactions to the message
+    for reaction in reactions:
+        await msg.add_reaction(reaction)
+
+
 # help command to show all commands
 @client.command()
 async def pomoc(ctx):
@@ -665,6 +723,9 @@ async def pomoc(ctx):
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}inactive",
                     value="Wyświetla TOP 5 najmniej aktywnych użytkowników",
+                    inline=False)
+    embed.add_field(name=f"{client.command_prefix}poll [treść]; [odp1]; [odp2]; ...",
+                    value="Tworzy ankietę z podanych opcji. Treść i opcje muszą być oddzielone ;",
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}play [YT_url]",
                     value="Odtwarza utwór na podanym linku [YT_url]",
