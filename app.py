@@ -1,3 +1,5 @@
+import math
+
 import discord
 from discord.ext import commands
 import config as cfg
@@ -69,7 +71,12 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('Brak argumentu. Wpisz $pomoc żeby wyświetlić listę komend')
     elif isinstance(error, commands.CommandOnCooldown):
-        await ctx.send(f'Za szybko używasz komendy. Spróbuj znowu za {round(error.retry_after)} sekund')
+        time_left = error.retry_after
+        if time_left > 60:
+            time_left = str(math.ceil(time_left / 60)) + ' min'
+        else:
+            time_left = str(int(time_left)) + ' sek'
+        await ctx.send(f'Za szybko używasz komendy. Spróbuj znowu za {time_left}')
     elif isinstance(error, commands.MissingPermissions):
         await ctx.send('Nie masz uprawnień do tej komendy')
     elif isinstance(error, commands.BadArgument):
@@ -146,10 +153,10 @@ async def undo(ctx, amount=1):
 
 # complement command that send one random complement from predefined list
 @client.command()
+@commands.cooldown(1, 900, commands.BucketType.channel)
 async def complement(ctx, member: discord.Member = None):
-    if ctx.channel.name not in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
-        await ctx.send(f'komendy {client.command_prefix}complement można używać tylko na kanale ﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃')
-        return
+    if ctx.channel.name in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
+        complement.reset_cooldown(ctx)
     # check for 'kobita' role in user's roles to check if the user is a female
     if member is None:
         is_female = 'kobita' in [role.name for role in ctx.author.roles]
