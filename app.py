@@ -153,7 +153,7 @@ async def undo(ctx, amount=1):
 
 # complement command that send one random complement from predefined list
 @client.command()
-@commands.cooldown(1, 900, commands.BucketType.channel)
+@commands.cooldown(1, 300, commands.BucketType.channel)
 async def complement(ctx, member: discord.Member = None):
     if ctx.channel.name in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
         complement.reset_cooldown(ctx)
