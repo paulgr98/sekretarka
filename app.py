@@ -169,17 +169,20 @@ async def complement(ctx, member: discord.Member = None):
     complements = get_complement_list(member.name, is_female)
     await ctx.send(f'Komplement dla {member.mention}:\n{random.choice(complements)}')
 
-# diss command that send one ramdom diss from predefined list
+
+# diss command that send one random diss from predefined list
 @client.command()
 @commands.cooldown(1, 300, commands.BucketType.channel)
-async def diss(ctx, member: discord.Member = None):
+async def diss(ctx, member=None):
     if ctx.channel.name in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
         diss.reset_cooldown(ctx)
     # check for 'kobita' role in user's roles to check if the user is female
     if member is None:
         member = ctx.author
-        is_female = 'kobita' in [role.name for role in ctx.author.roles]
-    is_female = 'kobita' in [role.name for role in member.roles]
+    if isinstance(member, discord.Member):
+        is_female = 'kobita' in [role.name for role in member.roles]
+    else:
+        is_female = False
     disses = get_diss_list(member, is_female)
     await ctx.send(random.choice(disses))
 
@@ -651,7 +654,6 @@ async def inactive(ctx):
 # command to create simple poll
 @client.command()
 async def poll(ctx, *, content: str):
-
     def init_cap(s):
         return s[0].upper() + s[1:]
 
