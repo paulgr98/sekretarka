@@ -22,7 +22,9 @@ def get_diss_list(user, is_female):
         f'jest szkodnikiem, bo zjada ogórki',
         f'nie ma pleców',
         f'ty dzbanie',
-        f'zgasiłabym Cię, ale gówno się nie pali :/'
+        f'zgasiłabym Cię, ale gówno się nie pali :/',
+        f'ale Ci jedzie z halki xD',
+        f'jedzie Ci z pyska, jak z dupy tygryska :3'
     ]
 
     # append disses with user mention or user nickname
