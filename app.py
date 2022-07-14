@@ -18,6 +18,7 @@ from components.weather import get_current_weather, get_x_day_forecast
 from components.reddit import get_subreddit_random_hot
 from components.demotes import get_demotes
 from components.complements import get_complement_list
+from components.disses import get_diss_list
 from components.shipping import save_users_match_for_today, get_users_match_for_today
 from googletrans import Translator
 
@@ -76,7 +77,7 @@ async def on_command_error(ctx, error):
             time_left = str(math.ceil(time_left / 60)) + ' min'
         else:
             time_left = str(int(time_left)) + ' sek'
-        await ctx.send(f'Za szybko używasz komendy. Spróbuj znowu za {time_left}')
+        await ctx.send(f'Ta komenda posiada cooldown. Spróbuj znowu za {time_left}')
     elif isinstance(error, commands.MissingPermissions):
         await ctx.send('Nie masz uprawnień do tej komendy')
     elif isinstance(error, commands.BadArgument):
@@ -167,6 +168,20 @@ async def complement(ctx, member: discord.Member = None):
     is_female = 'kobita' in [role.name for role in member.roles]
     complements = get_complement_list(member.name, is_female)
     await ctx.send(f'Komplement dla {member.mention}:\n{random.choice(complements)}')
+
+# diss command that send one ramdom diss from predefined list
+@client.command()
+@commands.cooldown(1, 300, commands.BucketType.channel)
+async def diss(ctx, member: discord.Member = None):
+    if ctx.channel.name in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
+        diss.reset_cooldown(ctx)
+    # check for 'kobita' role in user's roles to check if the user is female
+    if member is None:
+        member = ctx.author
+        is_female = 'kobita' in [role.name for role in ctx.author.roles]
+    is_female = 'kobita' in [role.name for role in member.roles]
+    disses = get_diss_list(member, is_female)
+    await ctx.send(random.choice(disses))
 
 
 # the opposite of motivate command
