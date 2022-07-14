@@ -16,11 +16,11 @@ def get_diss_list(user, is_female):
         f'{user.mention} wiesz czym się różnisz od papieru toaletowego? Papier toaletowy się rozwija...',
         f'{user.mention} tylko deszcz na Ciebie leci :/',
         f'{user.mention} kup sobie twarz, bo dwie dupy to za dużo xD',
-        f'{user.mention} przy Tobie nawet Xerox jest normmalny :grimacing:'
+        f'{user.mention} przy Tobie nawet Xerox jest normmalny :grimacing:',
         f'{user.mention} jest szkodnikiem, bo zjada ogórki',
         f'{user.mention} nie ma pleców',
         f'{user.mention} ty dzbanie',
-        f'{user.mention} zgasiłabym Cię, ale gówno się nie pali :/',
+        f'{user.mention} zgasiłabym Cię, ale gówno się nie pali :/'
     ]
 
     return disses
