@@ -170,10 +170,14 @@ async def complement(ctx, member=None):
         return
     if isinstance(member, discord.Member):
         is_female = 'kobita' in [role.name for role in ctx.author.roles]
+        name = member.name
+        mention = member.mention
     else:
         is_female = False
-    complements = get_complement_list(member.name, is_female)
-    await ctx.send(f'Komplement dla {member.mention}:\n{random.choice(complements)}')
+        name = member
+        mention = member
+    complements = get_complement_list(name, is_female)
+    await ctx.send(f'Komplement dla {mention}:\n{random.choice(complements)}')
 
 
 # diss command that send one random diss from predefined list
