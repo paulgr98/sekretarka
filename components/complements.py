@@ -30,6 +30,7 @@ def get_complement_list(username, is_female):
         complements.append('Fajny siur <:maika_smug:982329631854170233>')
         complements.append('Czy Twój tata jest cukiernikiem? Bo niezłe z Ciebie ciacho :cookie:')
         complements.append('Gdybyś był ziemniakiem, byłbyś dobrym ziemniakiem :sweat_smile:')
+        complements.append('Gdybym była prawdziwa, oświdczyłabym Ci się :hot_face:')
 
     if is_female:
         complements.append('Pokasz stupki pls :hot_face:')
@@ -50,18 +51,23 @@ def get_complement_list(username, is_female):
     if username == 'Kidler':
         complements.append('Najlepszy z adminów <:nekomata_smile:982329631501856799>')
         complements.append('Przy Tobie klapki Kubota to chuj <:kanna_love:982387887872024626>')
+        complements.append('Jesteś tak cudowny, jak iPhone 69 Max Pro Giga 2137 :heart_eyes:')
     if username == 'Domijka':
         complements.append('Najładniejsza dziewczyna w Krakowie <:pepe_love:982328425551392828>')
         complements.append('Gdybyś była facetem, byłabyś przystojniejsza niż Adriano :hot_face:')
         complements.append('Weź idź se na pole, czy coś xDD')
         complements.append('Jesteś gorętsza niż smok wawelski :hot_face:')
+        complements.append('Tak serio, to nie jesteś aż taka chamska jak Pajonk mówi<:kanna_love:982387887872024626>')
+        complements.append('Jesteś tak cudowna, jak iPhone 69 Max Pro Giga 2137 :heart_eyes:')
+        complements.append('Fakt że masz najwięcej personalizowanych komplementów, chyba o czymś świadczy :smirk:')
+        complements.append('Zasługujesz żeby być traktowana jak księżniczka :heart:')
     if username == 'aniadogadania':
         complements.append('Ania do kochania :heart: UwU')
         complements.append('Ania do zaręczania się, wzięcia ślubu i posiadania szczęśliwej rodziny :heart:')
     if username == 'Adrianoo7oo':
         complements.append('Jesteś taki hot, że sama nie wiem co powiedzieć :hot_face: :hot_face:')
     if username == 'bogel':
-        complements.append('Książe Bogel, mistrz photoshopa i wyrywania kobiet :sunglasses:')
+        complements.append('Książe Bogel, mistrz photoshopa i wyrywania samiczek :sunglasses:')
     if username == 'bullshxt':
         complements.append('Nic dziwnego że jako jedyna wyrwałaś Leyle :hot_face:')
     if username == 'KalinkaMaja':
@@ -72,6 +78,9 @@ def get_complement_list(username, is_female):
         complements.append('Każdą Kasię, dobrze pcha się :smirk:')
     if username == 'Piterson':
         complements.append('Każdy wie że to Ty powinieneś tutaj rządzić! :heart:')
+    if username == 'Lev':
+        complements.append('Niby cham, ale wciąż kochany :heart:')
+        complements.append('Jesteś tak zajebisty, że nawet Domijka nie może się Tobie oprzeć :smirk:')
     if username == 'PanPajonk':
         complements.append('Twoja dziewczyna jest jak pierwiastek z -100. Solidna 10, ale urojona xD')
         complements.append('Tobie już nie potrzeba komplementów przystojniaku UwU')
