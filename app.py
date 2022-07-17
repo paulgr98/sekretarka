@@ -166,7 +166,7 @@ async def complement(ctx, member=None):
         await ctx.send(random.choice(complements))
         return
     if isinstance(member, discord.Member):
-        is_female = 'kobita' in [role.name for role in ctx.author.roles]
+        is_female = 'kobita' in [role.name for role in member.roles]
         name = member.name
         mention = member.mention
     else:
