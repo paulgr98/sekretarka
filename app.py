@@ -155,17 +155,23 @@ async def undo(ctx, amount=1):
 # complement command that send one random complement from predefined list
 @client.command()
 @commands.cooldown(1, 300, commands.BucketType.channel)
-async def complement(ctx, member: discord.Member = None):
+async def complement(ctx, member=None):
     if ctx.channel.name in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
         complement.reset_cooldown(ctx)
     # check for 'kobita' role in user's roles to check if the user is a female
     if member is None:
-        is_female = 'kobita' in [role.name for role in ctx.author.roles]
+        if isinstance(member, discord.Member):
+            is_female = 'kobita' in [role.name for role in ctx.author.roles]
+        else:
+            is_female = False
         # get complement list
         complements = get_complement_list(ctx.author.name, is_female)
         await ctx.send(random.choice(complements))
         return
-    is_female = 'kobita' in [role.name for role in member.roles]
+    if isinstance(member, discord.Member):
+        is_female = 'kobita' in [role.name for role in ctx.author.roles]
+    else:
+        is_female = False
     complements = get_complement_list(member.name, is_female)
     await ctx.send(f'Komplement dla {member.mention}:\n{random.choice(complements)}')
 
