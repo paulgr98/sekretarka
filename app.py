@@ -160,10 +160,7 @@ async def complement(ctx, member=None):
         complement.reset_cooldown(ctx)
     # check for 'kobita' role in user's roles to check if the user is a female
     if member is None:
-        if isinstance(member, discord.Member):
-            is_female = 'kobita' in [role.name for role in ctx.author.roles]
-        else:
-            is_female = False
+        is_female = 'kobita' in [role.name for role in ctx.author.roles]
         # get complement list
         complements = get_complement_list(ctx.author.name, is_female)
         await ctx.send(random.choice(complements))
