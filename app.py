@@ -165,6 +165,14 @@ async def complement(ctx, member=None):
         complements = get_complement_list(ctx.author.name, is_female)
         await ctx.send(random.choice(complements))
         return
+
+    # try cast member to discord.Member
+    try:
+        converter = commands.MemberConverter()
+        member = await converter.convert(ctx, member)
+    except commands.BadArgument:
+        pass
+
     if isinstance(member, discord.Member):
         is_female = 'kobita' in [role.name for role in member.roles]
         name = member.name
@@ -186,6 +194,15 @@ async def diss(ctx, member=None):
     # check for 'kobita' role in user's roles to check if the user is female
     if member is None:
         member = ctx.author
+
+    # try cast member to discord.Member
+    try:
+        converter = commands.MemberConverter()
+        member = await converter.convert(ctx, member)
+    except commands.BadArgument:
+        pass
+
+    # check if the member is instance of discord.Member
     if isinstance(member, discord.Member):
         is_female = 'kobita' in [role.name for role in member.roles]
     else:
