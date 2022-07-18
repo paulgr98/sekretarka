@@ -107,7 +107,8 @@ async def on_message(message):
         head = message.content.split(' ')[0]
         tail = message.content.split(' ')[1:]
         message.content = head.lower() + ' ' + ' '.join(tail)
-        await client.process_commands(message)
+        await message.channel.send("Żadna komenda nie działa, dopóki Pajonk nie dostanie dostępu do kanału 18+")
+        # await client.process_commands(message)
     if pajonk.is_busy:
         if f'<@{pajonk.user.id}>' in message.content:
             await message.channel.send('Prezes Pajonk obecnie jest zajęty. Spróbuj później')
