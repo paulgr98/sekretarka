@@ -196,11 +196,12 @@ async def diss(ctx, member=None):
         member = ctx.author
 
     # try cast member to discord.Member
-    try:
-        converter = commands.MemberConverter()
-        member = await converter.convert(ctx, member)
-    except commands.BadArgument:
-        pass
+    if not isinstance(member, discord.Member):
+        try:
+            converter = commands.MemberConverter()
+            member = await converter.convert(ctx, member)
+        except commands.BadArgument:
+            pass
 
     # check if the member is instance of discord.Member
     if isinstance(member, discord.Member):
