@@ -44,3 +44,18 @@ def get_users_match_for_today(guid_id, user_id):
         return None
     # return the match id
     return data[hash_key][user_id]
+
+
+def get_user_top_match(user_id):
+    data = get_data()
+    # search for the user id in every hash
+    ship_count_dict = {}
+    for hash_key in data:
+        if user_id in data[hash_key]:
+            ship = data[hash_key][user_id]
+            if ship not in ship_count_dict:
+                ship_count_dict[ship] = 1
+            else:
+                ship_count_dict[ship] += 1
+    # return the most common match
+    return max(ship_count_dict, key=ship_count_dict.get)

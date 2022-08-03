@@ -19,7 +19,7 @@ from components.reddit import get_subreddit_random_hot
 from components.demotes import get_demotes
 from components.complements import get_complement_list
 from components.disses import get_diss_list
-from components.shipping import save_users_match_for_today, get_users_match_for_today
+from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
 from googletrans import Translator
 import components.nameday as nd
 
@@ -351,6 +351,23 @@ async def shipme(ctx):
     # save ship to file
     save_users_match_for_today(ctx.guild.id, ctx.author.id, ship.id)
     await ctx.send(f'{ctx.author.mention} myślę, że najlepszy ship na dzisiaj dla Ciebie to... {ship.mention}!')
+
+
+# command to see your top ship from all time
+@client.command()
+async def shipstat(ctx):
+    # get list of all users in the server
+    users = ctx.guild.members
+    # get top ship for the user
+    top_ship_id = get_user_top_match(str(ctx.author.id))
+    if top_ship_id is None:
+        await ctx.send(f'{ctx.author.mention} nie ma jeszcze żadnego shipa!')
+        return
+    if top_ship_id in [u.id for u in users]:
+        top_ship = client.get_user(int(top_ship_id))
+        await ctx.send(f'{ctx.author.mention} Twój najlepszy ship od początku to... {top_ship.mention}!')
+        return
+    await ctx.send(f'{ctx.author.mention} Twojego najlepszego shipa (ID: {top_ship_id}) nie ma w serwerze :/')
 
 
 # command to get daily horoscopes for the user
