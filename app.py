@@ -740,6 +740,9 @@ async def pomoc(ctx):
     embed.add_field(name=f"{client.command_prefix}shipme",
                     value="Wyświetla ship dla Ciebie",
                     inline=False)
+    embed.add_field(name=f"{client.command_prefix}shipstat",
+                    value="Wyświetla użytkownika, z którym masz największą liczbę shipów",
+                    inline=False)
     embed.add_field(name=f"{client.command_prefix}roll [minimum=1] [maximum=6]",
                     value="Wyświetla losową liczbę między [minimum] a [maximum]",
                     inline=False)
