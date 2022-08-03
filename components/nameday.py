@@ -1,11 +1,15 @@
-import abalin_nameday
+import requests
 import json
 
-client = abalin_nameday.namedayRequestor(country='pl', timezone='Europe/Warsaw')
+country = 'pl'
+timezone = 'Europe/Warsaw'
+url = f"https://nameday.abalin.net/api/V1/today?country={country}&timezone={timezone}"
 
 
 def get_names():
-    names_string = json.loads(client.GetData())['namedays']['nameday']['pl']
+    response = requests.get(url)
+    data = json.loads(response.text)
+    names_string = data['nameday'][country]
     names_string = names_string.replace(' ', '')
     names = names_string.split(',')
     return names
