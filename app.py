@@ -21,6 +21,7 @@ from components.complements import get_complement_list
 from components.disses import get_diss_list
 from components.shipping import save_users_match_for_today, get_users_match_for_today
 from googletrans import Translator
+import components.nameday as nd
 
 # bot instance
 intents = discord.Intents.default()
@@ -484,6 +485,18 @@ async def astro(ctx, sign: str):
     embed.add_field(name='Nastrój', value=mood_pl, inline=False)
     embed.add_field(name='Kolor', value=color_pl, inline=False)
 
+    await ctx.send(embed=embed)
+
+
+# command to check for name days
+@client.command()
+async def nameday(ctx):
+    names = nd.get_names()
+    today = dt.datetime.now().strftime('%d.%m.%Y')
+    # merge names from list to string with spaces and comma between names
+    name_string = ', '.join(names)
+    embed = discord.Embed(title=f'Imieniny na dzień {today}', color=0x4CC2F5)
+    embed.add_field(name='Imieniny obchodzą: ', value=name_string, inline=False)
     await ctx.send(embed=embed)
 
 
