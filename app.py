@@ -245,93 +245,6 @@ async def rdt(ctx, subreddit: str = 'memes', limit: int = 50):
     await ctx.send(embed=embed)
 
 
-# play given YouTube video
-@client.command()
-async def play(ctx, url: str):
-    # check for existence of the song file
-    song_there = os.path.isfile("song.mp3")
-    try:
-        # remove the song file if it exists
-        if song_there:
-            os.remove("song.mp3")
-    # if exception occurs, the file is being used
-    except PermissionError:
-        await ctx.send(f"Poczekaj aż skończy się obecny utwór, and użyj '{client.command_prefix}stop'")
-        return
-
-    # check if user is in voice channel
-    if not ctx.author.voice:
-        await ctx.send('Najpierw dołącz do kanału głosowego')
-        return
-
-    # get the voice channel
-    voice_channel = ctx.author.voice.channel
-    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-    # join voice channel
-    if not voice:
-        await voice_channel.connect()
-        voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-
-    await ctx.send('Ok, poczekaj chwilę')
-    # download the song
-    try:
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([url])
-    except Exception as e:
-        await ctx.send("Nie mogę odtworzyć tego utworu")
-        logger.error(e)
-        return
-
-    # rename the song file to song.mp3
-    for file in os.listdir("./"):
-        if file.endswith(".mp3"):
-            os.rename(file, 'song.mp3')
-
-    # play the song
-    voice.play(discord.FFmpegPCMAudio("song.mp3"))
-
-
-# leave the voice channel
-@client.command()
-async def leave(ctx):
-    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-    if voice and voice.is_connected():
-        await voice.disconnect()
-    else:
-        await ctx.send('Nie ma mnie na tym kanale')
-
-
-# pause the song
-@client.command()
-async def pause(ctx):
-    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-    if voice and voice.is_playing():
-        voice.pause()
-    else:
-        await ctx.send('Nic obcenie nie gra')
-
-
-# resume paused song
-@client.command()
-async def resume(ctx):
-    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-    if voice and voice.is_paused():
-        voice.resume()
-    else:
-        await ctx.send('Nic obcenie nie jest wstrzymane')
-
-
-# stop playing the song
-@client.command()
-async def stop(ctx):
-    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-    if voice and voice.is_playing():
-        voice.pause()
-        voice.stop()
-    else:
-        await ctx.send('Nic obcenie nie gra')
-
-
 # uwuify the message above
 @client.command()
 async def uwu(ctx):
@@ -742,6 +655,36 @@ async def poll(ctx, *, content: str):
         await msg.add_reaction(reaction)
 
 
+# command to check essa level of the user
+@client.command()
+async def essa(ctx, *, member=None):
+    if member is None:
+        member = ctx.author
+
+    # try cast member to discord.Member
+    if not isinstance(member, discord.Member):
+        try:
+            converter = commands.MemberConverter()
+            member = await converter.convert(ctx, member)
+        except commands.BadArgument:
+            pass
+
+    # if member is instance of discord.Member
+    if isinstance(member, discord.Member):
+        nickname = member.name
+    else:
+        nickname = member
+
+    vowels = ['a', 'e', 'i', 'o', 'u']
+    num_of_vowels = 0
+    for letter in nickname:
+        if letter in vowels:
+            num_of_vowels += 1
+
+    essa_level = (len(nickname) ** 69 + num_of_vowels) % 100
+    await ctx.send(f'{nickname} ma {essa_level}% essy')
+
+
 # help command to show all commands
 @client.command()
 async def pomoc(ctx):
@@ -795,20 +738,8 @@ async def pomoc(ctx):
     embed.add_field(name=f"{client.command_prefix}poll [treść]; [odp1]; [odp2]; ...",
                     value="Tworzy ankietę z podanych opcji. Treść i opcje muszą być oddzielone ;",
                     inline=False)
-    embed.add_field(name=f"{client.command_prefix}play [YT_url]",
-                    value="Odtwarza utwór na podanym linku [YT_url]",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}pause",
-                    value="Wstrzymuje odtwarzanie utworu",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}resume",
-                    value="Wznawia odtwarzanie utworu",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}stop",
-                    value="Zatrzymuje odtwarzanie utworu",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}leave",
-                    value="Opuszcza kanał głosowy",
+    embed.add_field(name=f"{client.command_prefix}essa [użytkownik=None]",
+                    value="Wyświetla esse użytkownika [użytkownik] jeśli podany, lub autorowi, jeśli nie podany ",
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}uwu",
                     value="UwUalizuje wiadomość wyżej",
