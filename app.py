@@ -771,6 +771,9 @@ async def pomoc(ctx):
     embed.add_field(name=f"{client.command_prefix}astro [znak]",
                     value="Wyświetla horoskop dla znaku [znak]",
                     inline=False)
+    embed.add_field(name=f"{client.command_prefix}nameday",
+                    value="Wyświetla imieniny dla obecnego dnia",
+                    inline=False)
     embed.add_field(name=f"{client.command_prefix}wthr [miasto=Warszawa] [dni=0]",
                     value="Wyświetla prognozę pogody dla miasta [miasto], za [dni] dni",
                     inline=False)
