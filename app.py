@@ -26,7 +26,9 @@ import components.nameday as nd
 # bot instance
 intents = discord.Intents.default()
 intents.members = True
+intents.message_content = True
 client = commands.Bot(command_prefix='$', intents=intents)
+client.remove_command('help')
 
 # options for youtube_dl to download audio
 ydl_opts = {
