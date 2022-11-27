@@ -14,7 +14,7 @@ import requests
 import random
 import asyncio
 from components.uwuify import uwuify
-from components.weather import get_current_weather, get_x_day_forecast
+from components.weather import get_current_weather, get_15_day_forecast
 from components.reddit import get_subreddit_random_hot
 from components.demotes import get_demotes
 from components.complements import get_complement_list
@@ -52,10 +52,11 @@ pajonk = Usr()
 
 # logger config
 handler = logging.StreamHandler()
-formatter = logging.Formatter('[%(levelname)s at %(asctime)s]: %(message)s', '%d.%m %H:%M:%S')
-handler.setFormatter(formatter)
 logger = logging.getLogger('discord')
-logger.addHandler(handler)
+# custom logger format
+# formatter = logging.Formatter('[%(levelname)s at %(asctime)s]: %(message)s', '%d.%m %H:%M:%S')
+# handler.setFormatter(formatter)
+# logger.addHandler(handler)
 
 # astro API config
 # https://rapidapi.com/sameer.kumar/api/aztro/
@@ -146,10 +147,11 @@ async def purge(ctx, amount=2):
 async def undo(ctx, amount=1):
     await ctx.channel.purge(limit=1)
     # get last 200 messages
-    messeges = await ctx.channel.history(limit=200).flatten()
+    # messages = await ctx.channel.history(limit=200).flatten() # flatten() removed
+    messages = [msg async for msg in ctx.channel.history(limit=200)]
     # filter messages where the client is the bot
-    messages = [m for m in messeges if m.author == client.user]
-    # limit the messeages to the given amount
+    messages = [m for m in messages if m.author == client.user]
+    # limit the messages to the given amount
     messages = messages[:amount]
     # delete messages
     await ctx.channel.delete_messages(messages)
@@ -251,7 +253,8 @@ async def rdt(ctx, subreddit: str = 'memes', limit: int = 50):
 @client.command()
 async def uwu(ctx):
     # get message above command
-    message = await ctx.channel.history(limit=2).flatten()
+    # message = await ctx.channel.history(limit=2).flatten() # flatten() removed
+    message = [msg async for msg in ctx.channel.history(limit=2)]
     msg = message[1]
     uwus = ['UwU', 'OwO', '(*/ω＼*)', 'ヾ(≧▽≦*)o', '( •̀ ω •́ )✧', '（*＾-＾*）']
     await msg.reply(f"{uwuify(msg.content)} {random.choice(uwus)}")
@@ -439,8 +442,8 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
         await ctx.send(f'komendy {client.command_prefix}wthr można używać tylko na kanale ﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃')
         return
 
-    if days > 14:
-        await ctx.send('Pogodę można sprawdzić maksymalnie na 14 dni')
+    if days > 4:
+        await ctx.send('Pogodę można sprawdzić maksymalnie na 4 dni')
         return
 
     # create dictionary for each day in polish and english
@@ -448,65 +451,157 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
                 "friday": "Piątek", "saturday": "Sobota", "sunday": "Niedziela"}
 
     if days == 0:
-        current_weather_json = get_current_weather(city)
-        day_weather_json = get_x_day_forecast(city, days + 1)
-        if current_weather_json['cod'] in ['404', '400'] or day_weather_json['cod'] in ['404', '400']:
-            await ctx.send(f'Nie znaleziono miasta {city}')
-            return
+        # current_weather_json = get_current_weather(city)
+        # day_weather_json = get_x_day_forecast(city, days + 1)
+        # if current_weather_json['cod'] in [404, 400] or day_weather_json['cod'] in [404, 400]:
+        #     await ctx.send(f'Nie znaleziono miasta {city}')
+        #     return
+        # if current_weather_json['cod'] == 429:
+        #     await ctx.send('Przekroczono limit zapytań do API')
+        #     return
+        # if current_weather_json['cod'] == 401:
+        #     await ctx.send('Nieprawidłowy klucz API')
+        #     return
 
-        # get the current date
+        # # get the current date
+        # date = dt.datetime.now().strftime('%d.%m.%Y')
+        # # create day_of_week string from date
+        # day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
+        # day_of_week_pl = day_dict[day_of_week]
+        #
+        # day = day_weather_json['list'][days]
+        # description = day["weather"][0]["description"].capitalize()
+        # temp = current_weather_json["main"]["temp"]
+        # temp_min = day["temp"]["min"]
+        # temp_max = day["temp"]["max"]
+        # feels_like = current_weather_json["main"]["feels_like"]
+        # pressure = day["pressure"]
+        # humidity = day["humidity"]
+        # sunset = current_weather_json["sys"]["sunset"]
+        # sunrise = current_weather_json["sys"]["sunrise"]
+        # sunrise = dt.datetime.fromtimestamp(sunrise).strftime('%H:%M')
+        # sunset = dt.datetime.fromtimestamp(sunset).strftime('%H:%M')
+        #
+        # embed = discord.Embed(title=f'Pogoda dla {city.title()}, {date} ({day_of_week_pl})', color=0x066FBF)
+        # embed.add_field(name='Opis', value=description, inline=False)
+        # embed.add_field(name='Temperatura', value=f'Aktualna: {float(temp):.1f} °C\n '
+        #                                           f'Odczuwalna: {float(feels_like):.1f} °C\n\n'
+        #                                           f'Maksymalna: {float(temp_max):.1f} °C\n'
+        #                                           f'Minimalna: {float(temp_min):.1f} °C', inline=False)
+        # embed.add_field(name='Ciśnienie', value=f'{pressure} hPa', inline=False)
+        # embed.add_field(name='Wilgotność', value=f'{humidity}%', inline=False)
+        # embed.add_field(name='Słońce', value=f'Wschód: {sunrise}\nZachód: {sunset}', inline=False)
+        current_weather_json = get_current_weather(city)
+
+        # check if key 'cod' exists in json
+        if 'cod' in current_weather_json:
+            if current_weather_json['cod'] in [404, 400]:
+                await ctx.send(f'Nie znaleziono miasta {city}')
+                return
+            if current_weather_json['cod'] == 429:
+                await ctx.send('Przekroczono limit zapytań do API')
+                return
+            if current_weather_json['cod'] == 401:
+                await ctx.send('Nieprawidłowy klucz API')
+                return
+
+        print(current_weather_json)
+
         date = dt.datetime.now().strftime('%d.%m.%Y')
-        # create day_of_week string from date
         day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
         day_of_week_pl = day_dict[day_of_week]
 
-        day = day_weather_json['list'][days]
-        description = day["weather"][0]["description"].capitalize()
-        temp = current_weather_json["main"]["temp"]
-        temp_min = day["temp"]["min"]
-        temp_max = day["temp"]["max"]
-        feels_like = current_weather_json["main"]["feels_like"]
-        pressure = day["pressure"]
-        humidity = day["humidity"]
-        sunset = current_weather_json["sys"]["sunset"]
-        sunrise = current_weather_json["sys"]["sunrise"]
-        sunrise = dt.datetime.fromtimestamp(sunrise).strftime('%H:%M')
-        sunset = dt.datetime.fromtimestamp(sunset).strftime('%H:%M')
+        weather_text = current_weather_json['WeatherText']
+        precipitations = current_weather_json['PrecipitationType']
+        precipitations = precipitations if precipitations else 'Brak'
+        temp = current_weather_json['Temperature']['Metric']['Value']
+        feels_like = current_weather_json['RealFeelTemperature']['Metric']['Value']
+        min_temp = current_weather_json['TemperatureSummary']['Past6HourRange']['Minimum']['Metric']['Value']
+        max_temp = current_weather_json['TemperatureSummary']['Past6HourRange']['Maximum']['Metric']['Value']
+        humidity = current_weather_json['RelativeHumidity']
+        pressure = current_weather_json['Pressure']['Metric']['Value']
+        wind_speed = current_weather_json['Wind']['Speed']['Metric']['Value']
+        wind_direction = current_weather_json['Wind']['Direction']['Localized']
 
         embed = discord.Embed(title=f'Pogoda dla {city.title()}, {date} ({day_of_week_pl})', color=0x066FBF)
-        embed.add_field(name='Opis', value=description, inline=False)
+        embed.add_field(name='Opis', value=weather_text, inline=False)
         embed.add_field(name='Temperatura', value=f'Aktualna: {float(temp):.1f} °C\n '
-                                                  f'Odczuwalna: {float(feels_like):.1f} °C\n\n'
-                                                  f'Maksymalna: {float(temp_max):.1f} °C\n'
-                                                  f'Minimalna: {float(temp_min):.1f} °C', inline=False)
+                                                    f'Odczuwalna: {float(feels_like):.1f} °C', inline=False)
+        embed.add_field(name='Opady', value=precipitations, inline=False)
         embed.add_field(name='Ciśnienie', value=f'{pressure} hPa', inline=False)
         embed.add_field(name='Wilgotność', value=f'{humidity}%', inline=False)
-        embed.add_field(name='Słońce', value=f'Wschód: {sunrise}\nZachód: {sunset}', inline=False)
-
+        embed.add_field(name='Wiatr', value=f'Szybkość: {wind_speed} km/h\nKierunek: {wind_direction}', inline=False)
     else:
-        day_weather_json = get_x_day_forecast(city, days + 1)
-        if day_weather_json['cod'] in ['404', '400']:
-            await ctx.send(f'Nie znaleziono miasta {city}')
-            return
-        day = day_weather_json['list'][days]
-        date = dt.datetime.fromtimestamp(day["dt"]).strftime('%d.%m.%Y')
+        # day_weather_json = get_15_day_forecast(city)
+        # if day_weather_json['cod'] in ['404', '400']:
+        #     await ctx.send(f'Nie znaleziono miasta {city}')
+        #     return
+        # day = day_weather_json['list'][days]
+        # date = dt.datetime.fromtimestamp(day["dt"]).strftime('%d.%m.%Y')
+        # day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
+        # day_of_week_pl = day_dict[day_of_week]
+        # description = day["weather"][0]["description"].capitalize()
+        # temp_min = day["temp"]["min"]
+        # temp_max = day["temp"]["max"]
+        # pressure = day["pressure"]
+        # humidity = day["humidity"]
+        # sunrise = dt.datetime.fromtimestamp(day["sunrise"]).strftime('%H:%M')
+        # sunset = dt.datetime.fromtimestamp(day["sunset"]).strftime('%H:%M')
+        #
+        # embed = discord.Embed(title=f'Pogoda dla {city.title()}, {date} ({day_of_week_pl})', color=0x066FBF)
+        # embed.add_field(name='Opis', value=description, inline=False)
+        # embed.add_field(name='Temperatura', value=f'Maksymalna: {float(temp_max):.1f} °C\n'
+        #                                           f'Minimalna: {float(temp_min):.1f} °C', inline=False)
+        # embed.add_field(name='Ciśnienie', value=f'{pressure} hPa', inline=False)
+        # embed.add_field(name='Wilgotność', value=f'{humidity}%', inline=False)
+        # embed.add_field(name='Słońce', value=f'Wschód: {sunrise}\nZachód: {sunset}', inline=False)
+
+        day_weather_json = get_15_day_forecast(city)
+        if 'cod' in day_weather_json:
+            if day_weather_json['cod'] in [404, 400]:
+                await ctx.send(f'Nie znaleziono miasta {city}')
+                return
+            if day_weather_json['cod'] == 429:
+                await ctx.send('Przekroczono limit zapytań do API')
+                return
+            if day_weather_json['cod'] == 401:
+                await ctx.send('Nieprawidłowy klucz API')
+                return
+
+        day = day_weather_json['DailyForecasts'][days]
+
+        date = dt.datetime.fromtimestamp(day["EpochDate"]).strftime('%d.%m.%Y')
         day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
         day_of_week_pl = day_dict[day_of_week]
-        description = day["weather"][0]["description"].capitalize()
-        temp_min = day["temp"]["min"]
-        temp_max = day["temp"]["max"]
-        pressure = day["pressure"]
-        humidity = day["humidity"]
-        sunrise = dt.datetime.fromtimestamp(day["sunrise"]).strftime('%H:%M')
-        sunset = dt.datetime.fromtimestamp(day["sunset"]).strftime('%H:%M')
+
+        sun_rise = day['Sun']['Rise']
+        sun_set = day['Sun']['Set']
+        sun_rise = dt.datetime.strptime(sun_rise, '%Y-%m-%dT%H:%M:%S+01:00').strftime('%H:%M')
+        sun_set = dt.datetime.strptime(sun_set, '%Y-%m-%dT%H:%M:%S+01:00').strftime('%H:%M')
+
+        temp_min = day['Temperature']['Minimum']['Value']
+        temp_max = day['Temperature']['Maximum']['Value']
+        feels_like_min = day['RealFeelTemperature']['Minimum']['Value']
+        feels_like_max = day['RealFeelTemperature']['Maximum']['Value']
+        description = day['Day']['IconPhrase']
+        wind_speed = day['Day']['Wind']['Speed']['Value']
+        wind_direction = day['Day']['Wind']['Direction']['Localized']
+        has_precipitation = day['Day']['HasPrecipitation']
+        if has_precipitation:
+            precipitation_type = day['Day']['PrecipitationType']
+            precipitation_intensity = day['Day']['PrecipitationIntensity']
+        else:
+            precipitation_type = 'Brak opadów'
+            precipitation_intensity = ''
 
         embed = discord.Embed(title=f'Pogoda dla {city.title()}, {date} ({day_of_week_pl})', color=0x066FBF)
         embed.add_field(name='Opis', value=description, inline=False)
         embed.add_field(name='Temperatura', value=f'Maksymalna: {float(temp_max):.1f} °C\n'
-                                                  f'Minimalna: {float(temp_min):.1f} °C', inline=False)
-        embed.add_field(name='Ciśnienie', value=f'{pressure} hPa', inline=False)
-        embed.add_field(name='Wilgotność', value=f'{humidity}%', inline=False)
-        embed.add_field(name='Słońce', value=f'Wschód: {sunrise}\nZachód: {sunset}', inline=False)
+                                                    f'Minimalna: {float(temp_min):.1f} °C\n'
+                                                    f'Odczuwalna: {float(feels_like_max):.1f} °C', inline=False)
+        embed.add_field(name='Opady', value=f'{precipitation_type} {precipitation_intensity}', inline=False)
+        embed.add_field(name='Wiatr', value=f'Szybkość: {wind_speed} km/h\nKierunek: {wind_direction}', inline=False)
+        embed.add_field(name='Słońce', value=f'Wschód: {sun_rise}\nZachód: {sun_set}', inline=False)
 
     await ctx.send(embed=embed)
 
@@ -594,7 +689,8 @@ async def inactive(ctx):
     users = ctx.guild.members
     users_id = [user.id for user in users]
     user_last_msg_time_dict = {}
-    messages = await ctx.channel.history(limit=50000).flatten()
+    # messages = await ctx.channel.history(limit=50000).flatten() # flatten() removed
+    messages = [msg async for msg in ctx.channel.history(limit=50000)]
     # sort the messages by their timestamp from newest to oldest
     messages.sort(key=lambda x: x.created_at, reverse=True)
 
@@ -723,6 +819,9 @@ async def pomoc(ctx):
     embed.add_field(name=f"{client.command_prefix}complement [użytkownik=None]",
                     value="Daje komplement użytkownikowi [użytkownik] jeśli podany, lub autorowi, jeśli nie podany ",
                     inline=False)
+    embed.add_field(name=f"{client.command_prefix}diss [użytkownik=None]",
+                    value="Dissuje użytkownikowi [użytkownik] jeśli podany, lub autorowi, jeśli nie podany ",
+                    inline=False)
     embed.add_field(name=f"{client.command_prefix}demote",
                     value="Demotywuje do życia (jakby samo życie nie wystarczało)",
                     inline=False)
@@ -768,9 +867,6 @@ async def pomoc(ctx):
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}ban [użytkownik]",
                     value="Banuje użytkownika [użytkownik]",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}help",
-                    value="Wyświetla listę komend",
                     inline=False)
     await ctx.send(embed=embed)
 
