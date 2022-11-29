@@ -22,6 +22,7 @@ from components.disses import get_diss_list
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
 from googletrans import Translator
 import components.nameday as nd
+import components.cocktails_db_wrapper as cdb
 
 # bot instance
 intents = discord.Intents.default()
@@ -505,8 +506,6 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
                 await ctx.send('Nieprawidłowy klucz API')
                 return
 
-        print(current_weather_json)
-
         date = dt.datetime.now().strftime('%d.%m.%Y')
         day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
         day_of_week_pl = day_dict[day_of_week]
@@ -526,7 +525,7 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
         embed = discord.Embed(title=f'Pogoda dla {city.title()}, {date} ({day_of_week_pl})', color=0x066FBF)
         embed.add_field(name='Opis', value=weather_text, inline=False)
         embed.add_field(name='Temperatura', value=f'Aktualna: {float(temp):.1f} °C\n '
-                                                    f'Odczuwalna: {float(feels_like):.1f} °C', inline=False)
+                                                  f'Odczuwalna: {float(feels_like):.1f} °C', inline=False)
         embed.add_field(name='Opady', value=precipitations, inline=False)
         embed.add_field(name='Ciśnienie', value=f'{pressure} hPa', inline=False)
         embed.add_field(name='Wilgotność', value=f'{humidity}%', inline=False)
@@ -597,8 +596,8 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
         embed = discord.Embed(title=f'Pogoda dla {city.title()}, {date} ({day_of_week_pl})', color=0x066FBF)
         embed.add_field(name='Opis', value=description, inline=False)
         embed.add_field(name='Temperatura', value=f'Maksymalna: {float(temp_max):.1f} °C\n'
-                                                    f'Minimalna: {float(temp_min):.1f} °C\n'
-                                                    f'Odczuwalna: {float(feels_like_max):.1f} °C', inline=False)
+                                                  f'Minimalna: {float(temp_min):.1f} °C\n'
+                                                  f'Odczuwalna: {float(feels_like_max):.1f} °C', inline=False)
         embed.add_field(name='Opady', value=f'{precipitation_type} {precipitation_intensity}', inline=False)
         embed.add_field(name='Wiatr', value=f'Szybkość: {wind_speed} km/h\nKierunek: {wind_direction}', inline=False)
         embed.add_field(name='Słońce', value=f'Wschód: {sun_rise}\nZachód: {sun_set}', inline=False)
@@ -798,6 +797,54 @@ async def essa(ctx, *, member=None):
 
     essa_level = (len(nickname) ** 69 + num_of_vowels) % 100
     await ctx.send(f'{nickname} ma {essa_level}% essy')
+
+
+# command to get a random cocktail recipe or search for a specific one form thecocktaildb.com
+@client.command()
+async def drink(ctx, *, drink_name=None):
+    # if no drink_json name is given, get a random drink_json
+    cocktailsDB = cdb.CocktailsDB()
+    if drink_name is None:
+        drink_json = cocktailsDB.get_random_drink()
+    else:
+        drink_json = cocktailsDB.get_drink_by_name(drink_name)
+
+    if drink_json is None:
+        await ctx.send('Nie znaleziono drinka :/')
+        return
+
+    name = drink_json['drinks'][0]['strDrink']
+    category = drink_json['drinks'][0]['strCategory']
+    glass = drink_json['drinks'][0]['strGlass']
+    instructions = drink_json['drinks'][0]['strInstructions']
+
+    # insert new line after dot or comma in instructions if it's too long
+    image_url = drink_json['drinks'][0]['strDrinkThumb']
+
+    ingredients_and_measurements = []
+    for i in range(1, 15):
+        if drink_json['drinks'][0]['strIngredient' + str(i)]:
+            if drink_json['drinks'][0]['strMeasure' + str(i)]:
+                ingredients_and_measurements.append(
+                    f"-> {drink_json['drinks'][0]['strIngredient' + str(i)]} "
+                    f"({str(drink_json['drinks'][0]['strMeasure' + str(i)]).strip()})"
+                )
+            else:
+                ingredients_and_measurements.append(
+                    f"-> {drink_json['drinks'][0]['strIngredient' + str(i)]}"
+                )
+
+    ingredients_str = '\n'.join(ingredients_and_measurements)
+    ingredients_str.strip()
+
+    embed = discord.Embed(title=name, color=0x571E1E)
+    embed.set_thumbnail(url=image_url)
+    embed.add_field(name='Kategoria', value=category, inline=False)
+    embed.add_field(name='Szkło', value=glass, inline=False)
+    embed.add_field(name='Składniki', value=ingredients_str, inline=False)
+    embed.add_field(name='Instrukcja', value=instructions, inline=False)
+
+    await ctx.send(embed=embed)
 
 
 # help command to show all commands

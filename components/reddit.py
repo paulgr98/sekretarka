@@ -2,8 +2,6 @@ import asyncpraw
 import config as cfg
 import random
 from discord.ext import commands
-from aiohttp import ClientSession
-
 
 # reddit instance and config
 # reddit = asyncpraw.Reddit(client_id=cfg.CLIENT_ID,
@@ -37,7 +35,7 @@ async def get_subreddit_random_hot(subreddit, user, limit):
         if len(posts) == 0 or posts is None:
             raise commands.CommandError('Nie ma takiego subreddita, albo nie ma na nim obrazków :(')
 
-        # if there is more then limit number of hot posts, trim the list to limit
+        # if there is more than limit number of hot posts, trim the list to limit
         if len(posts) > limit:
             posts = posts[:limit]
 
