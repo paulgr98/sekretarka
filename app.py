@@ -885,6 +885,9 @@ async def pomoc(ctx):
     embed.add_field(name=f"{client.command_prefix}wthr [miasto=Warszawa] [dni=0]",
                     value="Wyświetla prognozę pogody dla miasta [miasto], za [dni] dni",
                     inline=False)
+    embed.add_field(name=f"{client.command_prefix}drink [nazwa drinka=None]",
+                    value="Wyświetla losowy przepis na drinka, lub konkretny, jeśli podany",
+                    inline=False)
     embed.add_field(name=f"{client.command_prefix}shipme",
                     value="Wyświetla ship dla Ciebie",
                     inline=False)
