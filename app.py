@@ -6,7 +6,6 @@ import config as cfg
 import youtube_dl
 from asyncprawcore import exceptions
 import logging
-# import streamrip
 import os
 import datetime as dt
 import time
@@ -515,8 +514,6 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
         precipitations = precipitations if precipitations else 'Brak'
         temp = current_weather_json['Temperature']['Metric']['Value']
         feels_like = current_weather_json['RealFeelTemperature']['Metric']['Value']
-        min_temp = current_weather_json['TemperatureSummary']['Past6HourRange']['Minimum']['Metric']['Value']
-        max_temp = current_weather_json['TemperatureSummary']['Past6HourRange']['Maximum']['Metric']['Value']
         humidity = current_weather_json['RelativeHumidity']
         pressure = current_weather_json['Pressure']['Metric']['Value']
         wind_speed = current_weather_json['Wind']['Speed']['Metric']['Value']
@@ -580,7 +577,6 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
 
         temp_min = day['Temperature']['Minimum']['Value']
         temp_max = day['Temperature']['Maximum']['Value']
-        feels_like_min = day['RealFeelTemperature']['Minimum']['Value']
         feels_like_max = day['RealFeelTemperature']['Maximum']['Value']
         description = day['Day']['IconPhrase']
         wind_speed = day['Day']['Wind']['Speed']['Value']
@@ -663,7 +659,6 @@ async def stopwatch(ctx, action: str):
         await ctx.message.reply('Zresetowano timer')
     else:
         await ctx.message.reply('Wpisz start, stop lub reset')
-        return
 
 
 search_running = False
@@ -803,13 +798,13 @@ async def essa(ctx, *, member=None):
 @client.command()
 async def drink(ctx, *, drink_name=None):
     # if no drink_json name is given, get a random drink_json
-    cocktailsDB = cdb.CocktailsDB()
+    cocktails_db = cdb.CocktailsDB()
     if drink_name is None:
-        drink_json = cocktailsDB.get_random_drink()
+        drink_json = cocktails_db.get_random_drink()
     else:
-        drink_json = cocktailsDB.get_drink_by_name(drink_name)
+        drink_json = cocktails_db.get_drink_by_name(drink_name)
 
-    if drink_json is None:
+    if drink_json is None or drink_json['drinks'] is None:
         await ctx.send('Nie znaleziono drinka :/')
         return
 
@@ -835,7 +830,7 @@ async def drink(ctx, *, drink_name=None):
                 )
 
     ingredients_str = '\n'.join(ingredients_and_measurements)
-    ingredients_str.strip()
+    ingredients_str = ingredients_str.strip()
 
     embed = discord.Embed(title=name, color=0x571E1E)
     embed.set_thumbnail(url=image_url)
