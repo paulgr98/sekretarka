@@ -3,15 +3,12 @@ import math
 import discord
 from discord.ext import commands
 import config as cfg
-import youtube_dl
 from asyncprawcore import exceptions
 import logging
-import os
 import datetime as dt
 import time
 import requests
 import random
-import asyncio
 from components.uwuify import uwuify
 from components.weather import get_current_weather, get_15_day_forecast
 from components.reddit import get_subreddit_random_hot
@@ -48,15 +45,15 @@ class Usr:
         self.user = None
 
 
-pajonk = Usr()
+owner = Usr()
+
+bot_channels = ['bot']
+
+female_role = 'kobita'
 
 # logger config
 handler = logging.StreamHandler()
 logger = logging.getLogger('discord')
-# custom logger format
-# formatter = logging.Formatter('[%(levelname)s at %(asctime)s]: %(message)s', '%d.%m %H:%M:%S')
-# handler.setFormatter(formatter)
-# logger.addHandler(handler)
 
 # astro API config
 # https://rapidapi.com/sameer.kumar/api/aztro/
@@ -112,9 +109,8 @@ async def on_message(message):
         tail = message.content.split(' ')[1:]
         message.content = head.lower() + ' ' + ' '.join(tail)
         await client.process_commands(message)
-    if pajonk.is_busy:
-        if f'<@{pajonk.user.id}>' in message.content:
-            await message.channel.send('Prezes Pajonk obecnie jest zajęty. Spróbuj później')
+    if owner.is_busy and f'<@{owner.user.id}>' in message.content:
+        await message.channel.send('Prezes Pajonk obecnie jest zajęty. Spróbuj później')
 
 
 # simple ping command
@@ -161,11 +157,12 @@ async def undo(ctx, amount=1):
 @client.command()
 @commands.cooldown(1, 300, commands.BucketType.channel)
 async def complement(ctx, member=None):
-    if ctx.channel.name in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
+    global bot_channels
+    if ctx.channel.name in bot_channels:
         complement.reset_cooldown(ctx)
-    # check for 'kobita' role in user's roles to check if the user is a female
+    # check for female_role role in user's roles to check if the user is a female
     if member is None:
-        is_female = 'kobita' in [role.name for role in ctx.author.roles]
+        is_female = female_role in [role.name for role in ctx.author.roles]
         # get complement list
         complements = get_complement_list(ctx.author.name, is_female)
         await ctx.send(random.choice(complements))
@@ -179,7 +176,7 @@ async def complement(ctx, member=None):
         pass
 
     if isinstance(member, discord.Member):
-        is_female = 'kobita' in [role.name for role in member.roles]
+        is_female = female_role in [role.name for role in member.roles]
         name = member.name
         mention = member.mention
     else:
@@ -194,9 +191,10 @@ async def complement(ctx, member=None):
 @client.command()
 @commands.cooldown(1, 300, commands.BucketType.channel)
 async def diss(ctx, member=None):
-    if ctx.channel.name in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
+    global bot_channels
+    if ctx.channel.name in bot_channels:
         diss.reset_cooldown(ctx)
-    # check for 'kobita' role in user's roles to check if the user is female
+    # check for female_role role in user's roles to check if the user is female
     if member is None:
         member = ctx.author
 
@@ -210,7 +208,7 @@ async def diss(ctx, member=None):
 
     # check if the member is instance of discord.Member
     if isinstance(member, discord.Member):
-        is_female = 'kobita' in [role.name for role in member.roles]
+        is_female = female_role in [role.name for role in member.roles]
     else:
         is_female = False
     disses = get_diss_list(member, is_female)
@@ -227,8 +225,9 @@ async def demote(ctx):
 # get random post from given subreddit
 @client.command()
 async def rdt(ctx, subreddit: str = 'memes', limit: int = 50):
-    if ctx.channel.name not in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
-        await ctx.send(f'komendy {client.command_prefix}rdt można używać tylko na kanale ﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃')
+    global bot_channels
+    if ctx.channel.name not in bot_channels:
+        await ctx.send(f'komendy {client.command_prefix}rdt można używać tylko na kanale do tego przeznaczonym')
         return
     try:
         post = await get_subreddit_random_hot(subreddit, ctx.author, limit)
@@ -313,10 +312,10 @@ async def on_reaction_add(reaction, user):
 @client.command()
 async def zw(ctx):
     if ctx.author.name == 'PanPajonk':
-        pajonk.is_busy = not pajonk.is_busy
-        if pajonk.user is None:
-            pajonk.user = ctx.author
-        if pajonk.is_busy:
+        owner.is_busy = not owner.is_busy
+        if owner.user is None:
+            owner.user = ctx.author
+        if owner.is_busy:
             await ctx.send('Prezes Pajonk wychodzi na ważne spotkanie')
         else:
             await ctx.send('Prezes Pajonk właśnie wrócił!')
@@ -334,11 +333,11 @@ async def shipme(ctx):
         await ctx.send(f'{ctx.author.mention} myślę, że najlepszy ship na dzisiaj dla Ciebie to... {ship.mention}!')
         return
 
-    # get list of users with role 'kobita'
+    # get list of users with role female_role
     females = []
     for u in users:
         roles = [r.name for r in u.roles]
-        if 'kobita' in roles and 'bot' not in roles:
+        if female_role in roles and 'bot' not in roles:
             females.append(u)
 
     males = []
@@ -378,12 +377,13 @@ async def shipstat(ctx):
 # command to get daily horoscopes for the user
 @client.command()
 async def astro(ctx, sign: str):
-    if ctx.channel.name not in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
-        await ctx.send(f'komendy {client.command_prefix}astro można używać tylko na kanale ﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃')
+    global bot_channels
+    if ctx.channel.name not in bot_channels:
+        await ctx.send(f'komendy {client.command_prefix}astro można używać tylko na kanale do tego przeznaczonym')
         return
 
     sign = sign.lower()
-    # signs dictonary with all signs in polish and their values in english
+    # signs dictonary with all signs in Polish and their values in English
     sign_dict = {'baran': 'aries', 'byk': 'taurus', 'bliźnięta': 'gemini', 'rak': 'cancer', 'lew': 'leo',
                  'panna': 'virgo', 'waga': 'libra', 'skorpion': 'scorpio', 'strzelec': 'sagittarius',
                  'koziorożec': 'capricorn', 'wodnik': 'aquarius', 'ryby': 'pisces'}
@@ -393,8 +393,8 @@ async def astro(ctx, sign: str):
     if sign in sign_dict.keys():
         sign_eng = sign_dict[sign]
     else:
-        awailable_signs = ', '.join(sign_dict.keys())
-        await ctx.send(f'Nie ma takiego znaku \nDostępne znaki: \n{awailable_signs}')
+        available_signs = ', '.join(sign_dict.keys())
+        await ctx.send(f'Nie ma takiego znaku \nDostępne znaki: \n{available_signs}')
         return
 
     # get the horoscope from the API
@@ -438,72 +438,24 @@ async def nameday(ctx):
 # command to get weather forecast for the given city
 @client.command()
 async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
-    if ctx.channel.name not in ('﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃', 'bot'):
-        await ctx.send(f'komendy {client.command_prefix}wthr można używać tylko na kanale ﹄𝕂𝕠𝕞𝕖𝕟𝕕𝕪﹃')
+    global bot_channels
+    if ctx.channel.name not in bot_channels:
+        await ctx.send(f'komendy {client.command_prefix}wthr można używać tylko na kanale do tego przeznaczonym')
         return
 
     if days > 4:
         await ctx.send('Pogodę można sprawdzić maksymalnie na 4 dni')
         return
 
-    # create dictionary for each day in polish and english
+    # create dictionary for each day in Polish and English
     day_dict = {"monday": "Poniedziałek", "tuesday": "Wtorek", "wednesday": "Środa", "thursday": "Czwartek",
                 "friday": "Piątek", "saturday": "Sobota", "sunday": "Niedziela"}
 
     if days == 0:
-        # current_weather_json = get_current_weather(city)
-        # day_weather_json = get_x_day_forecast(city, days + 1)
-        # if current_weather_json['cod'] in [404, 400] or day_weather_json['cod'] in [404, 400]:
-        #     await ctx.send(f'Nie znaleziono miasta {city}')
-        #     return
-        # if current_weather_json['cod'] == 429:
-        #     await ctx.send('Przekroczono limit zapytań do API')
-        #     return
-        # if current_weather_json['cod'] == 401:
-        #     await ctx.send('Nieprawidłowy klucz API')
-        #     return
-
-        # # get the current date
-        # date = dt.datetime.now().strftime('%d.%m.%Y')
-        # # create day_of_week string from date
-        # day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
-        # day_of_week_pl = day_dict[day_of_week]
-        #
-        # day = day_weather_json['list'][days]
-        # description = day["weather"][0]["description"].capitalize()
-        # temp = current_weather_json["main"]["temp"]
-        # temp_min = day["temp"]["min"]
-        # temp_max = day["temp"]["max"]
-        # feels_like = current_weather_json["main"]["feels_like"]
-        # pressure = day["pressure"]
-        # humidity = day["humidity"]
-        # sunset = current_weather_json["sys"]["sunset"]
-        # sunrise = current_weather_json["sys"]["sunrise"]
-        # sunrise = dt.datetime.fromtimestamp(sunrise).strftime('%H:%M')
-        # sunset = dt.datetime.fromtimestamp(sunset).strftime('%H:%M')
-        #
-        # embed = discord.Embed(title=f'Pogoda dla {city.title()}, {date} ({day_of_week_pl})', color=0x066FBF)
-        # embed.add_field(name='Opis', value=description, inline=False)
-        # embed.add_field(name='Temperatura', value=f'Aktualna: {float(temp):.1f} °C\n '
-        #                                           f'Odczuwalna: {float(feels_like):.1f} °C\n\n'
-        #                                           f'Maksymalna: {float(temp_max):.1f} °C\n'
-        #                                           f'Minimalna: {float(temp_min):.1f} °C', inline=False)
-        # embed.add_field(name='Ciśnienie', value=f'{pressure} hPa', inline=False)
-        # embed.add_field(name='Wilgotność', value=f'{humidity}%', inline=False)
-        # embed.add_field(name='Słońce', value=f'Wschód: {sunrise}\nZachód: {sunset}', inline=False)
         current_weather_json = get_current_weather(city)
 
-        # check if key 'cod' exists in json
-        if 'cod' in current_weather_json:
-            if current_weather_json['cod'] in [404, 400]:
-                await ctx.send(f'Nie znaleziono miasta {city}')
-                return
-            if current_weather_json['cod'] == 429:
-                await ctx.send('Przekroczono limit zapytań do API')
-                return
-            if current_weather_json['cod'] == 401:
-                await ctx.send('Nieprawidłowy klucz API')
-                return
+        # handle errors
+        wthr_handle_errors(ctx, current_weather_json, city)
 
         date = dt.datetime.now().strftime('%d.%m.%Y')
         day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
@@ -528,41 +480,8 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
         embed.add_field(name='Wilgotność', value=f'{humidity}%', inline=False)
         embed.add_field(name='Wiatr', value=f'Szybkość: {wind_speed} km/h\nKierunek: {wind_direction}', inline=False)
     else:
-        # day_weather_json = get_15_day_forecast(city)
-        # if day_weather_json['cod'] in ['404', '400']:
-        #     await ctx.send(f'Nie znaleziono miasta {city}')
-        #     return
-        # day = day_weather_json['list'][days]
-        # date = dt.datetime.fromtimestamp(day["dt"]).strftime('%d.%m.%Y')
-        # day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
-        # day_of_week_pl = day_dict[day_of_week]
-        # description = day["weather"][0]["description"].capitalize()
-        # temp_min = day["temp"]["min"]
-        # temp_max = day["temp"]["max"]
-        # pressure = day["pressure"]
-        # humidity = day["humidity"]
-        # sunrise = dt.datetime.fromtimestamp(day["sunrise"]).strftime('%H:%M')
-        # sunset = dt.datetime.fromtimestamp(day["sunset"]).strftime('%H:%M')
-        #
-        # embed = discord.Embed(title=f'Pogoda dla {city.title()}, {date} ({day_of_week_pl})', color=0x066FBF)
-        # embed.add_field(name='Opis', value=description, inline=False)
-        # embed.add_field(name='Temperatura', value=f'Maksymalna: {float(temp_max):.1f} °C\n'
-        #                                           f'Minimalna: {float(temp_min):.1f} °C', inline=False)
-        # embed.add_field(name='Ciśnienie', value=f'{pressure} hPa', inline=False)
-        # embed.add_field(name='Wilgotność', value=f'{humidity}%', inline=False)
-        # embed.add_field(name='Słońce', value=f'Wschód: {sunrise}\nZachód: {sunset}', inline=False)
-
         day_weather_json = get_15_day_forecast(city)
-        if 'cod' in day_weather_json:
-            if day_weather_json['cod'] in [404, 400]:
-                await ctx.send(f'Nie znaleziono miasta {city}')
-                return
-            if day_weather_json['cod'] == 429:
-                await ctx.send('Przekroczono limit zapytań do API')
-                return
-            if day_weather_json['cod'] == 401:
-                await ctx.send('Nieprawidłowy klucz API')
-                return
+        wthr_handle_errors(ctx, day_weather_json, city)
 
         day = day_weather_json['DailyForecasts'][days]
 
@@ -599,6 +518,18 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
         embed.add_field(name='Słońce', value=f'Wschód: {sun_rise}\nZachód: {sun_set}', inline=False)
 
     await ctx.send(embed=embed)
+
+
+def wthr_handle_errors(ctx, wthr_json, city):
+    if 'cod' in wthr_json:
+        if wthr_json['cod'] in [404, 400]:
+            await ctx.send(f'Nie znaleziono miasta {city}')
+            return
+        if wthr_json['cod'] == 429:
+            await ctx.send('Przekroczono limit zapytań do API')
+            return
+        if wthr_json['cod'] == 401:
+            await ctx.send('Nieprawidłowy klucz API')
 
 
 # command to get random number between given range
@@ -668,7 +599,8 @@ search_running = False
 @client.command()
 async def inactive(ctx):
     global search_running
-    if ctx.author.name not in ('PanPajonk', 'Leylalala', 'Kidler'):
+    users_can_run = ['PanPajonk']
+    if ctx.author.name not in users_can_run:
         await ctx.send('Nie masz uprawnień do tej komendy')
         return
 
@@ -683,7 +615,6 @@ async def inactive(ctx):
     users = ctx.guild.members
     users_id = [user.id for user in users]
     user_last_msg_time_dict = {}
-    # messages = await ctx.channel.history(limit=50000).flatten() # flatten() removed
     messages = [msg async for msg in ctx.channel.history(limit=50000)]
     # sort the messages by their timestamp from newest to oldest
     messages.sort(key=lambda x: x.created_at, reverse=True)
