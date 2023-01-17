@@ -13,12 +13,13 @@ from components.uwuify import uwuify
 from components.weather import get_current_weather, get_15_day_forecast
 from components.reddit import get_subreddit_random_hot
 from components.demotes import get_demotes
-from components.complements import get_complement_list
+from components.compliments import get_compliment_list
 from components.disses import get_diss_list
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
 from googletrans import Translator
 import components.nameday as nd
 import components.cocktails_db_wrapper as cdb
+from components import epic_free_games as epic
 
 # bot instance
 intents = discord.Intents.default()
@@ -153,19 +154,19 @@ async def undo(ctx, amount=1):
     await ctx.channel.delete_messages(messages)
 
 
-# complement command that send one random complement from predefined list
+# compliment command that send one random compliment from predefined list
 @client.command()
 @commands.cooldown(1, 300, commands.BucketType.channel)
-async def complement(ctx, member=None):
+async def compliment(ctx, member=None):
     global bot_channels
     if ctx.channel.name in bot_channels:
-        complement.reset_cooldown(ctx)
+        compliment.reset_cooldown(ctx)
     # check for female_role role in user's roles to check if the user is a female
     if member is None:
         is_female = female_role in [role.name for role in ctx.author.roles]
-        # get complement list
-        complements = get_complement_list(ctx.author.name, is_female)
-        await ctx.send(random.choice(complements))
+        # get compliment list
+        compliments = get_compliment_list(ctx.author.name, is_female)
+        await ctx.send(random.choice(compliments))
         return
 
     # try cast member to discord.Member
@@ -183,8 +184,8 @@ async def complement(ctx, member=None):
         is_female = False
         name = member
         mention = member
-    complements = get_complement_list(name, is_female)
-    await ctx.send(f'Komplement dla {mention}:\n{random.choice(complements)}')
+    compliments = get_compliment_list(name, is_female)
+    await ctx.send(f'Komplement dla {mention}:\n{random.choice(compliments)}')
 
 
 # diss command that send one random diss from predefined list
@@ -455,7 +456,7 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
         current_weather_json = get_current_weather(city)
 
         # handle errors
-        wthr_handle_errors(ctx, current_weather_json, city)
+        await wthr_handle_errors(ctx, current_weather_json, city)
 
         date = dt.datetime.now().strftime('%d.%m.%Y')
         day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
@@ -481,7 +482,7 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
         embed.add_field(name='Wiatr', value=f'Szybkość: {wind_speed} km/h\nKierunek: {wind_direction}', inline=False)
     else:
         day_weather_json = get_15_day_forecast(city)
-        wthr_handle_errors(ctx, day_weather_json, city)
+        await wthr_handle_errors(ctx, day_weather_json, city)
 
         day = day_weather_json['DailyForecasts'][days]
 
@@ -520,7 +521,7 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
     await ctx.send(embed=embed)
 
 
-def wthr_handle_errors(ctx, wthr_json, city):
+async def wthr_handle_errors(ctx, wthr_json, city):
     if 'cod' in wthr_json:
         if wthr_json['cod'] in [404, 400]:
             await ctx.send(f'Nie znaleziono miasta {city}')
@@ -773,6 +774,28 @@ async def drink(ctx, *, drink_name=None):
     await ctx.send(embed=embed)
 
 
+# free epic store games
+@client.command()
+async def free(ctx, period='current'):
+    try:
+        free_games = epic.get_free_games(period)
+    except ValueError:
+        await ctx.send('Niepoprawny okres. Możliwe wartości: current, upcoming')
+        return
+    for game in free_games:
+        embed = discord.Embed(title=game['title'], color=0x571E1E)
+        embed.set_thumbnail(url=game['keyImages'][2]['url'])
+        embed.add_field(name='Opis', value=game['description'], inline=False)
+        scope = 'promotionalOffers' if period == 'current' else 'upcomingPromotionalOffers'
+        from_time_raw = game['promotions'][scope][0]['promotionalOffers'][0]['startDate']
+        from_time = dt.datetime.strptime(from_time_raw, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%d.%m.%Y %H:%M')
+        embed.add_field(name='Od', value=from_time, inline=False)
+        to_time_raw = game['promotions'][scope][0]['promotionalOffers'][0]['endDate']
+        to_time = dt.datetime.strptime(to_time_raw, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%d.%m.%Y %H:%M')
+        embed.add_field(name='Do', value=to_time, inline=False)
+        await ctx.send(embed=embed)
+
+
 # help command to show all commands
 @client.command()
 async def pomoc(ctx):
@@ -789,7 +812,7 @@ async def pomoc(ctx):
     embed.add_field(name=f"{client.command_prefix}undo [ilość=1]",
                     value="Usuwa [ilość] ostatnich wiadomości bota. Domyślnie, bez podawania jawnie, ilość=1",
                     inline=False)
-    embed.add_field(name=f"{client.command_prefix}complement [użytkownik=None]",
+    embed.add_field(name=f"{client.command_prefix}compliment [użytkownik=None]",
                     value="Daje komplement użytkownikowi [użytkownik] jeśli podany, lub autorowi, jeśli nie podany ",
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}diss [użytkownik=None]",
@@ -813,6 +836,10 @@ async def pomoc(ctx):
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}drink [nazwa drinka=None]",
                     value="Wyświetla losowy przepis na drinka, lub konkretny, jeśli podany",
+                    inline=False)
+    embed.add_field(name=f"{client.command_prefix}free [okres=current]",
+                    value="Wyświetla listę darmowych gier z Epic Games Store, w okresie [okres]. Możliwe wartości: "
+                            "current, upcoming",
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}shipme",
                     value="Wyświetla ship dla Ciebie",
