@@ -9,6 +9,7 @@ import datetime as dt
 import time
 import requests
 import random
+from urllib.error import HTTPError
 from components.uwuify import uwuify
 from components.weather import get_current_weather, get_15_day_forecast
 from components.reddit import get_subreddit_random_hot
@@ -20,6 +21,7 @@ from googletrans import Translator
 import components.nameday as nd
 import components.cocktails_db_wrapper as cdb
 from components import epic_free_games as epic
+from components.tenor import Tenor
 
 # bot instance
 intents = discord.Intents.default()
@@ -796,6 +798,26 @@ async def free(ctx, period='current'):
         await ctx.send(embed=embed)
 
 
+async def send_gif(ctx: commands.Context, *search_query: str, is_random: bool = True):
+    query = ' '.join(search_query)
+    tenor = Tenor()
+    gif = tenor.get_gif(query, random=is_random)
+    if gif is None or gif == '':
+        await ctx.send(f'{ctx.author.mention}, nie znaleziono GIFa :/')
+        return
+    await ctx.send(f'{ctx.author.mention} {gif}')
+
+
+@client.command('gif')
+async def send_random_gif(ctx: commands.Context, *search_query: str):
+    await send_gif(ctx, *search_query, is_random=True)
+
+
+@client.command('topgif')
+async def send_top_gif(ctx: commands.Context, *search_query: str):
+    await send_gif(ctx, *search_query, is_random=False)
+
+
 # help command to show all commands
 @client.command()
 async def pomoc(ctx):
@@ -839,7 +861,13 @@ async def pomoc(ctx):
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}free [okres=current]",
                     value="Wyświetla listę darmowych gier z Epic Games Store, w okresie [okres]. Możliwe wartości: "
-                            "current, upcoming",
+                          "current, upcoming",
+                    inline=False)
+    embed.add_field(name=f"{client.command_prefix}gif [fraza]",
+                    value="Wyświetla losowy GIF z frazą [fraza]",
+                    inline=False)
+    embed.add_field(name=f"{client.command_prefix}topgif [fraza]",
+                    value="Wyświetla najpopularniejszy GIF z frazą [fraza]",
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}shipme",
                     value="Wyświetla ship dla Ciebie",
