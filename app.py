@@ -9,7 +9,6 @@ import datetime as dt
 import time
 import requests
 import random
-from urllib.error import HTTPError
 from components.uwuify import uwuify
 from components.weather import get_current_weather, get_15_day_forecast
 from components.reddit import get_subreddit_random_hot
@@ -22,6 +21,7 @@ import components.nameday as nd
 import components.cocktails_db_wrapper as cdb
 from components import epic_free_games as epic
 from components.tenor import Tenor
+from components import converters as conv
 
 # bot instance
 intents = discord.Intents.default()
@@ -818,6 +818,26 @@ async def send_top_gif(ctx: commands.Context, *search_query: str):
     await send_gif(ctx, *search_query, is_random=False)
 
 
+@client.command('convert')
+async def convert(ctx: commands.Context, method: str, *args: str):
+    text = ' '.join(args)
+    match method:
+        case 's2b':
+            await ctx.reply(conv.str_to_binary(text))
+        case 'b2s':
+            await ctx.reply(conv.binary_to_str(text))
+        case 's2h':
+            await ctx.reply(conv.str_to_hex(text))
+        case 'h2s':
+            await ctx.reply(conv.hex_to_str(text))
+        case 's2b64':
+            await ctx.reply(conv.str_to_base64(text))
+        case 'b642s':
+            await ctx.reply(conv.base64_to_str(text))
+        case _:
+            await ctx.reply('Niepoprawna metoda konwersji. Możliwe wartości: s2b, b2s, s2h, h2s, s2b64, b642s')
+
+
 # help command to show all commands
 @client.command()
 async def pomoc(ctx):
@@ -892,6 +912,10 @@ async def pomoc(ctx):
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}essa [użytkownik=None]",
                     value="Wyświetla esse użytkownika [użytkownik] jeśli podany, lub autorowi, jeśli nie podany ",
+                    inline=False)
+    embed.add_field(name=f"{client.command_prefix}convert [metoda] [tekst]",
+                    value="Konwertuje tekst [tekst] metodą [metoda]. Możliwe wartości: "
+                    "s2b, b2s, s2h, h2s, s2b64, b642s",
                     inline=False)
     embed.add_field(name=f"{client.command_prefix}uwu",
                     value="UwUalizuje wiadomość wyżej",
