@@ -1,5 +1,3 @@
-import math
-
 import discord
 from discord.ext import commands
 import config as cfg
@@ -7,21 +5,26 @@ from asyncprawcore import exceptions
 import logging
 import datetime as dt
 import time
-import requests
 import random
+import math
+
+
 from components.uwuify import uwuify
-from components.weather import get_current_weather, get_15_day_forecast
 from components.reddit import get_subreddit_random_hot
 from components.demotes import get_demotes
 from components.compliments import get_compliment_list
 from components.disses import get_diss_list
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
-from googletrans import Translator
-import components.nameday as nd
-import components.cocktails_db_wrapper as cdb
+from components import nameday as nd
+from components import tenor
 from components import epic_free_games as epic
-from components.tenor import Tenor
-from components import converters as conv
+
+from commands import help
+from commands import converter
+from commands import free
+from commands import drink
+from commands import weather
+from commands import astrology
 
 # bot instance
 intents = discord.Intents.default()
@@ -57,14 +60,6 @@ female_role = 'kobita'
 # logger config
 handler = logging.StreamHandler()
 logger = logging.getLogger('discord')
-
-# astro API config
-# https://rapidapi.com/sameer.kumar/api/aztro/
-astro_api = "https://sameer-kumar-aztro-v1.p.rapidapi.com/"
-astro_api_headers = {
-    "X-RapidAPI-Key": cfg.RAPID_API_KEY,
-}
-
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -173,8 +168,8 @@ async def compliment(ctx, member=None):
 
     # try cast member to discord.Member
     try:
-        converter = commands.MemberConverter()
-        member = await converter.convert(ctx, member)
+        member_converter = commands.MemberConverter()
+        member = await member_converter.convert(ctx, member)
     except commands.BadArgument:
         pass
 
@@ -204,8 +199,8 @@ async def diss(ctx, member=None):
     # try cast member to discord.Member
     if not isinstance(member, discord.Member):
         try:
-            converter = commands.MemberConverter()
-            member = await converter.convert(ctx, member)
+            member_converter = commands.MemberConverter()
+            member = await member_converter.convert(ctx, member)
         except commands.BadArgument:
             pass
 
@@ -385,45 +380,12 @@ async def astro(ctx, sign: str):
         await ctx.send(f'komendy {client.command_prefix}astro można używać tylko na kanale do tego przeznaczonym')
         return
 
-    sign = sign.lower()
-    # signs dictonary with all signs in Polish and their values in English
-    sign_dict = {'baran': 'aries', 'byk': 'taurus', 'bliźnięta': 'gemini', 'rak': 'cancer', 'lew': 'leo',
-                 'panna': 'virgo', 'waga': 'libra', 'skorpion': 'scorpio', 'strzelec': 'sagittarius',
-                 'koziorożec': 'capricorn', 'wodnik': 'aquarius', 'ryby': 'pisces'}
-    sign_dict_reversed = {v: k for k, v in sign_dict.items()}
-
-    # check if the sign is in the dictonary
-    if sign in sign_dict.keys():
-        sign_eng = sign_dict[sign]
-    else:
-        available_signs = ', '.join(sign_dict.keys())
-        await ctx.send(f'Nie ma takiego znaku \nDostępne znaki: \n{available_signs}')
+    try:
+        embed = astrology.make_astrology_embed(sign)
+        await ctx.send(embed=embed)
+    except astrology.NoSignException as e:
+        await ctx.send(e)
         return
-
-    # get the horoscope from the API
-    querystring = {"sign": sign_eng, "day": "today"}
-    response = requests.request("POST", astro_api, headers=astro_api_headers, params=querystring)
-
-    # tramslate the horoscope to polish
-    translator = Translator()
-    description = response.json()['description']
-    description_pl = translator.translate(description, src='en', dest='pl').text
-    mood = response.json()['mood']
-    mood_pl = f"{translator.translate(mood, src='en', dest='pl').text} ({mood})"
-    color_pl = translator.translate(response.json()['color'], src='en', dest='pl').text
-    comp = response.json()['compatibility'].lower()
-    comp_pl = sign_dict_reversed[comp]
-
-    # create the embed with the horoscope
-    today = dt.datetime.now().strftime('%d.%m.%Y')
-    embed = discord.Embed(title=f'{sign.upper()} {today}', color=0x5D37E6)
-    embed.add_field(name='Opis', value=f'EN:\n{description}\n\nPL:\n{description_pl}', inline=False)
-    embed.add_field(name='Kompatybilność', value=str(comp_pl).capitalize(), inline=False)
-    embed.add_field(name='Szczęśliwa liczba', value=response.json()['lucky_number'], inline=False)
-    embed.add_field(name='Nastrój', value=mood_pl, inline=False)
-    embed.add_field(name='Kolor', value=color_pl, inline=False)
-
-    await ctx.send(embed=embed)
 
 
 # command to check for name days
@@ -450,89 +412,11 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
         await ctx.send('Pogodę można sprawdzić maksymalnie na 4 dni')
         return
 
-    # create dictionary for each day in Polish and English
-    day_dict = {"monday": "Poniedziałek", "tuesday": "Wtorek", "wednesday": "Środa", "thursday": "Czwartek",
-                "friday": "Piątek", "saturday": "Sobota", "sunday": "Niedziela"}
-
-    if days == 0:
-        current_weather_json = get_current_weather(city)
-
-        # handle errors
-        await wthr_handle_errors(ctx, current_weather_json, city)
-
-        date = dt.datetime.now().strftime('%d.%m.%Y')
-        day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
-        day_of_week_pl = day_dict[day_of_week]
-
-        weather_text = current_weather_json['WeatherText']
-        precipitations = current_weather_json['PrecipitationType']
-        precipitations = precipitations if precipitations else 'Brak'
-        temp = current_weather_json['Temperature']['Metric']['Value']
-        feels_like = current_weather_json['RealFeelTemperature']['Metric']['Value']
-        humidity = current_weather_json['RelativeHumidity']
-        pressure = current_weather_json['Pressure']['Metric']['Value']
-        wind_speed = current_weather_json['Wind']['Speed']['Metric']['Value']
-        wind_direction = current_weather_json['Wind']['Direction']['Localized']
-
-        embed = discord.Embed(title=f'Pogoda dla {city.title()}, {date} ({day_of_week_pl})', color=0x066FBF)
-        embed.add_field(name='Opis', value=weather_text, inline=False)
-        embed.add_field(name='Temperatura', value=f'Aktualna: {float(temp):.1f} °C\n '
-                                                  f'Odczuwalna: {float(feels_like):.1f} °C', inline=False)
-        embed.add_field(name='Opady', value=precipitations, inline=False)
-        embed.add_field(name='Ciśnienie', value=f'{pressure} hPa', inline=False)
-        embed.add_field(name='Wilgotność', value=f'{humidity}%', inline=False)
-        embed.add_field(name='Wiatr', value=f'Szybkość: {wind_speed} km/h\nKierunek: {wind_direction}', inline=False)
-    else:
-        day_weather_json = get_15_day_forecast(city)
-        await wthr_handle_errors(ctx, day_weather_json, city)
-
-        day = day_weather_json['DailyForecasts'][days]
-
-        date = dt.datetime.fromtimestamp(day["EpochDate"]).strftime('%d.%m.%Y')
-        day_of_week = dt.datetime.strptime(date, '%d.%m.%Y').strftime('%A').lower()
-        day_of_week_pl = day_dict[day_of_week]
-
-        sun_rise = day['Sun']['Rise']
-        sun_set = day['Sun']['Set']
-        sun_rise = dt.datetime.strptime(sun_rise, '%Y-%m-%dT%H:%M:%S+01:00').strftime('%H:%M')
-        sun_set = dt.datetime.strptime(sun_set, '%Y-%m-%dT%H:%M:%S+01:00').strftime('%H:%M')
-
-        temp_min = day['Temperature']['Minimum']['Value']
-        temp_max = day['Temperature']['Maximum']['Value']
-        feels_like_max = day['RealFeelTemperature']['Maximum']['Value']
-        description = day['Day']['IconPhrase']
-        wind_speed = day['Day']['Wind']['Speed']['Value']
-        wind_direction = day['Day']['Wind']['Direction']['Localized']
-        has_precipitation = day['Day']['HasPrecipitation']
-        if has_precipitation:
-            precipitation_type = day['Day']['PrecipitationType']
-            precipitation_intensity = day['Day']['PrecipitationIntensity']
-        else:
-            precipitation_type = 'Brak opadów'
-            precipitation_intensity = ''
-
-        embed = discord.Embed(title=f'Pogoda dla {city.title()}, {date} ({day_of_week_pl})', color=0x066FBF)
-        embed.add_field(name='Opis', value=description, inline=False)
-        embed.add_field(name='Temperatura', value=f'Maksymalna: {float(temp_max):.1f} °C\n'
-                                                  f'Minimalna: {float(temp_min):.1f} °C\n'
-                                                  f'Odczuwalna: {float(feels_like_max):.1f} °C', inline=False)
-        embed.add_field(name='Opady', value=f'{precipitation_type} {precipitation_intensity}', inline=False)
-        embed.add_field(name='Wiatr', value=f'Szybkość: {wind_speed} km/h\nKierunek: {wind_direction}', inline=False)
-        embed.add_field(name='Słońce', value=f'Wschód: {sun_rise}\nZachód: {sun_set}', inline=False)
-
-    await ctx.send(embed=embed)
-
-
-async def wthr_handle_errors(ctx, wthr_json, city):
-    if 'cod' in wthr_json:
-        if wthr_json['cod'] in [404, 400]:
-            await ctx.send(f'Nie znaleziono miasta {city}')
-            return
-        if wthr_json['cod'] == 429:
-            await ctx.send('Przekroczono limit zapytań do API')
-            return
-        if wthr_json['cod'] == 401:
-            await ctx.send('Nieprawidłowy klucz API')
+    try:
+        embed = weather.make_weather_embed(city, days)
+        await ctx.send(embed=embed)
+    except weather.WeatherException as e:
+        await ctx.send(e)
 
 
 # command to get random number between given range
@@ -707,8 +591,8 @@ async def essa(ctx, *, member=None):
     # try cast member to discord.Member
     if not isinstance(member, discord.Member):
         try:
-            converter = commands.MemberConverter()
-            member = await converter.convert(ctx, member)
+            member_converter = commands.MemberConverter()
+            member = await member_converter.convert(ctx, member)
         except commands.BadArgument:
             pass
 
@@ -730,78 +614,32 @@ async def essa(ctx, *, member=None):
 
 # command to get a random cocktail recipe or search for a specific one form thecocktaildb.com
 @client.command()
-async def drink(ctx, *, drink_name=None):
-    # if no drink_json name is given, get a random drink_json
-    cocktails_db = cdb.CocktailsDB()
-    if drink_name is None:
-        drink_json = cocktails_db.get_random_drink()
-    else:
-        drink_json = cocktails_db.get_drink_by_name(drink_name)
-
-    if drink_json is None or drink_json['drinks'] is None:
+async def drink(ctx: commands.Context, *drink_name: str):
+    name = ' '.join(drink_name)
+    embed = drink.make_drink_embed(name)
+    if embed is None:
         await ctx.send('Nie znaleziono drinka :/')
         return
-
-    name = drink_json['drinks'][0]['strDrink']
-    category = drink_json['drinks'][0]['strCategory']
-    glass = drink_json['drinks'][0]['strGlass']
-    instructions = drink_json['drinks'][0]['strInstructions']
-
-    # insert new line after dot or comma in instructions if it's too long
-    image_url = drink_json['drinks'][0]['strDrinkThumb']
-
-    ingredients_and_measurements = []
-    for i in range(1, 15):
-        if drink_json['drinks'][0]['strIngredient' + str(i)]:
-            if drink_json['drinks'][0]['strMeasure' + str(i)]:
-                ingredients_and_measurements.append(
-                    f"-> {drink_json['drinks'][0]['strIngredient' + str(i)]} "
-                    f"({str(drink_json['drinks'][0]['strMeasure' + str(i)]).strip()})"
-                )
-            else:
-                ingredients_and_measurements.append(
-                    f"-> {drink_json['drinks'][0]['strIngredient' + str(i)]}"
-                )
-
-    ingredients_str = '\n'.join(ingredients_and_measurements)
-    ingredients_str = ingredients_str.strip()
-
-    embed = discord.Embed(title=name, color=0x571E1E)
-    embed.set_thumbnail(url=image_url)
-    embed.add_field(name='Kategoria', value=category, inline=False)
-    embed.add_field(name='Szkło', value=glass, inline=False)
-    embed.add_field(name='Składniki', value=ingredients_str, inline=False)
-    embed.add_field(name='Instrukcja', value=instructions, inline=False)
-
     await ctx.send(embed=embed)
 
 
 # free epic store games
 @client.command()
-async def free(ctx, period='current'):
+async def free(ctx: commands.Context, period: str = 'current'):
     try:
         free_games = epic.get_free_games(period)
     except ValueError:
         await ctx.send('Niepoprawny okres. Możliwe wartości: current, upcoming')
         return
     for game in free_games:
-        embed = discord.Embed(title=game['title'], color=0x571E1E)
-        embed.set_thumbnail(url=game['keyImages'][2]['url'])
-        embed.add_field(name='Opis', value=game['description'], inline=False)
-        scope = 'promotionalOffers' if period == 'current' else 'upcomingPromotionalOffers'
-        from_time_raw = game['promotions'][scope][0]['promotionalOffers'][0]['startDate']
-        from_time = dt.datetime.strptime(from_time_raw, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%d.%m.%Y %H:%M')
-        embed.add_field(name='Od', value=from_time, inline=False)
-        to_time_raw = game['promotions'][scope][0]['promotionalOffers'][0]['endDate']
-        to_time = dt.datetime.strptime(to_time_raw, '%Y-%m-%dT%H:%M:%S.%fZ').strftime('%d.%m.%Y %H:%M')
-        embed.add_field(name='Do', value=to_time, inline=False)
+        embed = free.make_game_embed(game, period)
         await ctx.send(embed=embed)
 
 
 async def send_gif(ctx: commands.Context, *search_query: str, is_random: bool = True):
     query = ' '.join(search_query)
-    tenor = Tenor()
-    gif = tenor.get_gif(query, random=is_random)
+    ten = tenor.Tenor()
+    gif = ten.get_gif(query, random=is_random)
     if gif is None or gif == '':
         await ctx.send(f'{ctx.author.mention}, nie znaleziono GIFa :/')
         return
@@ -821,108 +659,14 @@ async def send_top_gif(ctx: commands.Context, *search_query: str):
 @client.command('convert')
 async def convert(ctx: commands.Context, method: str, *args: str):
     text = ' '.join(args)
-    match method:
-        case 's2b':
-            await ctx.reply(conv.str_to_binary(text))
-        case 'b2s':
-            await ctx.reply(conv.binary_to_str(text))
-        case 's2h':
-            await ctx.reply(conv.str_to_hex(text))
-        case 'h2s':
-            await ctx.reply(conv.hex_to_str(text))
-        case 's2b64':
-            await ctx.reply(conv.str_to_base64(text))
-        case 'b642s':
-            await ctx.reply(conv.base64_to_str(text))
-        case _:
-            await ctx.reply('Niepoprawna metoda konwersji. Możliwe wartości: s2b, b2s, s2h, h2s, s2b64, b642s')
+    result = converter.convert(method, text)
+    await ctx.reply(result)
 
 
 # help command to show all commands
 @client.command()
-async def pomoc(ctx):
-    embed = discord.Embed(title="Pomoc", description="Lista komend", color=0x00ff00)
-    embed.add_field(name=f"{client.command_prefix}ping",
-                    value="Testuje połącznie",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}hi",
-                    value="Wita się",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}purge [ilość=2]",
-                    value="Usuwa [ilość] wiadomości wyżej. Domyślnie, bez podawania jawnie, ilość=2",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}undo [ilość=1]",
-                    value="Usuwa [ilość] ostatnich wiadomości bota. Domyślnie, bez podawania jawnie, ilość=1",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}compliment [użytkownik=None]",
-                    value="Daje komplement użytkownikowi [użytkownik] jeśli podany, lub autorowi, jeśli nie podany ",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}diss [użytkownik=None]",
-                    value="Dissuje użytkownikowi [użytkownik] jeśli podany, lub autorowi, jeśli nie podany ",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}demote",
-                    value="Demotywuje do życia (jakby samo życie nie wystarczało)",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}rdt [sub=memes] [limit=100]",
-                    value="Wyświetla losowy obrazek z reddita na subreddicie [sub], losując spośród [limit] "
-                          "najpopularniejszych obrazków",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}astro [znak]",
-                    value="Wyświetla horoskop dla znaku [znak]",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}nameday",
-                    value="Wyświetla imieniny dla obecnego dnia",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}wthr [miasto=Warszawa] [dni=0]",
-                    value="Wyświetla prognozę pogody dla miasta [miasto], za [dni] dni",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}drink [nazwa drinka=None]",
-                    value="Wyświetla losowy przepis na drinka, lub konkretny, jeśli podany",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}free [okres=current]",
-                    value="Wyświetla listę darmowych gier z Epic Games Store, w okresie [okres]. Możliwe wartości: "
-                          "current, upcoming",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}gif [fraza]",
-                    value="Wyświetla losowy GIF z frazą [fraza]",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}topgif [fraza]",
-                    value="Wyświetla najpopularniejszy GIF z frazą [fraza]",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}shipme",
-                    value="Wyświetla ship dla Ciebie",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}shipstat",
-                    value="Wyświetla użytkownika, z którym masz największą liczbę shipów",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}roll [minimum=1] [maximum=6]",
-                    value="Wyświetla losową liczbę między [minimum] a [maximum]",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}coin",
-                    value="Rzuca monetą i wyświetla wynik (orzeł albo reszka)",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}sw [start/stop/reset]",
-                    value="Uruchamia stoper, zatrzymuje go, lub resetuje",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}inactive",
-                    value="Wyświetla TOP 5 najmniej aktywnych użytkowników",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}poll [treść]; [odp1]; [odp2]; ...",
-                    value="Tworzy ankietę z podanych opcji. Treść i opcje muszą być oddzielone ;",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}essa [użytkownik=None]",
-                    value="Wyświetla esse użytkownika [użytkownik] jeśli podany, lub autorowi, jeśli nie podany ",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}convert [metoda] [tekst]",
-                    value="Konwertuje tekst [tekst] metodą [metoda]. Możliwe wartości: "
-                    "s2b, b2s, s2h, h2s, s2b64, b642s",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}uwu",
-                    value="UwUalizuje wiadomość wyżej",
-                    inline=False)
-    embed.add_field(name=f"{client.command_prefix}ban [użytkownik]",
-                    value="Banuje użytkownika [użytkownik]",
-                    inline=False)
+async def pomoc(ctx: commands.Context):
+    embed = help.get_help_embed(client.command_prefix)
     await ctx.send(embed=embed)
 
 
