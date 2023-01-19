@@ -8,7 +8,6 @@ import time
 import random
 import math
 
-
 from components.uwuify import uwuify
 from components.reddit import get_subreddit_random_hot
 from components.demotes import get_demotes
@@ -53,13 +52,14 @@ class Usr:
 
 owner = Usr()
 
-bot_channels = ['bot']
+bot_channels = ['bot', 'bot_nsfw']
 
 female_role = 'kobita'
 
 # logger config
 handler = logging.StreamHandler()
 logger = logging.getLogger('discord')
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
