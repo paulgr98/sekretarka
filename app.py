@@ -14,9 +14,15 @@ from components.demotes import get_demotes
 from components.compliments import get_compliment_list
 from components.disses import get_diss_list
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
-from components import nameday as nd
-from components import tenor
-from components import epic_free_games as epic
+
+from components import (
+    nameday as nd,
+    tenor,
+    epic_free_games as epic,
+    essa,
+    magic_ball,
+    pp_len
+)
 
 from commands import help
 from commands import converter
@@ -25,7 +31,6 @@ from commands import drink
 from commands import weather
 from commands import astrology
 from commands import poll
-from commands import essa
 
 # bot instance
 intents = discord.Intents.default()
@@ -582,6 +587,25 @@ async def convert(ctx: commands.Context, method: str, *args: str):
     text = ' '.join(args)
     result = converter.convert(method, text)
     await ctx.reply(result)
+
+
+@client.command('8ball')
+async def eight_ball(ctx: commands.Context, *, question: str):
+    answer = magic_ball.get_random_answer()
+    await ctx.reply(answer)
+
+
+@client.command('pp')
+async def pp_length(ctx: commands.Context, member: discord.Member | str = None):
+    if member is None:
+        member = ctx.author
+
+    if isinstance(member, str):
+        pp = pp_len.get_pp_len(member)
+        await ctx.reply(f'{member} ma {pp} cm siurka :3')
+    else:
+        pp = pp_len.get_pp_len(member.name)
+        await ctx.reply(f'{member.mention} ma {pp} cm siurka :3')
 
 
 # help command to show all commands
