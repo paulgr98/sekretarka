@@ -65,9 +65,6 @@ def get_help_embed(prefix: str) -> discord.Embed:
     embed.add_field(name=f"{prefix}sw [start/stop/reset]",
                     value="Uruchamia stoper, zatrzymuje go, lub resetuje",
                     inline=False)
-    embed.add_field(name=f"{prefix}inactive",
-                    value="Wyświetla TOP 5 najmniej aktywnych użytkowników",
-                    inline=False)
     embed.add_field(name=f"{prefix}poll [treść]; [odp1]; [odp2]; ...",
                     value="Tworzy ankietę z podanych opcji. Treść i opcje muszą być oddzielone ;",
                     inline=False)

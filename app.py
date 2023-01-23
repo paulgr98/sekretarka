@@ -24,6 +24,7 @@ from commands import free
 from commands import drink
 from commands import weather
 from commands import astrology
+from commands import poll
 
 # bot instance
 intents = discord.Intents.default()
@@ -479,62 +480,8 @@ async def stopwatch(ctx, action: str):
         await ctx.message.reply('Wpisz start, stop lub reset')
 
 
-search_running = False
-
-
-# command to get top 5 inactive users in the server by their last message time
-@client.command()
-async def inactive(ctx):
-    global search_running
-    users_can_run = ['PanPajonk']
-    if ctx.author.name not in users_can_run:
-        await ctx.send('Nie masz uprawnień do tej komendy')
-        return
-
-    if search_running:
-        await ctx.send('Już przeszukuję wiadomości, trochę cierpliwości...')
-        return
-
-    search_running = True
-    await ctx.send('Ok, poczekaj (dłuższą) chwilę...')
-
-    # get all users in the server
-    users = ctx.guild.members
-    users_id = [user.id for user in users]
-    user_last_msg_time_dict = {}
-    messages = [msg async for msg in ctx.channel.history(limit=50000)]
-    # sort the messages by their timestamp from newest to oldest
-    messages.sort(key=lambda x: x.created_at, reverse=True)
-
-    for message in messages:
-        # if user is not a bot, and is not yet in the dictionary
-        # check if user is not yet in the dictionary and is still in the server
-        if message.author.id not in user_last_msg_time_dict and message.author.id in users_id:
-            # if the user is not a bot, add it to the dictionary
-            user = message.author
-            if not user.bot:
-                user_last_msg_time_dict[message.author.id] = message.created_at
-
-    # sort the users by their last message time from newest to oldest
-    user_last_msg_time_dict = sorted(user_last_msg_time_dict.items(), key=lambda x: x[1])
-    # get the top 5 users
-    msg_str = ''
-    for user_id, last_msg_time in user_last_msg_time_dict[:5]:
-        user = client.get_user(user_id)
-        msg_str += f'{user.name} - {last_msg_time.strftime("%d.%m.%Y %H:%M")}\n'
-
-    embed = discord.Embed(title='Najmniej aktywni użytkownicy', color=0x571E1E)
-    embed.add_field(name='TOP 5', value=msg_str, inline=False)
-    search_running = False
-    await ctx.send(embed=embed)
-
-
-# command to create simple poll
-@client.command()
-async def poll(ctx, *, content: str):
-    def init_cap(s):
-        return s[0].upper() + s[1:]
-
+@client.command('poll')
+async def create_poll(ctx, *, content: str):
     # remove whitespaces from the beginning and end of the string
     content = content.strip()
     # if the string is empty, return
@@ -552,7 +499,7 @@ async def poll(ctx, *, content: str):
 
     # seprate the content into question and options (separated by ';')
     content_list = content.split(';')
-    question = init_cap(content_list[0])
+    question = poll.init_cap(content_list[0])
     options = content_list[1:]
 
     if len(options) < 2:
@@ -562,19 +509,7 @@ async def poll(ctx, *, content: str):
         await ctx.send('Za dużo odpowiedzi (max 10)')
         return
 
-    # list of keycap numbers emojis for the options
-    number_emojis = [f"{num}\N{COMBINING ENCLOSING KEYCAP}" for num in range(1, 10)]
-
-    embed = discord.Embed(title=question, color=0x571E1E)
-    opt_str = ''
-    reactions = []
-
-    # add the options to the embed
-    for i, opt in enumerate(options):
-        opt_str += f'{number_emojis[i]} {opt}\n'
-        reactions.append(number_emojis[i])
-
-    embed.add_field(name='Odpowiedzi', value=opt_str, inline=False)
+    embed, reactions = poll.create_embed(question, options)
 
     msg = await ctx.send(embed=embed)
     # add reactions to the message
