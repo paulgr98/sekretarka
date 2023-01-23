@@ -25,6 +25,7 @@ from commands import drink
 from commands import weather
 from commands import astrology
 from commands import poll
+from commands import essa
 
 # bot instance
 intents = discord.Intents.default()
@@ -45,7 +46,7 @@ ydl_opts = {
 
 
 # my user class
-class Usr:
+class Usr():
     def __init__(self):
         self.is_busy = False
         self.user = None
@@ -517,19 +518,10 @@ async def create_poll(ctx, *, content: str):
         await msg.add_reaction(reaction)
 
 
-# command to check essa level of the user
 @client.command()
 async def essa(ctx, *, member=None):
     if member is None:
         member = ctx.author
-
-    # try cast member to discord.Member
-    if not isinstance(member, discord.Member):
-        try:
-            member_converter = commands.MemberConverter()
-            member = await member_converter.convert(ctx, member)
-        except commands.BadArgument:
-            pass
 
     # if member is instance of discord.Member
     if isinstance(member, discord.Member):
@@ -537,13 +529,7 @@ async def essa(ctx, *, member=None):
     else:
         nickname = member
 
-    vowels = ['a', 'e', 'i', 'o', 'u']
-    num_of_vowels = 0
-    for letter in nickname:
-        if letter in vowels:
-            num_of_vowels += 1
-
-    essa_level = (len(nickname) ** 69 + num_of_vowels) % 100
+    essa_level = essa.calculate_essa_level(nickname)
     await ctx.send(f'{nickname} ma {essa_level}% essy')
 
 
