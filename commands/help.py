@@ -75,6 +75,13 @@ def get_help_embed(prefix: str) -> discord.Embed:
                     value="Konwertuje tekst [tekst] metodą [metoda]. Możliwe wartości: "
                           "s2b, b2s, s2h, h2s, s2b64, b642s",
                     inline=False)
+    embed.add_field(name=f"{prefix}8ball [pytanie]",
+                    value="Odpowiada na pytanie [pytanie] tak, jakby to była magiczna kula",
+                    inline=False)
+    embed.add_field(name=f"{prefix}pp [użytkownik=None]",
+                    value="Wyświetla długość siurka użytkownika [użytkownik] jeśli podany, lub autorowi, "
+                          "jeśli nie podany. Może przyjmować też zwykły tekst",
+                    inline=False)
     embed.add_field(name=f"{prefix}uwu",
                     value="UwUalizuje wiadomość wyżej",
                     inline=False)
