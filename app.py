@@ -7,6 +7,7 @@ import datetime as dt
 import time
 import random
 import math
+from openai.error import OpenAIError
 
 from components.uwuify import uwuify
 from components.reddit import get_subreddit_random_hot
@@ -21,7 +22,7 @@ from components import (
     epic_free_games as epic,
     essa,
     magic_ball,
-    pp_len
+    pp_len,
 )
 
 from commands import help
@@ -31,6 +32,7 @@ from commands import drink
 from commands import weather
 from commands import astrology
 from commands import poll
+from commands import generate_story
 
 # bot instance
 intents = discord.Intents.default()
@@ -606,6 +608,22 @@ async def pp_length(ctx: commands.Context, member: discord.Member | str = None):
     else:
         pp = pp_len.get_pp_len(member.name)
         await ctx.reply(f'{member.mention} ma {pp} cm siurka :3')
+
+
+@client.command('story')
+async def story(ctx: commands.Context, *keywords: str):
+    # check if there are any keywords
+    if len(keywords) == 0:
+        await ctx.reply('Podaj słowo kluczowe (np. kot)')
+        return
+    prompt = ' '.join(keywords)
+    # check for api errors
+    try:
+        story_pl = generate_story.generate_story(prompt)
+        await ctx.reply(story_pl)
+    except OpenAIError as e:
+        if e.http_status == 402:
+            await ctx.reply('Przekroczono limit zapytań')
 
 
 # help command to show all commands
