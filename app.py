@@ -619,7 +619,9 @@ async def story(ctx: commands.Context, *keywords: str):
     prompt = ' '.join(keywords)
     # check for api errors
     try:
-        story_pl = generate_story.generate_story(prompt)
+        # trigger typing
+        async with ctx.typing():
+            story_pl = generate_story.generate_story(prompt)
         await ctx.reply(story_pl)
     except OpenAIError as e:
         if e.http_status == 402:
