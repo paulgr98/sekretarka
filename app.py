@@ -28,7 +28,7 @@ from components import (
 from commands import help
 from commands import converter
 from commands import free
-from commands import drink
+from commands import alco_drink
 from commands import weather
 from commands import astrology
 from commands import poll
@@ -544,7 +544,7 @@ async def essa(ctx, *, member=None):
 @client.command()
 async def drink(ctx: commands.Context, *drink_name: str):
     name = ' '.join(drink_name)
-    embed = drink.make_drink_embed(name)
+    embed = alco_drink.make_drink_embed(name)
     if embed is None:
         await ctx.send('Nie znaleziono drinka :/')
         return
