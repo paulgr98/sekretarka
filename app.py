@@ -525,8 +525,8 @@ async def create_poll(ctx, *, content: str):
         await msg.add_reaction(reaction)
 
 
-@client.command()
-async def essa(ctx, *, member=None):
+@client.command('essa')
+async def calc_essa(ctx, *, member=None):
     if member is None:
         member = ctx.author
 
@@ -552,8 +552,8 @@ async def drink(ctx: commands.Context, *drink_name: str):
 
 
 # free epic store games
-@client.command()
-async def free(ctx: commands.Context, period: str = 'current'):
+@client.command('free')
+async def epic_free_games(ctx: commands.Context, period: str = 'current'):
     try:
         free_games = epic.get_free_games(period)
     except ValueError:
