@@ -53,13 +53,16 @@ ydl_opts = {
 
 
 # my user class
-class Usr():
+class Usr(object):
     def __init__(self):
         self.is_busy = False
         self.user = None
+        self.nick = None
 
 
+# owner configuration
 owner = Usr()
+owner.nick = 'PanPajonk'
 
 bot_channels = ['bot', 'bot_nsfw']
 
@@ -129,7 +132,7 @@ async def ping(ctx):
 # simple hi command
 @client.command()
 async def hi(ctx):
-    if ctx.author.name == 'PanPajonk':
+    if ctx.author.name == owner.nick:
         await ctx.send('Hej skarbie ❤')
         return
     await ctx.send(f'Hej {ctx.author.name}')
@@ -276,7 +279,7 @@ async def ban(ctx, member: discord.Member):
     # if there are more than 5 people to ban, remove the oldest one
     if len(to_ban) > 5:
         del to_ban[min(to_ban, key=to_ban.get)]
-    if member.name == 'PanPajonk':
+    if member.name == owner.nick:
         await ctx.send('Nie masz tu mocy :sunglasses:')
         return
     if member.id == client.user.id:
@@ -316,9 +319,9 @@ async def on_reaction_add(reaction, user):
 #     pass
 
 
-@client.command()
-async def zw(ctx):
-    if ctx.author.name == 'PanPajonk':
+@client.command('zw')
+async def im_busy(ctx):
+    if ctx.author.name == owner.nick:
         owner.is_busy = not owner.is_busy
         if owner.user is None:
             owner.user = ctx.author
@@ -510,11 +513,8 @@ async def create_poll(ctx, *, content: str):
     question = poll.init_cap(content_list[0])
     options = content_list[1:]
 
-    if len(options) < 2:
-        await ctx.send('Za mało odpowiedzi (min 2)')
-        return
-    if len(options) > 10:
-        await ctx.send('Za dużo odpowiedzi (max 10)')
+    if 2 > len(options) > 10:
+        await ctx.send('Możliwa ilość odpowiedzi to od 2 do 10')
         return
 
     embed, reactions = poll.create_embed(question, options)
@@ -592,7 +592,7 @@ async def convert(ctx: commands.Context, method: str, *args: str):
 
 
 @client.command('8ball')
-async def eight_ball(ctx: commands.Context, *, question: str):
+async def eight_ball(ctx: commands.Context):
     answer = magic_ball.get_random_answer()
     await ctx.reply(answer)
 
@@ -629,8 +629,8 @@ async def story(ctx: commands.Context, *keywords: str):
 
 
 # help command to show all commands
-@client.command()
-async def pomoc(ctx: commands.Context):
+@client.command('pomoc')
+async def help_command(ctx: commands.Context):
     embed = help.get_help_embed(client.command_prefix)
     await ctx.send(embed=embed)
 
