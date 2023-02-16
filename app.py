@@ -64,7 +64,7 @@ class Usr(object):
 owner = Usr()
 owner.nick = 'PanPajonk'
 
-bot_channels = ['bot', 'bot_nsfw']
+bot_channels = ['bot', 'bot_nsfw', 'bot-spam']
 
 female_role = 'kobita'
 

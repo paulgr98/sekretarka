@@ -18,12 +18,10 @@ def get_diss_list(user, is_female):
         f'wiesz czym się różnisz od papieru toaletowego? Papier toaletowy się rozwija...',
         f'tylko deszcz na Ciebie leci :/',
         f'kup sobie twarz, bo dwie dupy to za dużo',
-        f'przy Tobie nawet Xerox jest normmalny :grimacing:',
         f'jest szkodnikiem, bo zjada ogórki',
         f'nie ma pleców',
         f'ty dzbanie',
         f'zgasiłabym Cię, ale gówno się nie pali :/',
-        f'ale Ci jedzie z halki',
         f'jedzie Ci z pyska, jak z dupy tygryska'
     ]
 
