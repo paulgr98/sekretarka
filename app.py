@@ -598,7 +598,7 @@ async def eight_ball(ctx: commands.Context):
 
 
 @client.command('pp')
-async def pp_length(ctx: commands.Context, member: (discord.Member, str) = None):
+async def pp_length(ctx: commands.Context, member=None):
     if member is None:
         member = ctx.author
 
