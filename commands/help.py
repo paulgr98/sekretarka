@@ -78,6 +78,9 @@ def get_help_embed(prefix: str) -> discord.Embed:
     embed.add_field(name=f"{prefix}8ball [pytanie]",
                     value="Odpowiada na pytanie [pytanie] tak, jakby to była magiczna kula",
                     inline=False)
+    embed.add_field(name=f"{prefix}story [opis]",
+                    value="Tworzy historię za pomocą sztucznej inteligencji dla podanego opisu",
+                    inline=False)
     embed.add_field(name=f"{prefix}pp [użytkownik=None]",
                     value="Wyświetla długość siurka użytkownika [użytkownik] jeśli podany, lub autorowi, "
                           "jeśli nie podany. Może przyjmować też zwykły tekst",
@@ -91,5 +94,4 @@ def get_help_embed(prefix: str) -> discord.Embed:
     embed.add_field(name=f"{prefix}ban [użytkownik]",
                     value="Banuje użytkownika [użytkownik]",
                     inline=False)
-    
     return embed
