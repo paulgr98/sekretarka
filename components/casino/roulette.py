@@ -64,7 +64,6 @@ class Roulette(object):
 
     def get_previous_results(self):
         prev = self.wheel.get_last_outcomes(5)
-        prev = [p.number for p in prev]
         return prev
 
     def stop_game(self):

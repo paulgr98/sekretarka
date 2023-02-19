@@ -26,14 +26,18 @@ async def roulette_main(ctx: commands.Context, *args: str):
     elif args[0] == 'help':
         await ctx.reply('Możliwe opcje obstawiania:\n' + ', '.join(roulette_instance.get_possible_bets()))
     elif args[0] == 'prev':
-        prev = roulette_instance.get_previous_results()
-        if len(prev) == 0:
-            await ctx.reply('Brak poprzednich wyników')
-            return
-        prev = [str(x) for x in prev]
-        await ctx.reply('Poprzednie wyniki: ' + ', '.join(prev))
+        await show_previous_results(ctx)
     elif args[0] == 'img':
         await ctx.reply('https://t3.ftcdn.net/jpg/04/09/51/40/360_F_409514024_hRZxuXUW7EhdjNMzZc7qJS30MLpD8yqg.jpg')
+
+
+async def show_previous_results(ctx: commands.Context):
+    prev = roulette_instance.get_previous_results()
+    if len(prev) == 0:
+        await ctx.reply('Brak poprzednich wyników')
+        return
+    prev = [f'{p.number} :{p.get_color()}_circle:' for p in prev]
+    await ctx.reply('Poprzednie wyniki: ' + ', '.join(prev))
 
 
 async def set_round_time(ctx, time: int):
