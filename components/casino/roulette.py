@@ -31,7 +31,7 @@ class Roulette(object):
         self.bets = []
         self.last_result: Field = Field(0)
         self.is_started = False
-        self.possible_bets = ['0-36',
+        self.possible_bets = ['Liczby od 0 do 36',
                               'even', 'odd',
                               'red', 'black',
                               '1-18', '19-36',

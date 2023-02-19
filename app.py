@@ -662,6 +662,8 @@ async def roulette_main(ctx: commands.Context, *args: str):
                 return
     if args[0] == 'bet':
         await roulette_betting(ctx, args[1:])
+    if args[0] == 'help':
+        await ctx.reply('Możliwe opcje obstawiania:\n' + ', '.join(roulette_instance.get_possible_bets()))
 
 
 async def roulette_start(ctx: commands.Context):
@@ -747,7 +749,11 @@ async def money_command(ctx: commands.Context, *args: str):
                 await ctx.reply('Nie podano kwoty')
                 return
             if isinstance(int(args[1]), int):
-                money_manager.add_money(int(args[1]))
+                if 0 < int(args[1]) <= 1000:
+                    money_manager.add_money(int(args[1]))
+                else:
+                    await ctx.reply('Podaj poprawną kwotę od 1 do 1000')
+                    return
                 await ctx.reply(f'Dodano {args[1]} cebulionów')
                 return
             else:
