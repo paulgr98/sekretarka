@@ -725,6 +725,7 @@ async def roulette_betting(ctx: commands.Context, args):
     await ctx.reply(f'Obstawiasz {bet.amount} cebulionów na {bet.bet_type}')
 
 
+# TODO: simplify this
 @client.command('money')
 async def money_command(ctx: commands.Context, *args: str):
     money_manager = money.MoneyManager(ctx.author.id)
@@ -750,7 +751,19 @@ async def money_command(ctx: commands.Context, *args: str):
                 return
             if isinstance(int(args[1]), int):
                 if 0 < int(args[1]) <= 1000:
-                    money_manager.add_money(int(args[1]))
+                    if len(args) == 3:
+                        try:
+                            # <@!user_id> -> user_id
+                            user_id = str(args[2])[2:-1]
+                            # get user object from id
+                            member = discord.utils.get(ctx.guild.members, id=int(user_id))
+                        except ValueError:
+                            await ctx.reply('Podaj poprawny ID użytkownika')
+                            return
+                        money_manager = money.MoneyManager(member.id)
+                        money_manager.add_money(int(args[1]))
+                    else:
+                        money_manager.add_money(int(args[1]))
                 else:
                     await ctx.reply('Podaj poprawną kwotę od 1 do 1000')
                     return
@@ -766,12 +779,24 @@ async def money_command(ctx: commands.Context, *args: str):
         # get list of user roles
         roles = [role.name for role in ctx.author.roles]
         if 'admin' in roles:
-            if len(args) < 2:
+            if len(args) == 3:
                 await ctx.reply('Nie podano kwoty')
                 return
             if isinstance(int(args[1]), int):
                 if 0 < int(args[1]) <= 1000:
-                    money_manager.remove_money(int(args[1]))
+                    if len(args) > 2:
+                        try:
+                            # <@!user_id> -> user_id
+                            user_id = str(args[2])[2:-1]
+                            # get user object from id
+                            member = discord.utils.get(ctx.guild.members, id=int(user_id))
+                        except ValueError:
+                            await ctx.reply('Podaj poprawny ID użytkownika')
+                            return
+                        money_manager = money.MoneyManager(member.id)
+                        money_manager.remove_money(int(args[1]))
+                    else:
+                        money_manager.remove_money(int(args[1]))
                 else:
                     await ctx.reply('Podaj poprawną kwotę od 1 do 1000')
                     return
@@ -800,6 +825,7 @@ async def help_command(ctx: commands.Context):
     embeds = help.get_help_embed(client.command_prefix)
     for embed in embeds:
         await ctx.send(embed=embed)
+
 
 # run the bot
 client.run(cfg.TOKEN)
