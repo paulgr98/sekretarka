@@ -664,12 +664,24 @@ async def roulette_main(ctx: commands.Context, *args: str):
         await roulette_betting(ctx, args[1:])
     if args[0] == 'help':
         await ctx.reply('Możliwe opcje obstawiania:\n' + ', '.join(roulette_instance.get_possible_bets()))
+    if args[0] == 'prev':
+        prev = roulette_instance.get_previous_results()
+        if len(prev) == 0:
+            await ctx.reply('Brak poprzednich wyników')
+            return
+        prev = [str(x) for x in prev]
+        await ctx.reply('Poprzednie wyniki: ' + ', '.join(prev))
 
 
 async def roulette_start(ctx: commands.Context):
     global roulette_instance
     roulette_instance.start_game()
     await ctx.send('Rozpoczynanie gry')
+    previous_results = roulette_instance.get_previous_results()
+    if len(previous_results) > 0:
+        previous_results = [str(x) for x in previous_results]
+        previous_results = ', '.join(previous_results)
+        await ctx.send(f'Poprzednie wyniki: {previous_results}')
     await asyncio.sleep(roulette_instance.round_time)
     roulette_instance.stop_game()
     await ctx.send('Koniec obstawiania!')

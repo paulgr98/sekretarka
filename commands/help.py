@@ -54,63 +54,65 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
 
     embed2 = discord.Embed(title="Pomoc 2/2", description="Lista komend", color=0x00ff00)
     embed2.add_field(name=f"{prefix}shipme",
-                    value="Wyświetla ship dla Ciebie",
-                    inline=False)
+                     value="Wyświetla ship dla Ciebie",
+                     inline=False)
     embed2.add_field(name=f"{prefix}shipstat",
-                    value="Wyświetla użytkownika, z którym masz największą liczbę shipów",
-                    inline=False)
+                     value="Wyświetla użytkownika, z którym masz największą liczbę shipów",
+                     inline=False)
     embed2.add_field(name=f"{prefix}roll [minimum=1] [maximum=6]",
-                    value="Wyświetla losową liczbę między [minimum] a [maximum]",
-                    inline=False)
+                     value="Wyświetla losową liczbę między [minimum] a [maximum]",
+                     inline=False)
     embed2.add_field(name=f"{prefix}coin",
-                    value="Rzuca monetą i wyświetla wynik (orzeł albo reszka)",
-                    inline=False)
+                     value="Rzuca monetą i wyświetla wynik (orzeł albo reszka)",
+                     inline=False)
     embed2.add_field(name=f"{prefix}sw [start/stop/reset]",
-                    value="Uruchamia stoper, zatrzymuje go, lub resetuje",
-                    inline=False)
+                     value="Uruchamia stoper, zatrzymuje go, lub resetuje",
+                     inline=False)
     embed2.add_field(name=f"{prefix}poll [treść]; [odp1]; [odp2]; ...",
-                    value="Tworzy ankietę z podanych opcji. Treść i opcje muszą być oddzielone ;",
-                    inline=False)
+                     value="Tworzy ankietę z podanych opcji. Treść i opcje muszą być oddzielone ;",
+                     inline=False)
     embed2.add_field(name=f"{prefix}essa [użytkownik=None]",
-                    value="Wyświetla esse użytkownika [użytkownik] jeśli podany, lub autorowi, jeśli nie podany ",
-                    inline=False)
+                     value="Wyświetla esse użytkownika [użytkownik] jeśli podany, lub autorowi, jeśli nie podany ",
+                     inline=False)
     embed2.add_field(name=f"{prefix}convert [metoda] [tekst]",
-                    value="Konwertuje tekst [tekst] metodą [metoda]. Możliwe wartości: "
-                          "s2b, b2s, s2h, h2s, s2b64, b642s",
-                    inline=False)
+                     value="Konwertuje tekst [tekst] metodą [metoda]. Możliwe wartości: "
+                           "s2b, b2s, s2h, h2s, s2b64, b642s",
+                     inline=False)
     embed2.add_field(name=f"{prefix}8ball [pytanie]",
-                    value="Odpowiada na pytanie [pytanie] tak, jakby to była magiczna kula",
-                    inline=False)
+                     value="Odpowiada na pytanie [pytanie] tak, jakby to była magiczna kula",
+                     inline=False)
     embed2.add_field(name=f"{prefix}story [opis]",
-                    value="Tworzy historię za pomocą sztucznej inteligencji dla podanego opisu",
-                    inline=False)
+                     value="Tworzy historię za pomocą sztucznej inteligencji dla podanego opisu",
+                     inline=False)
     embed2.add_field(name=f"{prefix}pp [użytkownik=None]",
-                    value="Wyświetla długość siurka użytkownika [użytkownik] jeśli podany, lub autorowi, "
-                          "jeśli nie podany. Może przyjmować też zwykły tekst",
-                    inline=False)
+                     value="Wyświetla długość siurka użytkownika [użytkownik] jeśli podany, lub autorowi, "
+                           "jeśli nie podany. Może przyjmować też zwykły tekst",
+                     inline=False)
     embed2.add_field(name=f"{prefix}story [słowo_kluczowe]",
-                    value="Tworzy historię dla podanego słowa kluczowego [słowo_kluczowe]",
-                    inline=False)
+                     value="Tworzy historię dla podanego słowa kluczowego [słowo_kluczowe]",
+                     inline=False)
     embed2.add_field(name=f"{prefix}uwu",
-                    value="UwUalizuje wiadomość wyżej",
-                    inline=False)
+                     value="UwUalizuje wiadomość wyżej",
+                     inline=False)
     embed2.add_field(name=f"{prefix}ban [użytkownik]",
-                    value="Banuje użytkownika [użytkownik]",
-                    inline=False)
+                     value="Banuje użytkownika [użytkownik]",
+                     inline=False)
     embed2.add_field(name=f"{prefix}money [akcja]",
-                    value="Zarządzanie cebulionami. Możliwe wartości:\n"
-                          "check - wyświetla stan konta\n"
-                          "claim - odbiera dzienny bonus\n"
-                          "add [ilość] - dodaje [ilość] cebulionów (tylko dla adminów)\n"
-                          "remove [ilość] - usuwa [ilość] cebulionów (tylko dla adminów)"
-                          "ranking - wyświetla ranking użytkowników",
-                    inline=False)
+                     value="Zarządzanie cebulionami. Możliwe wartości:\n"
+                           "check - wyświetla stan konta\n"
+                           "claim - odbiera dzienny bonus\n"
+                           "add [ilość] - dodaje [ilość] cebulionów (tylko dla adminów)\n"
+                           "remove [ilość] - usuwa [ilość] cebulionów (tylko dla adminów)"
+                           "ranking - wyświetla ranking użytkowników",
+                     inline=False)
     embed2.add_field(name=f"{prefix}roulette [akcja]",
-                    value="Gra w ruletkę. Możliwe wartości:\n"
-                          "set [czas] - ustawia czas obstawiania\n"
-                          "start - rozpoczyna grę\n"
-                          "bet [ilość] [typ] - obstawia [ilość] cebulionów na [typ]",
-                    inline=False)
+                     value="Gra w ruletkę. Możliwe wartości:\n"
+                           "set [czas] - ustawia czas obstawiania\n"
+                           "start - rozpoczyna grę\n"
+                           "bet [ilość] [typ] - obstawia [ilość] cebulionów na [typ]"
+                           "prev - wyświetla poprzednie wyniki"
+                           "help - wyświetla listę dostępnych typów zakładów",
+                     inline=False)
 
     embeds.append(embed)
     embeds.append(embed2)

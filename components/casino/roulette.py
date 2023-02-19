@@ -62,6 +62,11 @@ class Roulette(object):
         self.clear_bets()
         self.is_started = True
 
+    def get_previous_results(self):
+        prev = self.wheel.get_last_outcomes(5)
+        prev = [p.number for p in prev]
+        return prev
+
     def stop_game(self):
         self.is_started = False
 
@@ -120,7 +125,9 @@ class Wheel(object):
         return result
 
     def get_last_outcomes(self, number):
-        return self.outcomes[-number:]
+        prev = self.outcomes[-number:]
+        prev.reverse()
+        return prev
 
     def add_field(self, field):
         self.fields.append(field)
