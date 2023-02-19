@@ -630,7 +630,7 @@ async def story(ctx: commands.Context, *keywords: str):
             await ctx.reply('Przekroczono limit zapytań')
 
 
-@client.command('roulette')
+@client.command(aliases=['rr', 'roulette'])
 async def roulette_command(ctx: commands.Context, *args: str):
     await roulette_cmd.roulette_main(ctx, *args)
 
