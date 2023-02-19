@@ -301,6 +301,7 @@ poetry.toml
 
 /config.py
 /matches.json
+/data/
 /logs.txt
 /venv/
 /__pycache__/
