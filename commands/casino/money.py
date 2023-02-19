@@ -16,16 +16,16 @@ async def money_command(ctx: commands.Context, client: commands.Bot, *args: str)
         else:
             await ctx.reply('Już otrzymałeś dziś darmowe pieniądze cebulaku!')
     elif args[0] == 'add':
-        process_add_money(ctx, money_manager, *args)
+        await process_add_money(ctx, money_manager, *args)
     elif args[0] == 'remove':
-        process_remove_money(ctx, money_manager, *args)
+        await process_remove_money(ctx, money_manager, *args)
     elif args[0] == 'ranking':
-        process_money_ranking(ctx, money_manager, client)
+        await process_money_ranking(ctx, money_manager, client)
     else:
         await ctx.reply('Niepoprawny argument.\nMożliwe argumenty: check, claim, add, ranking')
 
 
-def process_add_money(ctx, money_manager, *args):
+async def process_add_money(ctx, money_manager, *args):
     # get list of user roles
     roles = [role.name for role in ctx.author.roles]
     if 'admin' in roles:
@@ -52,7 +52,7 @@ def process_add_money(ctx, money_manager, *args):
         await ctx.reply('Nie masz uprawnień do tej komendy')
 
 
-def process_remove_money(ctx, money_manager, *args):
+async def process_remove_money(ctx, money_manager, *args):
     # get list of user roles
     roles = [role.name for role in ctx.author.roles]
     if 'admin' in roles:
@@ -79,7 +79,7 @@ def process_remove_money(ctx, money_manager, *args):
         await ctx.reply('Nie masz uprawnień do tej komendy')
 
 
-def get_user_from_mention(ctx: commands.Context, mention: str):
+async def get_user_from_mention(ctx: commands.Context, mention: str):
     try:
         # <@!user_id> -> user_id
         user_id = str(mention)[2:-1]
@@ -91,7 +91,7 @@ def get_user_from_mention(ctx: commands.Context, mention: str):
         return None
 
 
-def process_money_ranking(ctx: commands.Context, money_manager: money.MoneyManager, client: commands.Bot):
+async def process_money_ranking(ctx: commands.Context, money_manager: money.MoneyManager, client: commands.Bot):
     ranking = money_manager.get_ranking()
     msg_str: str = ''
     for user_id, amount in ranking:

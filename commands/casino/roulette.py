@@ -20,7 +20,7 @@ async def roulette_main(ctx: commands.Context, *args: str):
         await roulette_start(ctx)
     elif args[0] == 'set':
         if isinstance(int(args[1]), int):
-            set_round_time(ctx, int(args[1]))
+            await set_round_time(ctx, int(args[1]))
     elif args[0] == 'bet':
         await roulette_betting(ctx, args[1:])
     elif args[0] == 'help':
@@ -34,7 +34,7 @@ async def roulette_main(ctx: commands.Context, *args: str):
         await ctx.reply('Poprzednie wyniki: ' + ', '.join(prev))
 
 
-def set_round_time(ctx, time: int):
+async def set_round_time(ctx, time: int):
     global roulette_instance
     if roulette_instance.is_game_started():
         await ctx.reply('Gra już się rozpoczęła')
