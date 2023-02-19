@@ -111,6 +111,7 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                            "start - rozpoczyna grę\n"
                            "bet [ilość] [typ] - obstawia [ilość] cebulionów na [typ]"
                            "prev - wyświetla poprzednie wyniki"
+                           "img - wyświetla wygląd stołu do gry"
                            "help - wyświetla listę dostępnych typów zakładów",
                      inline=False)
 

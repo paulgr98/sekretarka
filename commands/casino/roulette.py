@@ -32,6 +32,8 @@ async def roulette_main(ctx: commands.Context, *args: str):
             return
         prev = [str(x) for x in prev]
         await ctx.reply('Poprzednie wyniki: ' + ', '.join(prev))
+    elif args[0] == 'img':
+        await ctx.reply('https://t3.ftcdn.net/jpg/04/09/51/40/360_F_409514024_hRZxuXUW7EhdjNMzZc7qJS30MLpD8yqg.jpg')
 
 
 async def set_round_time(ctx, time: int):
