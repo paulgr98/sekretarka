@@ -7,6 +7,7 @@ import datetime as dt
 import time
 import random
 import math
+import asyncio
 from openai.error import OpenAIError
 
 from components.uwuify import uwuify
@@ -23,6 +24,10 @@ from components import (
     essa,
     magic_ball,
     pp_len,
+)
+from components.casino import (
+    roulette,
+    money,
 )
 
 from commands import help
@@ -628,12 +633,146 @@ async def story(ctx: commands.Context, *keywords: str):
             await ctx.reply('Przekroczono limit zapytań')
 
 
+roulette_instance = roulette.Roulette()
+
+
+@client.command('roulette')
+async def roulette_main(ctx: commands.Context, *args: str):
+    global roulette_instance
+    if len(args) == 0:
+        await ctx.reply('Nie podano argumentów')
+        return
+    if args[0] == 'start':
+        if roulette_instance.is_game_started():
+            await ctx.reply('Gra już się rozpoczęła')
+            return
+        await roulette_start(ctx)
+        return
+    if args[0] == 'set':
+        if isinstance(int(args[1]), int):
+            if roulette_instance.is_game_started():
+                await ctx.reply('Gra już się rozpoczęła')
+                return
+            elif 5 <= int(args[1]) <= 120:
+                roulette_instance.set_round_time(int(args[1]))
+                await ctx.reply(f'Czas na zakłady ustawiony na {args[1]} sekund')
+                return
+            else:
+                await ctx.reply('Podaj poprawny czas (od 5 do 120 sekund)')
+                return
+    if args[0] == 'bet':
+        await roulette_betting(ctx, args[1:])
+
+
+async def roulette_start(ctx: commands.Context):
+    global roulette_instance
+    roulette_instance.start_game()
+    await ctx.send('Rozpoczynanie gry')
+    await asyncio.sleep(roulette_instance.round_time)
+    roulette_instance.stop_game()
+    await ctx.send('Koniec obstawiania!')
+    roulette_instance.spin_wheel()
+    await ctx.send('Losowanie')
+    await asyncio.sleep(5)
+    result = roulette_instance.get_last_result()
+    await ctx.send(f'Wylosowano {result}')
+    winners = roulette_instance.get_winners()
+    if len(winners) == 0:
+        await ctx.send('Nikt nie wygrał')
+        return
+    # winner is dict with keys: id:nickname and value: amount
+    for key, value in winners.items():
+        user_id, nickname = key.split(':')
+        await ctx.send(f'{nickname} wygrywa {value} cebulionów')
+        money_manager = money.MoneyManager(user_id)
+        money_manager.add_money(value)
+
+
+async def roulette_betting(ctx: commands.Context, args):
+    global roulette_instance
+    if not roulette_instance.is_game_started():
+        await ctx.reply('Gra nie została rozpoczęta lub już trwa losowanie')
+        return
+
+    amount = 0
+    if isinstance(int(args[0]), int):
+        amount = int(args[0])
+    bet_type = args[1:]
+
+    bet_type = ' '.join(bet_type)
+
+    bet = roulette.Bet(ctx.author.id, ctx.author.name, amount, bet_type)
+
+    if amount <= 0:
+        await ctx.reply('Podaj poprawną kwotę')
+        return
+    if len(bet_type) == 0:
+        await ctx.reply('Podaj typ zakładu\nMożliwe typy: ' + ', '.join(roulette_instance.get_possible_bets()))
+        return
+    if not roulette_instance.validate_bet(bet):
+        await ctx.reply('Niepoprawny typ zakładu\nMożliwe typy: ' + ', '.join(roulette_instance.get_possible_bets()))
+        return
+    money_manager = money.MoneyManager(ctx.author.id)
+    if money_manager.get_money() < amount:
+        await ctx.reply('Nie masz tyle pieniędzy')
+        return
+    if not roulette_instance.add_bet(bet):
+        await ctx.reply('Możesz obstawić na max 10 pozycji')
+        return
+    money_manager.remove_money(amount)
+    await ctx.reply(f'Obstawiasz {bet.amount} cebulionów na {bet.bet_type}')
+
+
+@client.command('money')
+async def money_command(ctx: commands.Context, *args: str):
+    money_manager = money.MoneyManager(ctx.author.id)
+    if len(args) == 0:
+        await ctx.reply('Nie podano argumentów. \nDostępne argumenty: check, claim, add, ranking')
+        return
+    if args[0] == 'check':
+        await ctx.reply(f'Masz {money_manager.get_money()} cebulionów')
+        return
+    if args[0] == 'claim':
+        if money_manager.claim_daily():
+            await ctx.reply(f'Otrzymałeś {money_manager.daily_amount} cebulionów')
+            return
+        else:
+            await ctx.reply('Już otrzymałeś dziś darmowe pieniądze cebulaku!')
+            return
+    if args[0] == 'add':
+        # get list of user roles
+        roles = [role.name for role in ctx.author.roles]
+        if 'admin' in roles:
+            if len(args) < 2:
+                await ctx.reply('Nie podano kwoty')
+                return
+            if isinstance(int(args[1]), int):
+                money_manager.add_money(int(args[1]))
+                await ctx.reply(f'Dodano {args[1]} cebulionów')
+                return
+            else:
+                await ctx.reply('Podaj poprawną kwotę')
+                return
+        else:
+            await ctx.reply('Nie masz uprawnień do tej komendy')
+            return
+    if args[0] == 'ranking':
+        ranking = money_manager.get_ranking()
+        for user_id, amount in ranking:
+            # find user by id
+            user = await client.fetch_user(user_id)
+            await ctx.send(f'{user.name} - {amount} cebulionów')
+        return
+    else:
+        await ctx.reply('Niepoprawny argument.\nMożliwe argumenty: check, claim, add, ranking')
+
+
 # help command to show all commands
 @client.command('pomoc')
 async def help_command(ctx: commands.Context):
-    embed = help.get_help_embed(client.command_prefix)
-    await ctx.send(embed=embed)
-
+    embeds = help.get_help_embed(client.command_prefix)
+    for embed in embeds:
+        await ctx.send(embed=embed)
 
 # run the bot
 client.run(cfg.TOKEN)

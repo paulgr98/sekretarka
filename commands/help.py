@@ -1,8 +1,9 @@
 import discord
 
 
-def get_help_embed(prefix: str) -> discord.Embed:
-    embed = discord.Embed(title="Pomoc", description="Lista komend", color=0x00ff00)
+def get_help_embed(prefix: str) -> list[discord.Embed]:
+    embeds = []
+    embed = discord.Embed(title="Pomoc 1/2", description="Lista komend", color=0x00ff00)
     embed.add_field(name=f"{prefix}ping",
                     value="Testuje połącznie",
                     inline=False)
@@ -50,48 +51,66 @@ def get_help_embed(prefix: str) -> discord.Embed:
     embed.add_field(name=f"{prefix}topgif [fraza]",
                     value="Wyświetla najpopularniejszy GIF z frazą [fraza]",
                     inline=False)
-    embed.add_field(name=f"{prefix}shipme",
+
+    embed2 = discord.Embed(title="Pomoc 2/2", description="Lista komend", color=0x00ff00)
+    embed2.add_field(name=f"{prefix}shipme",
                     value="Wyświetla ship dla Ciebie",
                     inline=False)
-    embed.add_field(name=f"{prefix}shipstat",
+    embed2.add_field(name=f"{prefix}shipstat",
                     value="Wyświetla użytkownika, z którym masz największą liczbę shipów",
                     inline=False)
-    embed.add_field(name=f"{prefix}roll [minimum=1] [maximum=6]",
+    embed2.add_field(name=f"{prefix}roll [minimum=1] [maximum=6]",
                     value="Wyświetla losową liczbę między [minimum] a [maximum]",
                     inline=False)
-    embed.add_field(name=f"{prefix}coin",
+    embed2.add_field(name=f"{prefix}coin",
                     value="Rzuca monetą i wyświetla wynik (orzeł albo reszka)",
                     inline=False)
-    embed.add_field(name=f"{prefix}sw [start/stop/reset]",
+    embed2.add_field(name=f"{prefix}sw [start/stop/reset]",
                     value="Uruchamia stoper, zatrzymuje go, lub resetuje",
                     inline=False)
-    embed.add_field(name=f"{prefix}poll [treść]; [odp1]; [odp2]; ...",
+    embed2.add_field(name=f"{prefix}poll [treść]; [odp1]; [odp2]; ...",
                     value="Tworzy ankietę z podanych opcji. Treść i opcje muszą być oddzielone ;",
                     inline=False)
-    embed.add_field(name=f"{prefix}essa [użytkownik=None]",
+    embed2.add_field(name=f"{prefix}essa [użytkownik=None]",
                     value="Wyświetla esse użytkownika [użytkownik] jeśli podany, lub autorowi, jeśli nie podany ",
                     inline=False)
-    embed.add_field(name=f"{prefix}convert [metoda] [tekst]",
+    embed2.add_field(name=f"{prefix}convert [metoda] [tekst]",
                     value="Konwertuje tekst [tekst] metodą [metoda]. Możliwe wartości: "
                           "s2b, b2s, s2h, h2s, s2b64, b642s",
                     inline=False)
-    embed.add_field(name=f"{prefix}8ball [pytanie]",
+    embed2.add_field(name=f"{prefix}8ball [pytanie]",
                     value="Odpowiada na pytanie [pytanie] tak, jakby to była magiczna kula",
                     inline=False)
-    embed.add_field(name=f"{prefix}story [opis]",
+    embed2.add_field(name=f"{prefix}story [opis]",
                     value="Tworzy historię za pomocą sztucznej inteligencji dla podanego opisu",
                     inline=False)
-    embed.add_field(name=f"{prefix}pp [użytkownik=None]",
+    embed2.add_field(name=f"{prefix}pp [użytkownik=None]",
                     value="Wyświetla długość siurka użytkownika [użytkownik] jeśli podany, lub autorowi, "
                           "jeśli nie podany. Może przyjmować też zwykły tekst",
                     inline=False)
-    embed.add_field(name=f"{prefix}story [słowo_kluczowe]",
+    embed2.add_field(name=f"{prefix}story [słowo_kluczowe]",
                     value="Tworzy historię dla podanego słowa kluczowego [słowo_kluczowe]",
                     inline=False)
-    embed.add_field(name=f"{prefix}uwu",
+    embed2.add_field(name=f"{prefix}uwu",
                     value="UwUalizuje wiadomość wyżej",
                     inline=False)
-    embed.add_field(name=f"{prefix}ban [użytkownik]",
+    embed2.add_field(name=f"{prefix}ban [użytkownik]",
                     value="Banuje użytkownika [użytkownik]",
                     inline=False)
-    return embed
+    embed2.add_field(name=f"{prefix}money [akcja]",
+                    value="Zarządzanie cebulionami. Możliwe wartości:\n"
+                          "check - wyświetla stan konta\n"
+                          "claim - odbiera dzienny bonus\n"
+                          "add [ilość] - dodaje [ilość] cebulionów (tylko dla adminów)\n"
+                          "ranking - wyświetla ranking użytkowników",
+                    inline=False)
+    embed2.add_field(name=f"{prefix}roulette [akcja]",
+                    value="Gra w ruletkę. Możliwe wartości:\n"
+                          "set [czas] - ustawia czas obstawiania\n"
+                          "start - rozpoczyna grę\n"
+                          "bet [ilość] [typ] - obstawia [ilość] cebulionów na [typ]",
+                    inline=False)
+
+    embeds.append(embed)
+    embeds.append(embed2)
+    return embeds
