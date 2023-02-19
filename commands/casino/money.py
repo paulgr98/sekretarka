@@ -59,6 +59,7 @@ async def check_privileges(ctx: commands.Context):
     else:
         return False
 
+
 async def process_remove_money(ctx, money_manager, *args):
     # get list of user roles
     roles = [role.name for role in ctx.author.roles]
