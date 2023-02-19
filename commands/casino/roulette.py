@@ -66,8 +66,8 @@ async def roulette_start(ctx: commands.Context):
     roulette_instance.spin_wheel()
     await ctx.send('Losowanie')
     await asyncio.sleep(5)
-    result = roulette_instance.get_last_result()
-    await ctx.send(f'Wylosowano {result}')
+    result: roulette.Field = roulette_instance.get_last_result()
+    await ctx.send(f'Wylosowano {result} :{result.get_color()}_circle:')
     winners = roulette_instance.get_winners()
     if len(winners) == 0:
         await ctx.send('Nikt nie wygrał')
