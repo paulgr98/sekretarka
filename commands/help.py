@@ -102,6 +102,7 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                           "check - wyświetla stan konta\n"
                           "claim - odbiera dzienny bonus\n"
                           "add [ilość] - dodaje [ilość] cebulionów (tylko dla adminów)\n"
+                          "remove [ilość] - usuwa [ilość] cebulionów (tylko dla adminów)"
                           "ranking - wyświetla ranking użytkowników",
                     inline=False)
     embed2.add_field(name=f"{prefix}roulette [akcja]",

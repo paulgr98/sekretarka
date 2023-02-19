@@ -734,14 +734,14 @@ async def money_command(ctx: commands.Context, *args: str):
     if args[0] == 'check':
         await ctx.reply(f'Masz {money_manager.get_money()} cebulionów')
         return
-    if args[0] == 'claim':
+    elif args[0] == 'claim':
         if money_manager.claim_daily():
             await ctx.reply(f'Otrzymałeś {money_manager.daily_amount} cebulionów')
             return
         else:
             await ctx.reply('Już otrzymałeś dziś darmowe pieniądze cebulaku!')
             return
-    if args[0] == 'add':
+    elif args[0] == 'add':
         # get list of user roles
         roles = [role.name for role in ctx.author.roles]
         if 'admin' in roles:
@@ -762,7 +762,28 @@ async def money_command(ctx: commands.Context, *args: str):
         else:
             await ctx.reply('Nie masz uprawnień do tej komendy')
             return
-    if args[0] == 'ranking':
+    elif args[0] == 'remove':
+        # get list of user roles
+        roles = [role.name for role in ctx.author.roles]
+        if 'admin' in roles:
+            if len(args) < 2:
+                await ctx.reply('Nie podano kwoty')
+                return
+            if isinstance(int(args[1]), int):
+                if 0 < int(args[1]) <= 1000:
+                    money_manager.remove_money(int(args[1]))
+                else:
+                    await ctx.reply('Podaj poprawną kwotę od 1 do 1000')
+                    return
+                await ctx.reply(f'Usunięto {args[1]} cebulionów')
+                return
+            else:
+                await ctx.reply('Podaj poprawną kwotę')
+                return
+        else:
+            await ctx.reply('Nie masz uprawnień do tej komendy')
+            return
+    elif args[0] == 'ranking':
         ranking = money_manager.get_ranking()
         for user_id, amount in ranking:
             # find user by id
