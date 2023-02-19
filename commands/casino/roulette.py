@@ -31,10 +31,11 @@ async def roulette_main(ctx: commands.Context, *args: str):
         await ctx.reply('https://t3.ftcdn.net/jpg/04/09/51/40/360_F_409514024_hRZxuXUW7EhdjNMzZc7qJS30MLpD8yqg.jpg')
 
 
-async def show_previous_results(ctx: commands.Context):
+async def show_previous_results(ctx: commands.Context, show_if_empty: bool = True):
     prev = roulette_instance.get_previous_results()
     if len(prev) == 0:
-        await ctx.reply('Brak poprzednich wyników')
+        if show_if_empty:
+            await ctx.reply('Brak poprzednich wyników')
         return
     prev = [f'{p.number} :{p.get_color()}_circle:' for p in prev]
     await ctx.reply('Poprzednie wyniki: ' + ', '.join(prev))
@@ -52,22 +53,25 @@ async def set_round_time(ctx, time: int):
 
 
 async def roulette_start(ctx: commands.Context):
+    # starting game phase
     global roulette_instance
     roulette_instance.start_game()
     await ctx.send('Rozpoczynanie gry')
-    previous_results = roulette_instance.get_previous_results()
-    if len(previous_results) > 0:
-        previous_results = [str(x) for x in previous_results]
-        previous_results = ', '.join(previous_results)
-        await ctx.send(f'Poprzednie wyniki: {previous_results}')
+    await show_previous_results(ctx, show_if_empty=False)
     await asyncio.sleep(roulette_instance.round_time)
+
+    # betting phase
     roulette_instance.stop_game()
     await ctx.send('Koniec obstawiania!')
     roulette_instance.spin_wheel()
     await ctx.send('Losowanie')
     await asyncio.sleep(5)
+
+    # drawing phase
     result: roulette.Field = roulette_instance.get_last_result()
     await ctx.send(f'Wylosowano {result} :{result.get_color()}_circle:')
+
+    # checking bets phase
     winners = roulette_instance.get_winners()
     if len(winners) == 0:
         await ctx.send('Nikt nie wygrał')

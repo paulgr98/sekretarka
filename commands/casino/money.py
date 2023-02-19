@@ -17,6 +17,8 @@ async def money_command(ctx: commands.Context, client: commands.Bot, *args: str)
             await ctx.reply('Już otrzymałeś dziś darmowe pieniądze cebulaku!')
     elif args[0] == 'add':
         await process_add_money(ctx, money_manager, *args)
+    elif args[0] == 'give':
+        await process_give_money(ctx, money_manager, *args)
     elif args[0] == 'remove':
         await process_remove_money(ctx, money_manager, *args)
     elif args[0] == 'ranking':
@@ -36,7 +38,7 @@ async def process_add_money(ctx, money_manager, *args):
     if isinstance(int(args[1]), int):
         if 0 < int(args[1]) <= 1000:
             if len(args) == 3:
-                member = get_user_from_mention(ctx, args[2])
+                member = await get_user_from_mention(ctx, args[2])
                 if member is None:
                     return
                 money_manager = money.MoneyManager(member.id)
@@ -44,11 +46,11 @@ async def process_add_money(ctx, money_manager, *args):
             else:
                 money_manager.add_money(int(args[1]))
         else:
-            await ctx.reply('Podaj poprawną kwotę od 1 do 1000')
+            await ctx.reply('Podaj kwotę od 1 do 1000')
             return
         await ctx.reply(f'Dodano {args[1]} cebulionów')
     else:
-        await ctx.reply('Podaj poprawną kwotę')
+        await ctx.reply('Podaj ilość cebulionów')
 
 
 async def check_privileges(ctx: commands.Context):
@@ -60,17 +62,41 @@ async def check_privileges(ctx: commands.Context):
         return False
 
 
+async def process_give_money(ctx, sender, *args):
+    if len(args) != 3:
+        await ctx.reply('Zła ilość argumentów.\nPoprawne użycie: $money give <kwota> <@user>')
+        return
+    if isinstance(int(args[1]), int):
+        if 0 < int(args[1]) <= 1000:
+            if sender.get_money() < int(args[1]):
+                await ctx.reply('Nie masz tyle pieniędzy')
+                return
+            member = await get_user_from_mention(ctx, args[2])
+            if member is None:
+                return
+            sender.remove_money(int(args[1]))
+
+            receiver = money.MoneyManager(member.id)
+            receiver.add_money(int(args[1]))
+            await ctx.reply(f'Przekazano {args[1]} cebulionów dla {member.name}')
+        else:
+            await ctx.reply('Podaj poprawną kwotę od 1 do 1000')
+            return
+    else:
+        await ctx.reply('Podaj poprawną kwotę')
+
+
 async def process_remove_money(ctx, money_manager, *args):
     # get list of user roles
     roles = [role.name for role in ctx.author.roles]
     if 'admin' in roles:
-        if len(args) == 3:
+        if len(args) < 2:
             await ctx.reply('Nie podano kwoty')
             return
         if isinstance(int(args[1]), int):
             if 0 < int(args[1]) <= 1000:
                 if len(args) > 2:
-                    member = get_user_from_mention(ctx, args[2])
+                    member = await get_user_from_mention(ctx, args[2])
                     if member is None:
                         return
                     money_manager = money.MoneyManager(member.id)
