@@ -26,31 +26,38 @@ async def money_command(ctx: commands.Context, client: commands.Bot, *args: str)
 
 
 async def process_add_money(ctx, money_manager, *args):
+    if not await check_privileges(ctx):
+        await ctx.reply('Komenda dostępna tylko dla prezesa.\n'
+                        'Aby dostać darmowy hajs, wyślij prezesowi nudesy')
+        return
+    if len(args) < 2:
+        await ctx.reply('Nie podano kwoty')
+        return
+    if isinstance(int(args[1]), int):
+        if 0 < int(args[1]) <= 1000:
+            if len(args) == 3:
+                member = get_user_from_mention(ctx, args[2])
+                if member is None:
+                    return
+                money_manager = money.MoneyManager(member.id)
+                money_manager.add_money(int(args[1]))
+            else:
+                money_manager.add_money(int(args[1]))
+        else:
+            await ctx.reply('Podaj poprawną kwotę od 1 do 1000')
+            return
+        await ctx.reply(f'Dodano {args[1]} cebulionów')
+    else:
+        await ctx.reply('Podaj poprawną kwotę')
+
+
+async def check_privileges(ctx: commands.Context):
     # get list of user roles
     roles = [role.name for role in ctx.author.roles]
-    if 'admin' in roles:
-        if len(args) < 2:
-            await ctx.reply('Nie podano kwoty')
-            return
-        if isinstance(int(args[1]), int):
-            if 0 < int(args[1]) <= 1000:
-                if len(args) == 3:
-                    member = get_user_from_mention(ctx, args[2])
-                    if member is None:
-                        return
-                    money_manager = money.MoneyManager(member.id)
-                    money_manager.add_money(int(args[1]))
-                else:
-                    money_manager.add_money(int(args[1]))
-            else:
-                await ctx.reply('Podaj poprawną kwotę od 1 do 1000')
-                return
-            await ctx.reply(f'Dodano {args[1]} cebulionów')
-        else:
-            await ctx.reply('Podaj poprawną kwotę')
+    if 'prezes' in roles:
+        return True
     else:
-        await ctx.reply('Nie masz uprawnień do tej komendy')
-
+        return False
 
 async def process_remove_money(ctx, money_manager, *args):
     # get list of user roles
