@@ -556,6 +556,10 @@ async def drink(ctx: commands.Context, *drink_name: str):
 # free epic store games
 @client.command('free')
 async def epic_free_games(ctx: commands.Context, period: str = 'current'):
+    global bot_channels
+    if ctx.channel.name not in bot_channels:
+        await ctx.reply(f'Komendy {client.command_prefix}free można używać tylko na kanale do tego przeznaczonym')
+        return
     try:
         free_games = epic.get_free_games(period)
     except ValueError:
@@ -612,8 +616,13 @@ async def pp_length(ctx: commands.Context, member=None):
         await ctx.reply(f'{member.mention} ma {pp} cm siurka :3')
 
 
+# command to generate a story using OpenAI API
 @client.command('story')
 async def story(ctx: commands.Context, *keywords: str):
+    global bot_channels
+    if ctx.channel.name not in bot_channels:
+        await ctx.reply(f'Komendy {client.command_prefix}story można używać tylko na kanale do tego przeznaczonym')
+        return
     # check if there are any keywords
     if len(keywords) == 0:
         await ctx.reply('Podaj słowo kluczowe (np. kot)')
@@ -632,6 +641,10 @@ async def story(ctx: commands.Context, *keywords: str):
 
 @client.command(aliases=['rr', 'roulette'])
 async def roulette_command(ctx: commands.Context, *args: str):
+    global bot_channels
+    if ctx.channel.name not in bot_channels:
+        await ctx.reply('Tej komendy można używać tylko na kanale do tego przeznaczonym')
+        return
     await roulette_cmd.roulette_main(ctx, *args)
 
 
@@ -643,6 +656,10 @@ async def money_command(ctx: commands.Context, *args: str):
 # help command to show all commands
 @client.command('pomoc')
 async def help_command(ctx: commands.Context):
+    global bot_channels
+    if ctx.channel.name not in bot_channels:
+        await ctx.reply('Tej komendy można używać tylko na kanale do tego przeznaczonym')
+        return
     embeds = help.get_help_embed(client.command_prefix)
     for embed in embeds:
         await ctx.send(embed=embed)
