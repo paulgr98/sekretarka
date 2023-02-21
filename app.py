@@ -665,5 +665,10 @@ async def help_command(ctx: commands.Context):
         await ctx.send(embed=embed)
 
 
-# run the bot
-client.run(cfg.TOKEN)
+def main():
+    # run the bot
+    client.run(cfg.TOKEN)
+
+
+if __name__ == '__main__':
+    main()
