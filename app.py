@@ -35,6 +35,7 @@ from commands import weather
 from commands import astrology
 from commands import poll
 from commands import generate_story
+from commands import news
 from commands.casino import roulette as roulette_cmd
 from commands.casino import money as money_cmd
 
@@ -671,8 +672,13 @@ async def morning_routine(ctx):
     welcome_text += f"\n**Imieniny obchodzą:** {names}\n"
 
     holidays = await fun_holidays()
-    welcome_text += f"\n{holidays}"
+    welcome_text += f"\n{holidays}\n"
+    welcome_text += '\n**Aktualne wiadomości z TVN24:**'
     await channel.send(welcome_text)
+
+    news_embeds = await news.get_news_embeds(3)
+    for embed in news_embeds:
+        await channel.send(embed=embed)
 
 
 async def fun_holidays():
