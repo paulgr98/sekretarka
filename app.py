@@ -8,6 +8,7 @@ import time
 import random
 import math
 from openai.error import OpenAIError
+import asyncio
 
 from components.uwuify import uwuify
 from components.reddit import get_subreddit_random_hot
@@ -108,6 +109,7 @@ async def on_ready():
     print(client.user)
     print('-----------------')
     print('Ready to go!')
+    await schedule_morning_routine()
 
 
 # on message convert content to lowercase
@@ -653,6 +655,34 @@ async def money_command(ctx: commands.Context, *args: str):
     await money_cmd.money_command(ctx, client, *args)
 
 
+@client.command('morning')
+async def morning_routine(ctx):
+    channel = client.get_channel(cfg.MORNING_CHANNEL_ID)
+
+    day_names = {0: 'Poniedziałek', 1: 'Wtorek', 2: 'Sroda', 3: 'Czwartek', 4: 'Piątek', 5: 'Sobota', 6: 'Niedziela'}
+    now = dt.datetime.now()
+
+    welcome_text = "Dzień dobry!\n"
+    welcome_text += f"Dzisiaj jest {now.strftime('%d.%m.%Y')} - {day_names[now.weekday()]}\n"
+
+    names = nd.get_names()
+    names = ', '.join(names)
+    welcome_text += f"Imieniny obchodzą: {names}"
+
+    await channel.send(welcome_text)
+
+
+async def schedule_morning_routine():
+    while True:
+        now = dt.datetime.now()
+        # timedelta 1 day from now
+        target = now + dt.timedelta(days=1)
+        target.replace(hour=7, minute=0, second=0)
+        wait_time = (target - now).total_seconds()
+        await asyncio.sleep(wait_time)
+        await morning_routine()
+
+
 # help command to show all commands
 @client.command('pomoc')
 async def help_command(ctx: commands.Context):
@@ -666,7 +696,6 @@ async def help_command(ctx: commands.Context):
 
 
 def main():
-    # run the bot
     client.run(cfg.TOKEN)
 
 
