@@ -16,6 +16,7 @@ from components.demotes import get_demotes
 from components.compliments import get_compliment_list
 from components.disses import get_diss_list
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
+from components.fun_holidays_api import FunHolidaysApi
 
 from components import (
     nameday as nd,
@@ -662,14 +663,25 @@ async def morning_routine(ctx):
     day_names = {0: 'Poniedziałek', 1: 'Wtorek', 2: 'Sroda', 3: 'Czwartek', 4: 'Piątek', 5: 'Sobota', 6: 'Niedziela'}
     now = dt.datetime.now()
 
-    welcome_text = "Dzień dobry!\n"
-    welcome_text += f"Dzisiaj jest {now.strftime('%d.%m.%Y')} - {day_names[now.weekday()]}\n"
+    welcome_text = "**Dzień dobry!**\n"
+    welcome_text += f"Dzisiaj jest **{now.strftime('%d.%m.%Y')}** - {day_names[now.weekday()]}\n"
 
     names = nd.get_names()
     names = ', '.join(names)
-    welcome_text += f"Imieniny obchodzą: {names}"
+    welcome_text += f"\n**Imieniny obchodzą:** {names}\n"
 
+    holidays = await fun_holidays()
+    welcome_text += f"\n{holidays}"
     await channel.send(welcome_text)
+
+
+async def fun_holidays():
+    holidays = FunHolidaysApi()
+    names = holidays.get_holidays_for_today()
+    msg = '**Dzisiaj obchoodzimy:**\n'
+    for name in names:
+        msg += f'- {name}\n'
+    return msg
 
 
 async def schedule_morning_routine():
