@@ -657,8 +657,7 @@ async def money_command(ctx: commands.Context, *args: str):
     await money_cmd.money_command(ctx, client, *args)
 
 
-@client.command('morning')
-async def morning_routine(ctx):
+async def morning_routine():
     channel = client.get_channel(cfg.MORNING_CHANNEL_ID)
 
     day_names = {0: 'Poniedziałek', 1: 'Wtorek', 2: 'Sroda', 3: 'Czwartek', 4: 'Piątek', 5: 'Sobota', 6: 'Niedziela'}
@@ -691,14 +690,23 @@ async def fun_holidays():
 
 
 async def schedule_morning_routine():
+    # set target time to 7:00
+    target = dt.datetime.now()
+    target = target.replace(hour=7, minute=0, second=0, microsecond=0)
+
     while True:
         now = dt.datetime.now()
-        # timedelta 1 day from now
-        target = now + dt.timedelta(days=1)
-        target.replace(hour=7, minute=0, second=0)
         wait_time = (target - now).total_seconds()
+        if wait_time < 0:
+            # if the target time has already passed, set target time to 7:00 tomorrow
+            target += dt.timedelta(days=1)
+            continue
+        # wait for the amount of time left until the target time
         await asyncio.sleep(wait_time)
-        await morning_routine()
+        if now.day == target.day and now.hour == target.hour and now.minute == target.minute:
+            # execute morning routine and set target time to 7:00 tomorrow
+            await morning_routine()
+            target += dt.timedelta(days=1)
 
 
 # help command to show all commands
