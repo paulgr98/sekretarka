@@ -1,6 +1,6 @@
-import discord
 from discord.ext import commands
 from components.casino import money
+from components import utility
 
 
 async def money_command(ctx: commands.Context, client: commands.Bot, *args: str):
@@ -38,8 +38,9 @@ async def process_add_money(ctx, money_manager, *args):
     if isinstance(int(args[1]), int):
         if 0 < int(args[1]) <= 1000:
             if len(args) == 3:
-                member = await get_user_from_mention(ctx, args[2])
+                member = await utility.get_user_from_mention(ctx, args[2])
                 if member is None:
+                    await ctx.reply('Podaj poprawny ID użytkownika')
                     return
                 money_manager = money.MoneyManager(member.id)
                 money_manager.add_money(int(args[1]))
@@ -71,8 +72,9 @@ async def process_give_money(ctx, sender, *args):
             if sender.get_money() < int(args[1]):
                 await ctx.reply('Nie masz tyle pieniędzy')
                 return
-            member = await get_user_from_mention(ctx, args[2])
+            member = await utility.get_user_from_mention(ctx, args[2])
             if member is None:
+                await ctx.reply('Podaj poprawny ID użytkownika')
                 return
             sender.remove_money(int(args[1]))
 
@@ -96,8 +98,9 @@ async def process_remove_money(ctx, money_manager, *args):
         if isinstance(int(args[1]), int):
             if 0 < int(args[1]) <= 1000:
                 if len(args) > 2:
-                    member = await get_user_from_mention(ctx, args[2])
+                    member = await utility.get_user_from_mention(ctx, args[2])
                     if member is None:
+                        await ctx.reply('Podaj poprawny ID użytkownika')
                         return
                     money_manager = money.MoneyManager(member.id)
                     money_manager.remove_money(int(args[1]))
@@ -111,18 +114,6 @@ async def process_remove_money(ctx, money_manager, *args):
             await ctx.reply('Podaj poprawną kwotę')
     else:
         await ctx.reply('Nie masz uprawnień do tej komendy')
-
-
-async def get_user_from_mention(ctx: commands.Context, mention: str):
-    try:
-        # <@!user_id> -> user_id
-        user_id = str(mention)[2:-1]
-        # get user object from id
-        member = discord.utils.get(ctx.guild.members, id=int(user_id))
-        return member
-    except ValueError:
-        await ctx.reply('Podaj poprawny ID użytkownika')
-        return None
 
 
 async def process_money_ranking(ctx: commands.Context, money_manager: money.MoneyManager, client: commands.Bot):

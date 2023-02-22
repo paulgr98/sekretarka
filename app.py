@@ -16,7 +16,6 @@ from components.demotes import get_demotes
 from components.compliments import get_compliment_list
 from components.disses import get_diss_list
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
-from components.fun_holidays_api import FunHolidaysApi
 
 from components import (
     nameday as nd,
@@ -25,6 +24,7 @@ from components import (
     essa,
     magic_ball,
     pp_len,
+    fun_holidays_api as fha,
 )
 
 from commands import help
@@ -36,6 +36,7 @@ from commands import astrology
 from commands import poll
 from commands import generate_story
 from commands import news
+from commands import birthday_tracker as bt
 from commands.casino import roulette as roulette_cmd
 from commands.casino import money as money_cmd
 
@@ -670,6 +671,11 @@ async def morning_routine():
     names = ', '.join(names)
     welcome_text += f"\n**Imieniny obchodzą:** {names}\n"
 
+    bday_info = await get_birthday_text()
+    if bday_info is not None:
+        welcome_text += '\n'
+        welcome_text += bday_info
+
     holidays = await fun_holidays()
     welcome_text += f"\n{holidays}\n"
     welcome_text += '\n**Aktualne wiadomości z TVN24:**'
@@ -681,11 +687,24 @@ async def morning_routine():
 
 
 async def fun_holidays():
-    holidays = FunHolidaysApi()
+    holidays = fha.FunHolidaysApi()
     names = holidays.get_holidays_for_today()
     msg = '**Dzisiaj obchoodzimy:**\n'
     for name in names:
         msg += f'- {name}\n'
+    return msg
+
+
+async def get_birthday_text():
+    bdays = await bt.get_today_birthdays()
+    if bdays is None:
+        return None
+    msg = '**Dzisiaj urodziny obchodzą:**\n'
+    for user_id, date in bdays:
+        nick = discord.utils.get(client.get_all_members(), id=int(user_id)).display_name
+        date_dt = dt.datetime.strptime(date, '%d.%m.%Y')
+        age = dt.datetime.now().year - date_dt.year
+        msg += f'- {nick} ({age} lat)\n'
     return msg
 
 
@@ -707,6 +726,11 @@ async def schedule_morning_routine():
             # execute morning routine and set target time to 7:00 tomorrow
             await morning_routine()
             target += dt.timedelta(days=1)
+
+
+@client.command('bday')
+async def birthday_command(ctx: commands.Context, action: str, *args: str):
+    await bt.birthday_main(ctx, action, *args)
 
 
 # help command to show all commands
