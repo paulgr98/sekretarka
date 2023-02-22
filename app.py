@@ -660,7 +660,7 @@ async def money_command(ctx: commands.Context, *args: str):
 async def morning_routine():
     channel = client.get_channel(cfg.MORNING_CHANNEL_ID)
 
-    day_names = {0: 'Poniedziałek', 1: 'Wtorek', 2: 'Sroda', 3: 'Czwartek', 4: 'Piątek', 5: 'Sobota', 6: 'Niedziela'}
+    day_names = {0: 'Poniedziałek', 1: 'Wtorek', 2: 'Środa', 3: 'Czwartek', 4: 'Piątek', 5: 'Sobota', 6: 'Niedziela'}
     now = dt.datetime.now()
 
     welcome_text = "**Dzień dobry!**\n"
