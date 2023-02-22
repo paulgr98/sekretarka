@@ -699,12 +699,20 @@ async def get_birthday_text():
     bdays = await bt.get_today_birthdays()
     if bdays is None:
         return None
-    msg = '**Dzisiaj urodziny obchodzą:**\n'
+    msg = '**Urodziny mają**\n'
+    users = []
     for user_id, date in bdays:
-        nick = discord.utils.get(client.get_all_members(), id=int(user_id)).display_name
+        user = discord.utils.get(client.get_all_members(), id=int(user_id))
+        users.append(user)
         date_dt = dt.datetime.strptime(date, '%d.%m.%Y')
         age = dt.datetime.now().year - date_dt.year
-        msg += f'- {nick} ({age} lat)\n'
+        msg += f'- {user.display_name} ({age} lat)\n'
+
+    msg += '\n'
+    for usr in users:
+        msg += f'{usr.mention} '
+    msg += '\n**Wszystkiego najlepszego!** Zdrówka i spełnienia marzeń :heart:\n'
+
     return msg
 
 
