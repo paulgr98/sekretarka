@@ -105,7 +105,7 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                            "remove [ilość] - usuwa [ilość] cebulionów (tylko dla adminów)"
                            "ranking - wyświetla ranking użytkowników",
                      inline=False)
-    embed2.add_field(name=f"{prefix}roulette [akcja]",
+    embed2.add_field(name=f"{prefix}rr [akcja]",
                      value="Gra w ruletkę. Możliwe wartości:\n"
                            "set [czas] - ustawia czas obstawiania\n"
                            "start - rozpoczyna grę\n"
@@ -113,6 +113,15 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                            "prev - wyświetla poprzednie wyniki"
                            "img - wyświetla wygląd stołu do gry"
                            "help - wyświetla listę dostępnych typów zakładów",
+                     inline=False)
+    embed2.add_field(name=f"{prefix}bday [akcja] <użytkownik> <data>",
+                     value="Zarządzanie urodzinami. Możliwe wartości:\n"
+                           "add <data> <użytkownik>- dodaje urodziny użytkownika <użytkownik> na dzień <data>\n"
+                           "remove <użytkownik> - usuwa urodziny użytkownika <użytkownik>\n"
+                           "get <użytkownik> - wyświetla urodziny użytkownika <użytkownik>\n"
+                           "list - wyświetla listę urodzin"
+                           "today - wyświetla listę urodzin na dziś"
+                           "next - wyświetla najbliższe urodziny",
                      inline=False)
 
     embeds.append(embed)
