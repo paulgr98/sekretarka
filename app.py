@@ -730,6 +730,7 @@ async def schedule_morning_routine():
             continue
         # wait for the amount of time left until the target time
         await asyncio.sleep(wait_time)
+        now = dt.datetime.now()
         if now.day == target.day and now.hour == target.hour and now.minute == target.minute:
             # execute morning routine and set target time to 7:00 tomorrow
             await morning_routine()
