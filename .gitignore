@@ -307,3 +307,4 @@ poetry.toml
 /__pycache__/
 /.idea/*.iml
 /.idea/misc.xml
+/.idea
