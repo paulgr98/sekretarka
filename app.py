@@ -732,9 +732,9 @@ async def schedule_morning_routine():
         await asyncio.sleep(wait_time)
         now = dt.datetime.now()
         if now.day == target.day and now.hour == target.hour and now.minute == target.minute:
+            target += dt.timedelta(days=1)
             # execute morning routine and set target time to 7:00 tomorrow
             await morning_routine()
-            target += dt.timedelta(days=1)
 
 
 @client.command('bday')
