@@ -747,8 +747,8 @@ async def birthday_command(ctx: commands.Context, action: str, *args: str):
 async def gpt_command(ctx: commands.Context, *args: str):
     gpt = ChatGPT()
     prompt = ' '.join(args)
-    response = gpt.complete(prompt)
     await ctx.typing()
+    response = gpt.complete(prompt)
     await ctx.send(response)
 
 
