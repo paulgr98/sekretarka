@@ -123,6 +123,11 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                            "today - wyświetla listę urodzin na dziś"
                            "next - wyświetla najbliższe urodziny",
                      inline=False)
+    embed2.add_field(name=f"{prefix}gpt [wiadomość]",
+                     value="Rozmowa ze sztuczną inteligencją (ChatGPT). "
+                           "Można poprosić ją o pomoc, albo żeby coś zrobiła "
+                           "(np. napisz streszczenie książki Ferdydurke)",
+                     inline=False)
 
     embeds.append(embed)
     embeds.append(embed2)
