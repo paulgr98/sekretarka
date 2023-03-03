@@ -16,6 +16,7 @@ from components.demotes import get_demotes
 from components.compliments import get_compliment_list
 from components.disses import get_diss_list
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
+from components.openai_models import ChatGPT
 
 from components import (
     nameday as nd,
@@ -681,7 +682,7 @@ async def morning_routine():
     welcome_text += '\n**Aktualne wiadomości z TVN24:**'
     await channel.send(welcome_text)
 
-    news_embeds = await news.get_news_embeds(3)
+    news_embeds = news.get_news_embeds(3)
     for embed in news_embeds:
         await channel.send(embed=embed)
 
@@ -740,6 +741,15 @@ async def schedule_morning_routine():
 @client.command('bday')
 async def birthday_command(ctx: commands.Context, action: str, *args: str):
     await bt.birthday_main(ctx, action, *args)
+
+
+@client.command('gpt')
+async def gpt_command(ctx: commands.Context, *args: str):
+    gpt = ChatGPT()
+    prompt = ' '.join(args)
+    response = gpt.complete(prompt)
+    await ctx.typing()
+    await ctx.send(response)
 
 
 # help command to show all commands

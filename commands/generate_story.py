@@ -1,4 +1,4 @@
-from components import gpt_davinci_model
+from components import openai_models
 import googletrans as gt
 
 

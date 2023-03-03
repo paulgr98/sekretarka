@@ -24,3 +24,18 @@ class Davinci(object):
         prompt = f'Write a story about {keywords}.'
         story = self.complete(prompt)
         return story
+
+
+class ChatGPT(object):
+    def __init__(self):
+        openai.api_key = cfg.OPENAI_API_KEY
+
+    def complete(self, prompt: str) -> str:
+        completion = openai.ChatCompletion.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )
+        content: str = completion.choices[0].message["content"]
+        return content
