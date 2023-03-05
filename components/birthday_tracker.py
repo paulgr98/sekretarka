@@ -72,8 +72,12 @@ class BirthdayTracker(object):
             birthday_date = birthday_date.replace(year=today.year)
             if birthday_date < today:
                 continue
+            # if nearest_birthday_date is already set, compare it use the version with current year
+            nearest_bday_no_year = None
+            if nearest_birthday_date is not None:
+                nearest_bday_no_year = dt.datetime.strptime(nearest_birthday_date, '%d.%m.%Y').replace(year=today.year)
             # if nearest_birthday_date is not yet set or the current birthday is closer than the previous one
-            if nearest_birthday_date is None or birthday_date < dt.datetime.strptime(nearest_birthday_date, '%d.%m.%Y'):
+            if nearest_birthday_date is None or birthday_date < nearest_bday_no_year:
                 nearest_birthday_date = birthday
 
         # if there are no upcoming birthdays, return empty list
