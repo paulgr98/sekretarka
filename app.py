@@ -8,7 +8,6 @@ import time
 import random
 import math
 from openai.error import OpenAIError
-import asyncio
 
 from components.uwuify import uwuify
 from components.reddit import get_subreddit_random_hot
@@ -25,7 +24,7 @@ from components import (
     essa,
     magic_ball,
     pp_len,
-    fun_holidays_api as fha,
+    morning_routine as mr,
 )
 
 from commands import help
@@ -36,7 +35,6 @@ from commands import weather
 from commands import astrology
 from commands import poll
 from commands import generate_story
-from commands import news
 from commands import birthday_tracker as bt
 from commands.casino import roulette as roulette_cmd
 from commands.casino import money as money_cmd
@@ -113,7 +111,7 @@ async def on_ready():
     print(client.user)
     print('-----------------')
     print('Ready to go!')
-    await schedule_morning_routine()
+    await mr.schedule_morning_routine(client)
 
 
 # on message convert content to lowercase
@@ -659,83 +657,9 @@ async def money_command(ctx: commands.Context, *args: str):
     await money_cmd.money_command(ctx, client, *args)
 
 
-async def morning_routine():
-    channel = client.get_channel(cfg.MORNING_CHANNEL_ID)
-
-    day_names = {0: 'Poniedziałek', 1: 'Wtorek', 2: 'Środa', 3: 'Czwartek', 4: 'Piątek', 5: 'Sobota', 6: 'Niedziela'}
-    now = dt.datetime.now()
-
-    welcome_text = "**Dzień dobry!**\n"
-    welcome_text += f"Dzisiaj jest **{now.strftime('%d.%m.%Y')}** - {day_names[now.weekday()]}\n"
-
-    names = nd.get_names()
-    names = ', '.join(names)
-    welcome_text += f"\n**Imieniny obchodzą:** {names}\n"
-
-    bday_info = await get_birthday_text()
-    if bday_info is not None:
-        welcome_text += '\n'
-        welcome_text += bday_info
-
-    holidays = await fun_holidays()
-    welcome_text += f"\n{holidays}\n"
-    welcome_text += '\n**Aktualne wiadomości z TVN24:**'
-    await channel.send(welcome_text)
-
-    news_embeds = news.get_news_embeds(3)
-    for embed in news_embeds:
-        await channel.send(embed=embed)
-
-
-async def fun_holidays():
-    holidays = fha.FunHolidaysApi()
-    names = holidays.get_holidays_for_today()
-    msg = '**Dzisiaj obchoodzimy:**\n'
-    for name in names:
-        msg += f'- {name}\n'
-    return msg
-
-
-async def get_birthday_text():
-    bdays = await bt.get_today_birthdays()
-    if bdays is None:
-        return None
-    msg = '**Urodziny mają**\n'
-    users = []
-    for user_id, date in bdays:
-        user = discord.utils.get(client.get_all_members(), id=int(user_id))
-        users.append(user)
-        date_dt = dt.datetime.strptime(date, '%d.%m.%Y')
-        age = dt.datetime.now().year - date_dt.year
-        msg += f'- {user.display_name} ({age} lat)\n'
-
-    msg += '\n'
-    for usr in users:
-        msg += f'{usr.mention} '
-    msg += '\n**Wszystkiego najlepszego!** Zdrówka i spełnienia marzeń :heart:\n'
-
-    return msg
-
-
-async def schedule_morning_routine():
-    # set target time to 7:00
-    target = dt.datetime.now()
-    target = target.replace(hour=7, minute=0, second=0, microsecond=0)
-
-    while True:
-        now = dt.datetime.now()
-        wait_time = (target - now).total_seconds()
-        if wait_time < 0:
-            # if the target time has already passed, set target time to 7:00 tomorrow
-            target += dt.timedelta(days=1)
-            continue
-        # wait for the amount of time left until the target time
-        await asyncio.sleep(wait_time)
-        now = dt.datetime.now()
-        if now.day == target.day and now.hour == target.hour and now.minute == target.minute:
-            target += dt.timedelta(days=1)
-            # execute morning routine and set target time to 7:00 tomorrow
-            await morning_routine()
+@client.command('morning')
+async def test_morning_routine(ctx: commands.Context):
+    await mr.morning_routine(client)
 
 
 @client.command('bday')
