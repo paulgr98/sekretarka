@@ -26,6 +26,7 @@ def get_next_race(target_dt: dt.datetime):
 
     # convert target_dt to local timezone
     local_timezone = pytz.timezone('Europe/Warsaw')
+    utc_timezone = pytz.timezone('UTC')
     target_dt = target_dt.astimezone(local_timezone)
 
     next_race = None
@@ -35,6 +36,7 @@ def get_next_race(target_dt: dt.datetime):
         # race time is in UTC
         dt_str = f'{race_date}T{race_time}'
         race_dt = dt.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%SZ')
+        race_dt = utc_timezone.localize(race_dt)
         # convert race time to local timezone
         local_race_dt = race_dt.astimezone(local_timezone)
         # skipping all the races that are in the past
@@ -47,24 +49,29 @@ def get_next_race(target_dt: dt.datetime):
 
 async def schedule_f1_notifications(client: discord.Client):
     local_timezone = pytz.timezone('Europe/Warsaw')
+    utc_timezone = pytz.timezone('UTC')
     while True:
-        race = get_next_race(dt.datetime.now())
+        now = dt.datetime.now()
+        now = local_timezone.localize(now)
+        race = get_next_race(now)
+
         race_date = race['date']
         race_time = race['time']
         race_dt_str = f'{race_date}T{race_time}'
         race_dt = dt.datetime.strptime(race_dt_str, '%Y-%m-%dT%H:%M:%SZ')
+        race_dt = utc_timezone.localize(race_dt)
         target = race_dt.astimezone(local_timezone)
 
         # 15 minutes before race
         target -= dt.timedelta(minutes=15)
         now = dt.datetime.now()
-        now = now.astimezone(local_timezone)
+        now = local_timezone.localize(now)
         wait_time = (target - now).total_seconds()
         if wait_time < 0:
             continue
         await asyncio.sleep(wait_time)
         now = dt.datetime.now()
-        now = now.astimezone(local_timezone)
+        now = local_timezone.localize(now)
         if now.day == target.day and now.hour == target.hour and now.minute == target.minute:
             await f1_notification(client)
             one_day_time = 60 * 60 * 24
