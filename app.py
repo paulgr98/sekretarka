@@ -8,6 +8,7 @@ import time
 import random
 import math
 from openai.error import OpenAIError
+import asyncio
 
 from components.uwuify import uwuify
 from components.reddit import get_subreddit_random_hot
@@ -25,6 +26,7 @@ from components import (
     magic_ball,
     pp_len,
     morning_routine as mr,
+    f1 as f1schedule,
 )
 
 from commands import help
@@ -36,6 +38,7 @@ from commands import astrology
 from commands import poll
 from commands import generate_story
 from commands import birthday_tracker as bt
+from commands import f1cmd
 from commands.casino import roulette as roulette_cmd
 from commands.casino import money as money_cmd
 
@@ -111,7 +114,8 @@ async def on_ready():
     print(client.user)
     print('-----------------')
     print('Ready to go!')
-    await mr.schedule_morning_routine(client)
+    asyncio.create_task(mr.schedule_morning_routine(client))
+    asyncio.create_task(f1schedule.schedule_f1_notifications(client))
 
 
 # on message convert content to lowercase
@@ -674,6 +678,12 @@ async def gpt_command(ctx: commands.Context, *args: str):
     await ctx.typing()
     response = gpt.complete(prompt)
     await ctx.send(response)
+
+
+@client.command('f1')
+async def f1_command(ctx: commands.Context):
+    embed = f1cmd.make_next_race_embed()
+    await ctx.send("Następny wyścig", embed=embed)
 
 
 # help command to show all commands
