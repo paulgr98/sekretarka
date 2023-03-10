@@ -34,7 +34,7 @@ def get_next_race(target_dt: dt.datetime):
         race_time = race['time']
         # race time is in UTC
         dt_str = f'{race_date}T{race_time}'
-        race_dt = dt.datetime.fromisoformat(dt_str)
+        race_dt = dt.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%SZ')
         # convert race time to local timezone
         local_race_dt = race_dt.astimezone(local_timezone)
         # skipping all the races that are in the past
@@ -52,7 +52,7 @@ async def schedule_f1_notifications(client: discord.Client):
         race_date = race['date']
         race_time = race['time']
         race_dt_str = f'{race_date}T{race_time}'
-        race_dt = dt.datetime.fromisoformat(race_dt_str)
+        race_dt = dt.datetime.strptime(race_dt_str, '%Y-%m-%dT%H:%M:%SZ')
         target = race_dt.astimezone(local_timezone)
 
         # 15 minutes before race
