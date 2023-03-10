@@ -25,7 +25,7 @@ def make_next_race_embed():
     quali_date = race['Qualifying']['date']
     quali_time = race['Qualifying']['time']
     quali_dt_str = f'{quali_date}T{quali_time}'
-    quali_dt = dt.datetime.fromisoformat(quali_dt_str)
+    quali_dt = dt.datetime.strptime(quali_dt_str, '%Y-%m-%dT%H:%M:%SZ')
     quali_dt_local = quali_dt.astimezone(local_timezone)
     quali_date = quali_dt_local.date().strftime('%d.%m.%Y')
     quali_time = quali_dt_local.time().strftime('%H:%M')
@@ -37,7 +37,7 @@ def make_next_race_embed():
         sprint_date = race['Sprint']['date']
         sprint_time = race['Sprint']['time']
         sprint_dt_str = f'{sprint_date}T{sprint_time}'
-        sprint_dt = dt.datetime.fromisoformat(sprint_dt_str)
+        sprint_dt = dt.datetime.strptime(sprint_dt_str, '%Y-%m-%dT%H:%M:%SZ')
         sprint_dt_local = sprint_dt.astimezone(local_timezone)
         sprint_date = sprint_dt_local.date().strftime('%d.%m.%Y')
         sprint_time = sprint_dt_local.time().strftime('%H:%M')
@@ -49,7 +49,7 @@ def make_next_race_embed():
     race_time = race['time']
     # race time is in UTC
     race_dt_str = f'{race_date}T{race_time}'
-    race_dt = dt.datetime.fromisoformat(race_dt_str)
+    race_dt = dt.datetime.strptime(race_dt_str, '%Y-%m-%dT%H:%M:%SZ')
     race_dt_local = race_dt.astimezone(local_timezone)
     race_date = race_dt_local.date().strftime('%d.%m.%Y')
     race_time = race_dt_local.time().strftime('%H:%M')
