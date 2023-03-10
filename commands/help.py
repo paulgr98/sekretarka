@@ -128,6 +128,9 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                            "Można poprosić ją o pomoc, albo żeby coś zrobiła "
                            "(np. napisz streszczenie książki Ferdydurke)",
                      inline=False)
+    embed2.add_field(name=f"{prefix}f1",
+                     value="Wyświetla następny wyścig Formuły 1",
+                     inline=False)
 
     embeds.append(embed)
     embeds.append(embed2)
