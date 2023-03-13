@@ -1,15 +1,9 @@
 from components import f1
-import datetime as dt
-import pytz
 import discord
 
 
 def make_next_race_embed():
-    local_timezone = pytz.timezone('Europe/Warsaw')
-    utc_timezone = pytz.timezone('UTC')
-
-    current_dt = dt.datetime.now()
-    current_dt = local_timezone.localize(current_dt)
+    current_dt = f1.get_now_time()
     race = f1.get_next_race(current_dt)
 
     # dict_keys(['season', 'round', 'url', 'raceName', 'Circuit', 'date', 'time', 'FirstPractice', 'Qualifying',
@@ -26,10 +20,7 @@ def make_next_race_embed():
 
     quali_date = race['Qualifying']['date']
     quali_time = race['Qualifying']['time']
-    quali_dt_str = f'{quali_date}T{quali_time}'
-    quali_dt = dt.datetime.strptime(quali_dt_str, '%Y-%m-%dT%H:%M:%SZ')
-    quali_dt = utc_timezone.localize(quali_dt)
-    quali_dt_local = quali_dt.astimezone(local_timezone)
+    quali_dt_local = f1.str_to_local_dt(quali_date, quali_time)
     quali_date = quali_dt_local.date().strftime('%d.%m.%Y')
     quali_time = quali_dt_local.time().strftime('%H:%M')
     quali_day = quali_dt_local.weekday()
@@ -39,10 +30,7 @@ def make_next_race_embed():
     if 'Sprint' in race:
         sprint_date = race['Sprint']['date']
         sprint_time = race['Sprint']['time']
-        sprint_dt_str = f'{sprint_date}T{sprint_time}'
-        sprint_dt = dt.datetime.strptime(sprint_dt_str, '%Y-%m-%dT%H:%M:%SZ')
-        sprint_dt = utc_timezone.localize(sprint_dt)
-        sprint_dt_local = sprint_dt.astimezone(local_timezone)
+        sprint_dt_local = f1.str_to_local_dt(sprint_date, sprint_time)
         sprint_date = sprint_dt_local.date().strftime('%d.%m.%Y')
         sprint_time = sprint_dt_local.time().strftime('%H:%M')
         sprint_day = sprint_dt_local.weekday()
@@ -51,11 +39,7 @@ def make_next_race_embed():
 
     race_date = race['date']
     race_time = race['time']
-    # race time is in UTC
-    race_dt_str = f'{race_date}T{race_time}'
-    race_dt = dt.datetime.strptime(race_dt_str, '%Y-%m-%dT%H:%M:%SZ')
-    race_dt = utc_timezone.localize(race_dt)
-    race_dt_local = race_dt.astimezone(local_timezone)
+    race_dt_local = f1.str_to_local_dt(race_date, race_time)
     race_date = race_dt_local.date().strftime('%d.%m.%Y')
     race_time = race_dt_local.time().strftime('%H:%M')
     race_day = race_dt_local.weekday()
