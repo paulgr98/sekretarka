@@ -42,7 +42,18 @@ def get_next_race(target_dt: dt.datetime):
 
 
 async def schedule_f1_notifications(client: discord.Client):
-    await scheduler(client, get_race_time, race_notification)
+    now = get_now_time()
+    race = get_next_race(now)
+
+    quali_scheduler = scheduler(client, get_qualification_time, qualifying_notification)
+    race_scheduler = scheduler(client, get_race_time, race_notification)
+
+    asyncio.create_task(quali_scheduler)
+    asyncio.create_task(race_scheduler)
+
+    if "Sprint" in race:
+        sprint_scheduler = scheduler(client, get_sprint_time, sprint_notification)
+        asyncio.create_task(sprint_scheduler)
 
 
 def get_now_time() -> dt.datetime:
@@ -60,6 +71,26 @@ def get_race_time() -> dt.datetime:
     race_time = race['time']
     race_target = str_to_local_dt(race_date, race_time)
     return race_target
+
+
+def get_qualification_time() -> dt.datetime:
+    now = get_now_time()
+    race = get_next_race(now)
+
+    quali_date = race['Qualifying']['date']
+    quali_time = race['Qualifying']['time']
+    quali_target = str_to_local_dt(quali_date, quali_time)
+    return quali_target
+
+
+def get_sprint_time() -> dt.datetime:
+    now = get_now_time()
+    race = get_next_race(now)
+
+    sprint_date = race['Sprint']['date']
+    sprint_time = race['Sprint']['time']
+    sprint_target = str_to_local_dt(sprint_date, sprint_time)
+    return sprint_target
 
 
 def str_to_local_dt(date: str, time: str) -> dt.datetime:
@@ -102,12 +133,24 @@ async def scheduler(client: discord.Client,
 
 
 async def race_notification(client: discord.Client) -> None:
+    await notification(client, 'Wyścig zaczyna się za 15 minut!')
+
+
+async def qualifying_notification(client: discord.Client) -> None:
+    await notification(client, 'Kwalifikacje zaczynają się za 15 minut!')
+
+
+async def sprint_notification(client: discord.Client) -> None:
+    await notification(client, 'Sprint zaczyna się za 15 minut!')
+
+
+async def notification(client: discord.Client, message: str) -> None:
     channel = client.get_channel(cfg.MORNING_CHANNEL_ID)
     # get f1_notify role
     role = discord.utils.get(channel.guild.roles, name='f1_notify')
 
     # send notification
-    await channel.send(f'{role.mention} Wyścig zaczyna się za 15 minut!')
+    await channel.send(f'{role.mention} {message}')
 
 
 if __name__ == '__main__':
