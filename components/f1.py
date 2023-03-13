@@ -5,7 +5,14 @@ import json
 import asyncio
 import discord
 import config as cfg
+from typing import Coroutine, Callable
 
+
+# dict_keys(['season', 'round', 'url', 'raceName', 'Circuit', 'date', 'time', 'FirstPractice', 'SecondPractice',
+# 'ThirdPractice', 'Qualifying'])
+
+# dict_keys(['season', 'round', 'url', 'raceName', 'Circuit', 'date', 'time', 'FirstPractice', 'Qualifying',
+# 'SecondPractice', 'Sprint'])
 
 def get_current_season():
     f1 = F1()
@@ -18,27 +25,14 @@ def get_next_race(target_dt: dt.datetime):
     season = get_current_season()
     races_list = season['Races']
 
-    # dict_keys(['season', 'round', 'url', 'raceName', 'Circuit', 'date', 'time', 'FirstPractice', 'SecondPractice',
-    # 'ThirdPractice', 'Qualifying'])
-
-    # dict_keys(['season', 'round', 'url', 'raceName', 'Circuit', 'date', 'time', 'FirstPractice', 'Qualifying',
-    # 'SecondPractice', 'Sprint'])
-
     # convert target_dt to local timezone
-    local_timezone = pytz.timezone('Europe/Warsaw')
-    utc_timezone = pytz.timezone('UTC')
-    target_dt = target_dt.astimezone(local_timezone)
+    target_dt = dt_to_local_dt(target_dt)
 
     next_race = None
     for race in races_list:
         race_date = race['date']
         race_time = race['time']
-        # race time is in UTC
-        dt_str = f'{race_date}T{race_time}'
-        race_dt = dt.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%SZ')
-        race_dt = utc_timezone.localize(race_dt)
-        # convert race time to local timezone
-        local_race_dt = race_dt.astimezone(local_timezone)
+        local_race_dt = str_to_local_dt(race_date, race_time)
         # skipping all the races that are in the past
         # get first race that is in the future
         if local_race_dt > target_dt:
@@ -48,37 +42,66 @@ def get_next_race(target_dt: dt.datetime):
 
 
 async def schedule_f1_notifications(client: discord.Client):
+    await scheduler(client, get_race_time, race_notification)
+
+
+def get_now_time() -> dt.datetime:
     local_timezone = pytz.timezone('Europe/Warsaw')
+    now = dt.datetime.now()
+    now = local_timezone.localize(now)
+    return now
+
+
+def get_race_time() -> dt.datetime:
+    now = get_now_time()
+    race = get_next_race(now)
+
+    race_date = race['date']
+    race_time = race['time']
+    race_target = str_to_local_dt(race_date, race_time)
+    return race_target
+
+
+def str_to_local_dt(date: str, time: str) -> dt.datetime:
     utc_timezone = pytz.timezone('UTC')
+
+    dt_str = f'{date}T{time}'
+    dt_obj = dt.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%SZ')
+    dt_obj = utc_timezone.localize(dt_obj)
+    dt_obj = dt_to_local_dt(dt_obj)
+    return dt_obj
+
+
+def dt_to_local_dt(dt_obj: dt.datetime) -> dt.datetime:
+    local_timezone = pytz.timezone('Europe/Warsaw')
+    dt_obj = dt_obj.astimezone(local_timezone)
+    return dt_obj
+
+
+async def scheduler(client: discord.Client,
+                    get_target_dt: Callable[[], dt.datetime],
+                    take_action: Callable[[discord.Client], Coroutine]) -> None:
     while True:
-        now = dt.datetime.now()
-        now = local_timezone.localize(now)
-        race = get_next_race(now)
-
-        race_date = race['date']
-        race_time = race['time']
-        race_dt_str = f'{race_date}T{race_time}'
-        race_dt = dt.datetime.strptime(race_dt_str, '%Y-%m-%dT%H:%M:%SZ')
-        race_dt = utc_timezone.localize(race_dt)
-        target = race_dt.astimezone(local_timezone)
-
         # 15 minutes before race
-        target -= dt.timedelta(minutes=15)
-        now = dt.datetime.now()
-        now = local_timezone.localize(now)
-        wait_time = (target - now).total_seconds()
+        target_dt = get_target_dt()
+        target_dt -= dt.timedelta(minutes=15)
+        now = get_now_time()
+        wait_time = (target_dt - now).total_seconds()
+        # if time already passed, skip this iteration
         if wait_time < 0:
             continue
+        # wait until the target time
         await asyncio.sleep(wait_time)
-        now = dt.datetime.now()
-        now = local_timezone.localize(now)
-        if now.day == target.day and now.hour == target.hour and now.minute == target.minute:
-            await f1_notification(client)
-            one_day_time = 60 * 60 * 24
-            await asyncio.sleep(one_day_time)
+        now = get_now_time()
+        # check if the target time has been reached
+        if now.day == target_dt.day and now.hour == target_dt.hour and now.minute == target_dt.minute:
+            await take_action(client)
+            # wait for 4 days until the race week ends
+            four_days_time = dt.timedelta(days=4).total_seconds()
+            await asyncio.sleep(four_days_time)
 
 
-async def f1_notification(client: discord.Client):
+async def race_notification(client: discord.Client) -> None:
     channel = client.get_channel(cfg.MORNING_CHANNEL_ID)
     # get f1_notify role
     role = discord.utils.get(channel.guild.roles, name='f1_notify')
