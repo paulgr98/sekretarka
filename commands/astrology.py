@@ -35,14 +35,18 @@ def make_astrology_embed(sign: str) -> discord.Embed:
     querystring = {"sign": sign_eng, "day": "today"}
     response = requests.request("POST", astro_api, headers=astro_api_headers, params=querystring)
 
+    if 'object has no attribute' in response.content.decode('utf-8'):
+        raise NoSignException('API się zepsuło, spróbuj ponownie później')
+
     # translate the horoscope to polish
     translator = Translator()
-    description = response.json()['description']
+    res_json = response.json()
+    description = res_json['description']
     description_pl = translator.translate(description, src='en', dest='pl').text
-    mood = response.json()['mood']
+    mood = res_json['mood']
     mood_pl = f"{translator.translate(mood, src='en', dest='pl').text} ({mood})"
-    color_pl = translator.translate(response.json()['color'], src='en', dest='pl').text
-    comp = response.json()['compatibility'].lower()
+    color_pl = translator.translate(res_json['color'], src='en', dest='pl').text
+    comp = res_json['compatibility'].lower()
     comp_pl = sign_dict_reversed[comp]
 
     # create the embed with the horoscope
