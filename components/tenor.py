@@ -1,4 +1,5 @@
 import requests
+import io
 import config as cfg
 
 
@@ -15,3 +16,12 @@ class Tenor(object):
             return response.json()['results'][0]['media_formats']['gif']['url']
         else:
             return ''
+
+
+def url_to_file(url: str) -> io.BytesIO:
+    try:
+        req = requests.get(url)
+        req.raise_for_status()
+        return io.BytesIO(req.content)
+    except Exception:
+        return io.BytesIO()

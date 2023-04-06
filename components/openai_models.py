@@ -1,5 +1,6 @@
 import config as cfg
 import openai
+from openai.error import RateLimitError
 
 
 class Davinci(object):

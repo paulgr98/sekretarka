@@ -9,6 +9,7 @@ import random
 import math
 from openai.error import OpenAIError
 import asyncio
+import io
 
 from components.uwuify import uwuify
 from components.reddit import get_subreddit_random_hot
@@ -16,7 +17,7 @@ from components.demotes import get_demotes
 from components.compliments import get_compliment_list
 from components.disses import get_diss_list
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
-from components.openai_models import ChatGPT
+from components.openai_models import ChatGPT, RateLimitError
 
 from components import (
     nameday as nd,
@@ -676,7 +677,16 @@ async def gpt_command(ctx: commands.Context, *args: str):
     gpt = ChatGPT()
     prompt = ' '.join(args)
     await ctx.typing()
-    response = gpt.complete(prompt)
+    try:
+        response = gpt.complete(prompt)
+    except RateLimitError:
+        testo_bytes = tenor.url_to_file('https://media.tenor.com/A4Tnhi1KDOAAAAAC/testoviron.gif')
+        # load bytes to file
+        testo_file = discord.File(testo_bytes, filename='testoviron.gif')
+        await ctx.reply('Przekroczono limit zapytań...'
+                        '\n\nAaaa kuhwa, nie dla psa kuhwa, nie dla śmiecia, dla pana to',
+                        file=testo_file)
+        return
     await ctx.send(response)
 
 
