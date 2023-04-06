@@ -12,7 +12,7 @@ from commands import (
 )
 
 
-async def morning_routine(client: discord.Client):
+async def morning_routine(client: discord.Client, show_news: bool):
     channel = client.get_channel(cfg.MORNING_CHANNEL_ID)
 
     day_names = {0: 'Poniedziałek', 1: 'Wtorek', 2: 'Środa', 3: 'Czwartek', 4: 'Piątek', 5: 'Sobota', 6: 'Niedziela'}
@@ -32,12 +32,16 @@ async def morning_routine(client: discord.Client):
 
     holidays = await fun_holidays()
     welcome_text += f"\n{holidays}\n"
-    welcome_text += '\n**Aktualne wiadomości z TVN24:**'
-    await channel.send(welcome_text)
 
-    news_embeds = news.get_news_embeds(3)
-    for embed in news_embeds:
-        await channel.send(embed=embed)
+    if show_news:
+        welcome_text += '\n**Aktualne wiadomości z TVN24:**'
+        await channel.send(welcome_text)
+
+        news_embeds = news.get_news_embeds(3)
+        for embed in news_embeds:
+            await channel.send(embed=embed)
+    else:
+        await channel.send(welcome_text)
 
 
 async def fun_holidays():
@@ -70,7 +74,7 @@ async def get_birthday_text(client: discord.Client):
     return msg
 
 
-async def schedule_morning_routine(client: discord.Client):
+async def schedule_morning_routine(client: discord.Client, show_news: bool = True):
     # set target time to 7:00
     target = dt.datetime.now()
     target = target.replace(hour=7, minute=0, second=0, microsecond=0)
@@ -88,4 +92,4 @@ async def schedule_morning_routine(client: discord.Client):
         if now.day == target.day and now.hour == target.hour and now.minute == target.minute:
             target += dt.timedelta(days=1)
             # execute morning routine and set target time to 7:00 tomorrow
-            await morning_routine(client)
+            await morning_routine(client, show_news)

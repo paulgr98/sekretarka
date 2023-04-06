@@ -115,7 +115,7 @@ async def on_ready():
     print(client.user)
     print('-----------------')
     print('Ready to go!')
-    asyncio.create_task(mr.schedule_morning_routine(client))
+    asyncio.create_task(mr.schedule_morning_routine(client, show_news=False))
     asyncio.create_task(f1schedule.schedule_f1_notifications(client))
 
 
@@ -664,7 +664,7 @@ async def money_command(ctx: commands.Context, *args: str):
 
 @client.command('morning')
 async def test_morning_routine(ctx: commands.Context):
-    await mr.morning_routine(client)
+    await mr.morning_routine(client, show_news=False)
 
 
 @client.command('bday')
