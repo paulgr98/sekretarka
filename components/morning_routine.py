@@ -4,8 +4,8 @@ import config as cfg
 import discord
 from components import (
     nameday as nd,
-    fun_holidays_api as fha,
 )
+from components.fun_holidays import fun_holidays_api_v2 as fha
 from commands import (
     news,
     birthday_tracker as bt,
