@@ -13,7 +13,7 @@ from commands import (
 
 
 async def morning_routine(client: discord.Client, show_news: bool):
-    channel = client.get_channel(cfg.MORNING_CHANNEL_ID)
+    channels = [client.get_channel(cid) for cid in cfg.MORNING_CHANNEL_ID]
 
     day_names = {0: 'Poniedziałek', 1: 'Wtorek', 2: 'Środa', 3: 'Czwartek', 4: 'Piątek', 5: 'Sobota', 6: 'Niedziela'}
     now = dt.datetime.now()
@@ -35,13 +35,16 @@ async def morning_routine(client: discord.Client, show_news: bool):
 
     if show_news:
         welcome_text += '\n**Aktualne wiadomości z TVN24:**'
-        await channel.send(welcome_text)
+        for channel in channels:
+            await channel.send(welcome_text)
 
         news_embeds = news.get_news_embeds(3)
         for embed in news_embeds:
-            await channel.send(embed=embed)
+            for channel in channels:
+                await channel.send(embed=embed)
     else:
-        await channel.send(welcome_text)
+        for channel in channels:
+            await channel.send(welcome_text)
 
 
 async def fun_holidays():
