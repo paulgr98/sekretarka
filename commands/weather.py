@@ -1,5 +1,6 @@
 import datetime as dt
 import discord
+from dateutil import parser
 from requests import HTTPError
 from components.weather import get_current_weather, get_15_day_forecast
 
@@ -60,8 +61,9 @@ def make_weather_embed(city: str, days: int) -> discord.Embed:
 
         sun_rise = day['Sun']['Rise']
         sun_set = day['Sun']['Set']
-        sun_rise = dt.datetime.strptime(sun_rise, '%Y-%m-%dT%H:%M:%S+01:00').strftime('%H:%M')
-        sun_set = dt.datetime.strptime(sun_set, '%Y-%m-%dT%H:%M:%S+01:00').strftime('%H:%M')
+
+        sun_rise = parser.parse(sun_rise).strftime('%H:%M')
+        sun_set = parser.parse(sun_set).strftime('%H:%M')
 
         temp_min = day['Temperature']['Minimum']['Value']
         temp_max = day['Temperature']['Maximum']['Value']
