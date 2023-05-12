@@ -646,6 +646,14 @@ async def story(ctx: commands.Context, *keywords: str):
     except OpenAIError as e:
         if e.http_status == 402:
             await ctx.reply('Przekroczono limit zapytań')
+        elif e.http_status == 429:
+            testo_bytes = tenor.url_to_file('https://media.tenor.com/A4Tnhi1KDOAAAAAC/testoviron.gif')
+            # load bytes to file
+            testo_file = discord.File(testo_bytes, filename='testoviron.gif')
+            await ctx.reply('Przekroczono limit zapytań...'
+                            '\n\nAaaa kuhwa, nie dla psa kuhwa, nie dla śmiecia, dla pana to',
+                            file=testo_file)
+            return
         else:
             await ctx.reply(f'Nieznany błąd z kodem {e.http_status}')
 
