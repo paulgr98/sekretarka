@@ -646,6 +646,8 @@ async def story(ctx: commands.Context, *keywords: str):
     except OpenAIError as e:
         if e.http_status == 402:
             await ctx.reply('Przekroczono limit zapytań')
+        else:
+            await ctx.reply(f'Nieznany błąd z kodem {e.http_status}')
 
 
 @client.command(aliases=['rr', 'roulette'])
