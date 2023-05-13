@@ -707,7 +707,7 @@ async def f1_command(ctx: commands.Context):
 
 
 # help command to show all commands
-@client.command('pomoc')
+@client.command(aliases=['pomoc', 'help'])
 async def help_command(ctx: commands.Context):
     global bot_channels
     if ctx.channel.name not in bot_channels:
