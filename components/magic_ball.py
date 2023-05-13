@@ -7,13 +7,13 @@ def get_answer_list() -> list[str]:
         'Nie',
         'Może',
         'Nie wiem',
-        'Zapytaj mnie później',
-        'Daj mi teraz spokój...',
         'Zdecydowanie tak',
         'Zdecydowanie nie',
         'Raczej tak',
         'Raczej nie',
-        'Nie mam zdania'
+        'Chyba tak',
+        'Chyba nie',
+        'A czy dzik sra w lesie?',
     ]
     return answers
 
