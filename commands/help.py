@@ -88,9 +88,6 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                      value="Wyświetla długość siurka użytkownika [użytkownik] jeśli podany, lub autorowi, "
                            "jeśli nie podany. Może przyjmować też zwykły tekst",
                      inline=False)
-    embed2.add_field(name=f"{prefix}story [słowo_kluczowe]",
-                     value="Tworzy historię dla podanego słowa kluczowego [słowo_kluczowe]",
-                     inline=False)
     embed2.add_field(name=f"{prefix}uwu",
                      value="UwUalizuje wiadomość wyżej",
                      inline=False)
