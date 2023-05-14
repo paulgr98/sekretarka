@@ -176,7 +176,7 @@ async def undo(ctx, amount=1):
 
 # compliment command that send one random compliment from predefined list
 @client.command()
-@commands.cooldown(1, 300, commands.BucketType.channel)
+@commands.cooldown(1, 60, commands.BucketType.channel)
 async def compliment(ctx, member=None):
     global bot_channels
     if ctx.channel.name in bot_channels:
@@ -210,7 +210,7 @@ async def compliment(ctx, member=None):
 
 # diss command that send one random diss from predefined list
 @client.command()
-@commands.cooldown(1, 300, commands.BucketType.channel)
+@commands.cooldown(1, 60, commands.BucketType.channel)
 async def diss(ctx, member=None):
     global bot_channels
     if ctx.channel.name in bot_channels:
