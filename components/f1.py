@@ -109,6 +109,22 @@ def dt_to_local_dt(dt_obj: dt.datetime) -> dt.datetime:
     return dt_obj
 
 
+def timedelta_to_str(dt_obj: dt.timedelta) -> str:
+    days = dt_obj.days
+    hours = dt_obj.seconds // 3600
+    minutes = (dt_obj.seconds // 60) % 60
+
+    res_str = ''
+
+    if days > 0:
+        res_str += f'{days} dn. '
+    if hours > 0:
+        res_str += f'{hours} godz. '
+    res_str += f'{minutes} min.'
+
+    return res_str
+
+
 async def scheduler(client: discord.Client,
                     get_target_dt: Callable[[], dt.datetime],
                     take_action: Callable[[discord.Client], Coroutine]) -> None:

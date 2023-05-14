@@ -25,7 +25,10 @@ def make_next_race_embed():
     quali_time = quali_dt_local.time().strftime('%H:%M')
     quali_day = quali_dt_local.weekday()
     quali_day = day_names[quali_day]
-    embed.add_field(name="Kwalifikacje:", value=f'{quali_date} ({quali_day}) godz. {quali_time}', inline=False)
+    quali_time_left = quali_dt_local - current_dt
+    quali_time_left = f1.timedelta_to_str(quali_time_left)
+    embed.add_field(name="Kwalifikacje:", value=f'{quali_date} ({quali_day}) godz. {quali_time}\n'
+                                                f'[za {quali_time_left}]', inline=False)
 
     if 'Sprint' in race:
         sprint_date = race['Sprint']['date']
@@ -35,7 +38,10 @@ def make_next_race_embed():
         sprint_time = sprint_dt_local.time().strftime('%H:%M')
         sprint_day = sprint_dt_local.weekday()
         sprint_day = day_names[sprint_day]
-        embed.add_field(name="Sprint:", value=f'{sprint_date} ({sprint_day}) godz. {sprint_time}', inline=False)
+        sprint_time_left = sprint_dt_local - current_dt
+        sprint_time_left = f1.timedelta_to_str(sprint_time_left)
+        embed.add_field(name="Sprint:", value=f'{sprint_date} ({sprint_day}) godz. {sprint_time}\n'
+                                              f'[za {sprint_time_left}]', inline=False)
 
     race_date = race['date']
     race_time = race['time']
@@ -44,6 +50,9 @@ def make_next_race_embed():
     race_time = race_dt_local.time().strftime('%H:%M')
     race_day = race_dt_local.weekday()
     race_day = day_names[race_day]
-    embed.add_field(name="Wyścig:", value=f'{race_date} ({race_day}) godz. {race_time}', inline=False)
+    race_time_left = race_dt_local - current_dt
+    race_time_left = f1.timedelta_to_str(race_time_left)
+    embed.add_field(name="Wyścig:", value=f'{race_date} ({race_day}) godz. {race_time}\n'
+                                          f'[za {race_time_left}]', inline=False)
 
     return embed
