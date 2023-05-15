@@ -9,7 +9,6 @@ import random
 import math
 from openai.error import OpenAIError
 import asyncio
-import io
 
 from components.uwuify import uwuify
 from components.reddit import get_subreddit_random_hot
@@ -321,13 +320,6 @@ async def on_reaction_add(reaction, user):
         elif '2 ❤ pod tą wiadomością i banujemy' in message.content and message.author.bot is True:
             if reaction.emoji == str("\u2764\ufe0f") and reaction.count == 2:
                 await message.channel.send(f'No i banujemy {member.mention}! Na własne życzenie xD')
-
-
-# TODO: research how to make this work and implement it (streamrip may work)
-# cut random  fragment from given YouTube video
-# @client.command()
-# async def cut(ctx, url: str):
-#     pass
 
 
 @client.command('zw')
