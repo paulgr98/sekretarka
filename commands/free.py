@@ -1,5 +1,6 @@
-import discord
 import datetime as dt
+
+import discord
 
 
 def make_game_embed(game: dict, period: str) -> discord.Embed:

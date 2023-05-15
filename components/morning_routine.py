@@ -1,15 +1,17 @@
 import asyncio
 import datetime as dt
-import config as cfg
+
 import discord
-from components import (
-    nameday as nd,
-)
-from components.fun_holidays import fun_holidays_api_v2 as fha
+
+import config as cfg
 from commands import (
     news,
     birthday_tracker as bt,
 )
+from components import (
+    nameday as nd,
+)
+from components.fun_holidays import fun_holidays_api_v2 as fha
 
 
 async def morning_routine(client: discord.Client, show_news: bool):
@@ -50,7 +52,7 @@ async def morning_routine(client: discord.Client, show_news: bool):
 async def fun_holidays():
     holidays = fha.FunHolidaysApi()
     names = holidays.get_holidays_for_today()
-    msg = '**Dzisiaj obchoodzimy:**\n'
+    msg = '**Dzisiaj obchodzimy:**\n'
     for name in names:
         msg += f'- {name}\n'
     return msg

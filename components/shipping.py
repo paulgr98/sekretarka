@@ -1,7 +1,7 @@
-import json
 import datetime as dt
-import os
 import hashlib
+import json
+import os
 
 
 def get_data():

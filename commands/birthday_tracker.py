@@ -1,9 +1,11 @@
-import discord
-from discord.ext import commands
-from components import utility
-from components import birthday_tracker as bt
 import datetime as dt
 import re
+
+import discord
+from discord.ext import commands
+
+from components import birthday_tracker as bt
+from components import utility
 
 
 async def birthday_main(ctx: commands.Context, action: str, *args: str):
@@ -20,7 +22,7 @@ async def birthday_main(ctx: commands.Context, action: str, *args: str):
     elif action == 'get':
         await get_birthday_of_user(ctx, *args)
     else:
-        await ctx.reply('Niepoprawne użycie komendy. Możliwe akcj: add, remove, list, today, next, get')
+        await ctx.reply('Niepoprawne użycie komendy. Możliwe akcje: add, remove, list, today, next, get')
 
 
 async def get_user_and_date_from_args(ctx: commands.Context, *args: str):

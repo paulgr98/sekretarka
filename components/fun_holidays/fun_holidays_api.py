@@ -1,5 +1,6 @@
-import requests
 import datetime as dt
+
+import requests
 
 
 class FunHolidaysApi(object):

@@ -1,6 +1,6 @@
-import config as cfg
 import openai
-from openai.error import RateLimitError
+
+import config as cfg
 
 
 class Davinci(object):

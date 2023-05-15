@@ -36,7 +36,7 @@ def get_compliment_list(username, is_female):
         compliments.append('Niezłe dojce :cow2:')
         compliments.append('Masz może majtki w księżyce? Bo masz tyłek nie z tej ziemi :new_moon:')
         compliments.append('Czy Twój tata jest ogrodnikiem? Bo masz cudowne arbuzy :melon: :melon:')
-        compliments.append('Hej, chyba jesteś kopciuszkiem... bo już widzę jak ta sukienka znika o połnocy :smirk:')
+        compliments.append('Hej, chyba jesteś kopciuszkiem... bo już widzę jak ta sukienka znika o północy :smirk:')
         compliments.append('Gdybyś była kanapką w McDonald’s, nazywałabyś się McBeauty :drool:')
         compliments.append('Chodź zabawimy się w dom. Ty będziesz drzwiami, a ja będę pukała! :smiling_imp:')
 

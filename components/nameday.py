@@ -1,5 +1,6 @@
-import requests
 import json
+
+import requests
 
 country = 'pl'
 timezone = 'Europe/Warsaw'

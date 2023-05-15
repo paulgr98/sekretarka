@@ -1,7 +1,9 @@
-import asyncpraw
-import config as cfg
 import random
+
+import asyncpraw
 from discord.ext import commands
+
+import config as cfg
 
 
 async def get_subreddit_random_hot(subreddit, user, limit):
