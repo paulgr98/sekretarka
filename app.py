@@ -49,16 +49,6 @@ intents.message_content = True
 client = commands.Bot(command_prefix='$', intents=intents)
 client.remove_command('help')
 
-# options for youtube_dl to download audio
-ydl_opts = {
-    'format': 'bestaudio/best',
-    'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'mp3',
-        'preferredquality': '192',
-    }],
-}
-
 
 # my user class
 class Usr(object):
@@ -359,7 +349,7 @@ async def shipme(ctx):
         if u not in females and 'bot' not in roles:
             males.append(u)
 
-    # if messege author is in females, ship with males
+    # if message author is in females, ship with males
     if ctx.author in females:
         ship = random.choice(males)
     else:
@@ -511,7 +501,7 @@ async def create_poll(ctx, *, content: str):
     content = content.replace('; ', ';')
     content = content.replace(' ;', ';')
 
-    # seprate the content into question and options (separated by ';')
+    # separate the content into question and options (separated by ';')
     content_list = content.split(';')
     question = poll.init_cap(content_list[0])
     options = content_list[1:]
