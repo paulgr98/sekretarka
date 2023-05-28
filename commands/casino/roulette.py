@@ -1,9 +1,11 @@
+import asyncio
+
 from discord.ext import commands
+
 from components.casino import (
     roulette,
     money,
 )
-import asyncio
 
 roulette_instance = roulette.Roulette()
 

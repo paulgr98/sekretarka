@@ -1,11 +1,13 @@
-from formula1py import F1
-import datetime as dt
-import pytz
-import json
 import asyncio
-import discord
-import config as cfg
+import datetime as dt
+import json
 from typing import Coroutine, Callable
+
+import discord
+import pytz
+from formula1py import F1
+
+import config as cfg
 
 
 # dict_keys(['season', 'round', 'url', 'raceName', 'Circuit', 'date', 'time', 'FirstPractice', 'SecondPractice',

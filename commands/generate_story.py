@@ -1,5 +1,6 @@
-from components import openai_models
 import googletrans as gt
+
+from components import openai_models
 
 
 def generate_story(keyword_pl: str) -> str:

@@ -1,8 +1,10 @@
+import datetime as dt
+
 import discord
 import requests
 from googletrans import Translator
+
 import config as cfg
-import datetime as dt
 
 # astro API config
 # https://rapidapi.com/sameer.kumar/api/aztro/
@@ -18,13 +20,13 @@ class NoSignException(Exception):
 
 def make_astrology_embed(sign: str) -> discord.Embed:
     sign = sign.lower()
-    # signs dictonary with all signs in Polish and their values in English
+    # signs dictionary with all signs in Polish and their values in English
     sign_dict = {'baran': 'aries', 'byk': 'taurus', 'bliźnięta': 'gemini', 'rak': 'cancer', 'lew': 'leo',
                  'panna': 'virgo', 'waga': 'libra', 'skorpion': 'scorpio', 'strzelec': 'sagittarius',
                  'koziorożec': 'capricorn', 'wodnik': 'aquarius', 'ryby': 'pisces'}
     sign_dict_reversed = {v: k for k, v in sign_dict.items()}
 
-    # check if the sign is in the dictonary
+    # check if the sign is in the dictionary
     if sign in sign_dict.keys():
         sign_eng = sign_dict[sign]
     else:

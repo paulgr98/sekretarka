@@ -14,5 +14,5 @@ class Tvn24Feed(object):
     def set_src_to_newest(self):
         self.url = 'https://tvn24.pl/najnowsze.xml'
 
-    def set_src_to_importants(self):
+    def set_src_to_important(self):
         self.url = 'https://tvn24.pl/najwazniejsze.xml'

@@ -1,24 +1,29 @@
-import discord
-from discord.ext import commands
-import config as cfg
-from asyncprawcore import exceptions
-import logging
-import datetime as dt
-import time
-import random
-import math
-from openai.error import OpenAIError
 import asyncio
-import io
+import datetime as dt
+import logging
+import math
+import random
+import time
 
-from components.uwuify import uwuify
-from components.reddit import get_subreddit_random_hot
-from components.demotes import get_demotes
-from components.compliments import get_compliment_list
-from components.disses import get_diss_list
-from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
-from components.openai_models import ChatGPT, RateLimitError
+import discord
+from asyncprawcore import exceptions
+from discord.ext import commands
+from openai.error import OpenAIError
+from openai.error import RateLimitError
 
+import config as cfg
+from commands import alco_drink
+from commands import astrology
+from commands import birthday_tracker as bt
+from commands import converter
+from commands import f1cmd
+from commands import free
+from commands import generate_story
+from commands import help
+from commands import poll
+from commands import weather
+from commands.casino import money as money_cmd
+from commands.casino import roulette as roulette_cmd
 from components import (
     nameday as nd,
     tenor,
@@ -29,19 +34,13 @@ from components import (
     morning_routine as mr,
     f1 as f1schedule,
 )
-
-from commands import help
-from commands import converter
-from commands import free
-from commands import alco_drink
-from commands import weather
-from commands import astrology
-from commands import poll
-from commands import generate_story
-from commands import birthday_tracker as bt
-from commands import f1cmd
-from commands.casino import roulette as roulette_cmd
-from commands.casino import money as money_cmd
+from components.compliments import get_compliment_list
+from components.demotes import get_demotes
+from components.disses import get_diss_list
+from components.openai_models import ChatGPT
+from components.reddit import get_subreddit_random_hot
+from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
+from components.uwuify import uwuify
 
 # bot instance
 intents = discord.Intents.default()
@@ -49,16 +48,6 @@ intents.members = True
 intents.message_content = True
 client = commands.Bot(command_prefix='$', intents=intents)
 client.remove_command('help')
-
-# options for youtube_dl to download audio
-ydl_opts = {
-    'format': 'bestaudio/best',
-    'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'mp3',
-        'preferredquality': '192',
-    }],
-}
 
 
 # my user class
@@ -323,13 +312,6 @@ async def on_reaction_add(reaction, user):
                 await message.channel.send(f'No i banujemy {member.mention}! Na własne życzenie xD')
 
 
-# TODO: research how to make this work and implement it (streamrip may work)
-# cut random  fragment from given YouTube video
-# @client.command()
-# async def cut(ctx, url: str):
-#     pass
-
-
 @client.command('zw')
 async def im_busy(ctx):
     if ctx.author.name == owner.nick:
@@ -367,7 +349,7 @@ async def shipme(ctx):
         if u not in females and 'bot' not in roles:
             males.append(u)
 
-    # if messege author is in females, ship with males
+    # if message author is in females, ship with males
     if ctx.author in females:
         ship = random.choice(males)
     else:
@@ -519,7 +501,7 @@ async def create_poll(ctx, *, content: str):
     content = content.replace('; ', ';')
     content = content.replace(' ;', ';')
 
-    # seprate the content into question and options (separated by ';')
+    # separate the content into question and options (separated by ';')
     content_list = content.split(';')
     question = poll.init_cap(content_list[0])
     options = content_list[1:]

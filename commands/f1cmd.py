@@ -1,5 +1,6 @@
-from components import f1
 import discord
+
+from components import f1
 
 
 def make_next_race_embed():

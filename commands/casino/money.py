@@ -1,6 +1,7 @@
 from discord.ext import commands
-from components.casino import money
+
 from components import utility
+from components.casino import money
 
 
 async def money_command(ctx: commands.Context, client: commands.Bot, *args: str):

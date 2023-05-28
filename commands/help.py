@@ -5,7 +5,7 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
     embeds = []
     embed = discord.Embed(title="Pomoc 1/2", description="Lista komend", color=0x00ff00)
     embed.add_field(name=f"{prefix}ping",
-                    value="Testuje połącznie",
+                    value="Testuje połączenie",
                     inline=False)
     embed.add_field(name=f"{prefix}hi",
                     value="Wita się",

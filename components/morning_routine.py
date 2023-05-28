@@ -1,15 +1,17 @@
 import asyncio
 import datetime as dt
-import config as cfg
+
 import discord
-from components import (
-    nameday as nd,
-)
-from components.fun_holidays import fun_holidays_api_v2 as fha
+
+import config as cfg
 from commands import (
     news,
     birthday_tracker as bt,
 )
+from components import (
+    nameday as nd,
+)
+from components.fun_holidays import fun_holidays_api_v2 as fha
 
 
 async def morning_routine(client: discord.Client, show_news: bool):
@@ -50,7 +52,7 @@ async def morning_routine(client: discord.Client, show_news: bool):
 async def fun_holidays():
     holidays = fha.FunHolidaysApi()
     names = holidays.get_holidays_for_today()
-    msg = '**Dzisiaj obchoodzimy:**\n'
+    msg = '**Dzisiaj obchodzimy:**\n'
     for name in names:
         msg += f'- {name}\n'
     return msg
@@ -87,12 +89,12 @@ async def schedule_morning_routine(client: discord.Client, show_news: bool = Tru
         wait_time = (target - now).total_seconds()
         if wait_time < 0:
             # if the target time has already passed, set target time to 7:00 tomorrow
-            target += dt.timedelta(days=1)
+            target = target.replace(day=target.day+1)
             continue
         # wait for the amount of time left until the target time
         await asyncio.sleep(wait_time)
         now = dt.datetime.now()
         if now.day == target.day and now.hour == target.hour and now.minute == target.minute:
-            target += dt.timedelta(days=1)
+            target = target.replace(day=target.day+1)
             # execute morning routine and set target time to 7:00 tomorrow
             await morning_routine(client, show_news)

@@ -1,7 +1,9 @@
 import datetime as dt
+
 import discord
 from dateutil import parser
 from requests import HTTPError
+
 from components.weather import get_current_weather, get_15_day_forecast
 
 
