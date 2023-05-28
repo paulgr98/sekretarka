@@ -161,7 +161,7 @@ async def sprint_notification(client: discord.Client) -> None:
 
 
 async def notification(client: discord.Client, message: str) -> None:
-    channel = client.get_channel(cfg.MORNING_CHANNEL_ID)
+    channel = client.get_channel(cfg.F1_CHANNEL_ID)
     # get f1_notify role
     role = discord.utils.get(channel.guild.roles, name='f1_notify')
 
