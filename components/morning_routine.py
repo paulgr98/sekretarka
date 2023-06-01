@@ -1,4 +1,5 @@
 import asyncio
+import calendar
 import datetime as dt
 
 import discord
@@ -90,11 +91,17 @@ async def schedule_morning_routine(client: discord.Client, show_news: bool = Tru
         if wait_time < 0:
             # if the target time has already passed, set target time to 7:00 tomorrow
             target = target.replace(day=target.day+1)
+            last_day = calendar.monthrange(target.year, target.month)[1]
+            if target.day > last_day:
+                target = target.replace(day=last_day)
             continue
         # wait for the amount of time left until the target time
         await asyncio.sleep(wait_time)
         now = dt.datetime.now()
         if now.day == target.day and now.hour == target.hour and now.minute == target.minute:
             target = target.replace(day=target.day+1)
+            last_day = calendar.monthrange(target.year, target.month)[1]
+            if target.day > last_day:
+                target = target.replace(day=last_day)
             # execute morning routine and set target time to 7:00 tomorrow
             await morning_routine(client, show_news)
