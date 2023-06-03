@@ -105,3 +105,4 @@ async def schedule_morning_routine(client: discord.Client, show_news: bool = Tru
                 target = target.replace(day=last_day)
             # execute morning routine and set target time to 7:00 tomorrow
             await morning_routine(client, show_news)
+            break
