@@ -15,7 +15,7 @@ async def get_subreddit_random_hot(subreddit, user, limit):
         await sub.load()
 
         # check if subreddit is over 18 and the user doesn't have the mod permissions
-        if sub.over18 and user.name != 'PanPajonk':
+        if sub.over18 and user.name != 'panpajonk':
             raise commands.CommandError('O Ty zboczuszku! :3 Ten subreddit jest NSFW!')
 
         # if the limit is above 100, get the limit number of hot posts

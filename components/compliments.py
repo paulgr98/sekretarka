@@ -40,7 +40,7 @@ def get_compliment_list(username, is_female):
         compliments.append('Gdybyś była kanapką w McDonald’s, nazywałabyś się McBeauty :drool:')
         compliments.append('Chodź zabawimy się w dom. Ty będziesz drzwiami, a ja będę pukała! :smiling_imp:')
 
-    if username == 'PanPajonk':
+    if username == 'panpajonk':
         compliments.append('Twoja dziewczyna jest jak pierwiastek z -100. Solidna 10, ale urojona xD')
         compliments.append('Tobie już nie potrzeba komplementów przystojniaku UwU')
 
