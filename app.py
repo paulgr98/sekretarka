@@ -60,7 +60,10 @@ class Usr(object):
 
 # owner configuration
 owner = Usr()
-owner.nick = 'PanPajonk'
+owner.nick = 'panpajonk'
+
+my_gf = Usr()
+my_gf.nick = 'marta.6442'
 
 bot_channels = ['bot', 'bot_nsfw', 'bot-spam', 'nsfw']
 
@@ -121,6 +124,8 @@ async def on_message(message):
         await client.process_commands(message)
     if owner.is_busy and f'<@{owner.user.id}>' in message.content:
         await message.channel.send('Prezes Pajonk obecnie jest zajęty. Spróbuj później')
+    if my_gf.is_busy and f'<@{my_gf.user.id}>' in message.content:
+        await message.channel.send('Pani Prezes obecnie jest zajęta. Spróbuj później')
 
 
 # simple ping command
@@ -322,6 +327,14 @@ async def im_busy(ctx):
             await ctx.send('Prezes Pajonk wychodzi na ważne spotkanie')
         else:
             await ctx.send('Prezes Pajonk właśnie wrócił!')
+    elif ctx.author.name == my_gf.nick:
+        my_gf.is_busy = not my_gf.is_busy
+        if my_gf.user is None:
+            my_gf.user = ctx.author
+        if my_gf.is_busy:
+            await ctx.send('Pani Prezes wychodzi na ważne spotkanie')
+        else:
+            await ctx.send('Pani Prezes właśnie wróciła!')
 
 
 # command to find gf or bf for the user
