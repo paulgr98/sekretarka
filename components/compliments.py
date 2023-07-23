@@ -44,7 +44,6 @@ def get_compliment_list(username, is_female):
         compliments.append('Twoja dziewczyna jest jak pierwiastek z -100. Solidna 10, ale urojona xD')
         compliments.append('Tobie już nie potrzeba komplementów przystojniaku UwU')
 
-
     if username == 'marta.6442':
         compliments.append('Kiedy się uśmiechasz, słońce ma kompleksy, bo nie potrafi być tak jasne jak Ty :sunny:')
         compliments.append('Jesteś jak kawa. Gorąca, słodka i pobudzająca :coffee: :smirk:')
