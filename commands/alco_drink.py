@@ -6,7 +6,7 @@ from components import cocktails_db_wrapper as cdb
 def make_drink_embed(drink_name: str) -> (discord.Embed, None):
     # if no drink_json name is given, get a random drink_json
     cocktails_db = cdb.CocktailsDB()
-    if drink_name is None:
+    if drink_name is None or drink_name == '':
         drink_json = cocktails_db.get_random_drink()
     else:
         drink_json = cocktails_db.get_drink_by_name(drink_name)
