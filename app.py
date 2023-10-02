@@ -15,6 +15,7 @@ import config as cfg
 from commands import alco_drink
 from commands import astrology
 from commands import birthday_tracker as bt
+from commands import calendar
 from commands import converter
 from commands import f1cmd
 from commands import free
@@ -711,6 +712,22 @@ async def help_command(ctx: commands.Context):
     embeds = help.get_help_embed(client.command_prefix)
     for embed in embeds:
         await ctx.send(embed=embed)
+
+
+@client.command('calendar')
+async def calendar_command(ctx: commands.Context, *args: str):
+    if ctx.author.name != owner.nick:
+        await ctx.send('Nie masz uprawnień do tej komendy')
+        return
+    events = calendar.get_next_event()
+    if events is None:
+        await ctx.send('Nie znaleziono żadnych wydarzeń')
+        return
+    for event in events:
+        start = event['start'].get('dateTime', event['start'].get('date'))
+        # make date from 2023-10-06T10:30:00+02:00 to 06.10.2023 10:30
+        start = dt.datetime.strptime(start, '%Y-%m-%dT%H:%M:%S%z').strftime('%d.%m.%Y %H:%M')
+        await ctx.send(f'{event["summary"]} - {start}')
 
 
 def main():

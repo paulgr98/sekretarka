@@ -308,3 +308,6 @@ poetry.toml
 /.idea/*.iml
 /.idea/misc.xml
 /.idea
+/google_credentials.json
+/credentials.json
+/token.json
