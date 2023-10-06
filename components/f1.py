@@ -138,7 +138,7 @@ async def scheduler(client: discord.Client,
         wait_time = (target_dt - now).total_seconds()
         # if time already passed, skip this iteration
         if wait_time < 0:
-            continue
+            break
         # wait until the target time
         await asyncio.sleep(wait_time)
         now = get_now_time()
