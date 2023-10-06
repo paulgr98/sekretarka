@@ -81,9 +81,9 @@ logger = logging.getLogger('discord')
 @client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send('Nie ma takiej komendy. Wpisz $pomoc żeby wyświetlić listę komend')
+        await ctx.send(f'Nie ma takiej komendy. Wpisz {client.command_prefix}pomoc żeby wyświetlić listę komend')
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send('Brak argumentu. Wpisz $pomoc żeby wyświetlić listę komend')
+        await ctx.send(f'Brak argumentu. Wpisz {client.command_prefix}pomoc żeby wyświetlić listę komend')
     elif isinstance(error, commands.CommandOnCooldown):
         time_left = error.retry_after
         if time_left > 60:
@@ -117,7 +117,7 @@ async def on_ready():
 async def on_message(message):
     if message.author == client.user:
         return
-    if message.content.startswith('$'):
+    if message.content.startswith(client.command_prefix):
         # lower only the first part of the message
         head = message.content.split(' ')[0]
         tail = message.content.split(' ')[1:]
