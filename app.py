@@ -731,7 +731,7 @@ async def calendar_command(ctx: commands.Context, *args: str):
 
 
 def main():
-    client.run(cfg.TOKEN_BETA)
+    client.run(cfg.TOKEN)
 
 
 if __name__ == '__main__':
