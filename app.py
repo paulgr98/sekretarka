@@ -242,6 +242,7 @@ async def demote(ctx):
 @client.command()
 async def rdt(ctx, subreddit: str = 'memes', limit: int = 50):
     global bot_channels, nsfw_channels
+    post = None
     if ctx.channel.name not in bot_channels:
         await ctx.send(f'komendy {client.command_prefix}rdt można używać tylko na kanale do tego przeznaczonym')
         return
