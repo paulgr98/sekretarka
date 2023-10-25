@@ -247,7 +247,8 @@ async def rdt(ctx, subreddit: str = 'memes', limit: int = 50):
         await ctx.send(f'komendy {client.command_prefix}rdt można używać tylko na kanale do tego przeznaczonym')
         return
     try:
-        post = await get_subreddit_random_hot(subreddit, ctx.author, limit)
+        is_channel_nsfw = str(ctx.channel.name).lower() in nsfw_channels
+        post = await get_subreddit_random_hot(subreddit, ctx.author, is_channel_nsfw, limit)
     except SubredditOver18 as e:
         # if channel is not nsfw, send message
         if str(ctx.channel.name).lower() not in nsfw_channels:
