@@ -6,7 +6,6 @@ import random
 import time
 
 import discord
-from asyncprawcore import exceptions
 from discord.ext import commands
 from openai.error import OpenAIError
 from openai.error import RateLimitError
@@ -39,7 +38,7 @@ from components.compliments import get_compliment_list
 from components.demotes import get_demotes
 from components.disses import get_diss_list
 from components.openai_models import ChatGPT
-from components.reddit import get_subreddit_random_hot
+from components.reddit import get_subreddit_random_hot, SubredditOver18
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
 from components.uwuify import uwuify
 
@@ -67,6 +66,7 @@ my_gf = Usr()
 my_gf.nick = 'marta.6442'
 
 bot_channels = ['bot', 'bot_nsfw', 'bot-spam', 'nsfw']
+nsfw_channels = ['bot_nsfw', 'nsfw']
 
 female_role = 'kobita'
 
@@ -241,17 +241,19 @@ async def demote(ctx):
 # get random post from given subreddit
 @client.command()
 async def rdt(ctx, subreddit: str = 'memes', limit: int = 50):
-    global bot_channels
+    global bot_channels, nsfw_channels
     if ctx.channel.name not in bot_channels:
         await ctx.send(f'komendy {client.command_prefix}rdt można używać tylko na kanale do tego przeznaczonym')
         return
     try:
         post = await get_subreddit_random_hot(subreddit, ctx.author, limit)
+    except SubredditOver18 as e:
+        # if channel is not nsfw, send message
+        if str(ctx.channel.name).lower() not in nsfw_channels:
+            await ctx.send(e)
+            return
     except commands.CommandError as e:
         await ctx.send(e)
-        return
-    except (exceptions.Forbidden, exceptions.NotFound):
-        await ctx.send('Nie ma takiego subreddita, albo nie ma na nim obrazków :(')
         return
 
     title = post['title']
