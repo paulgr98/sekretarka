@@ -46,7 +46,7 @@ from components.uwuify import uwuify
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-client = commands.Bot(command_prefix='$', intents=intents)
+client = commands.Bot(command_prefix='b$', intents=intents)
 client.remove_command('help')
 
 
@@ -735,7 +735,7 @@ async def calendar_command(ctx: commands.Context, *args: str):
 
 
 def main():
-    client.run(cfg.TOKEN)
+    client.run(cfg.TOKEN_BETA)
 
 
 if __name__ == '__main__':
