@@ -33,6 +33,7 @@ from components import (
     pp_len,
     morning_routine as mr,
     f1 as f1schedule,
+    random_yt
 )
 from components.compliments import get_compliment_list
 from components.demotes import get_demotes
@@ -732,6 +733,12 @@ async def calendar_command(ctx: commands.Context, *args: str):
         # make date from 2023-10-06T10:30:00+02:00 to 06.10.2023 10:30
         start = dt.datetime.strptime(start, '%Y-%m-%dT%H:%M:%S%z').strftime('%d.%m.%Y %H:%M')
         await ctx.send(f'{event["summary"]} - {start}')
+
+
+@client.command('ryt')
+async def ryt_command(ctx: commands.Context, *args: str):
+    rand_id = random_yt.youtube_search()
+    await ctx.send(f'https://www.youtube.com/watch?v={rand_id}')
 
 
 def main():
