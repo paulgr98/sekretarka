@@ -99,16 +99,16 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                            "check - wyświetla stan konta\n"
                            "claim - odbiera dzienny bonus\n"
                            "add [ilość] - dodaje [ilość] cebulionów (tylko dla adminów)\n"
-                           "remove [ilość] - usuwa [ilość] cebulionów (tylko dla adminów)"
+                           "remove [ilość] - usuwa [ilość] cebulionów (tylko dla adminów)\n"
                            "ranking - wyświetla ranking użytkowników",
                      inline=False)
     embed2.add_field(name=f"{prefix}rr [akcja]",
                      value="Gra w ruletkę. Możliwe wartości:\n"
                            "set [czas] - ustawia czas obstawiania\n"
                            "start - rozpoczyna grę\n"
-                           "bet [ilość] [typ] - obstawia [ilość] cebulionów na [typ]"
-                           "prev - wyświetla poprzednie wyniki"
-                           "img - wyświetla wygląd stołu do gry"
+                           "bet [ilość] [typ] - obstawia [ilość] cebulionów na [typ]\n"
+                           "prev - wyświetla poprzednie wyniki\n"
+                           "img - wyświetla wygląd stołu do gry\n"
                            "help - wyświetla listę dostępnych typów zakładów",
                      inline=False)
     embed2.add_field(name=f"{prefix}bday [akcja] <użytkownik> <data>",
@@ -116,8 +116,8 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                            "add <data> <użytkownik>- dodaje urodziny użytkownika <użytkownik> na dzień <data>\n"
                            "remove <użytkownik> - usuwa urodziny użytkownika <użytkownik>\n"
                            "get <użytkownik> - wyświetla urodziny użytkownika <użytkownik>\n"
-                           "list - wyświetla listę urodzin"
-                           "today - wyświetla listę urodzin na dziś"
+                           "list - wyświetla listę urodzin\n"
+                           "today - wyświetla listę urodzin na dziś\n"
                            "next - wyświetla najbliższe urodziny",
                      inline=False)
     embed2.add_field(name=f"{prefix}gpt [wiadomość]",
@@ -127,6 +127,9 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                      inline=False)
     embed2.add_field(name=f"{prefix}f1",
                      value="Wyświetla następny wyścig Formuły 1",
+                     inline=False)
+    embed2.add_field(name=f"{prefix}ryt",
+                     value="Postuje losowy film z YouTube",
                      inline=False)
 
     embeds.append(embed)
