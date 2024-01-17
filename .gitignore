@@ -312,3 +312,4 @@ poetry.toml
 /credentials.json
 /token.json
 /components/*.json
+/smart_light.json
