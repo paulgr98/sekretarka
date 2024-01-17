@@ -4,7 +4,7 @@ import time
 
 
 def get_devices():
-    with open('components/smart_light.json') as json_file:
+    with open('smart_light.json') as json_file:
         cfg = json.load(json_file)
     devices = []
     for dev in cfg['devices']:
