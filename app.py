@@ -22,6 +22,7 @@ from commands import generate_story
 from commands import help
 from commands import poll
 from commands import weather
+from commands import smart_light as sl
 from commands.casino import money as money_cmd
 from commands.casino import roulette as roulette_cmd
 from components import (
@@ -75,6 +76,10 @@ female_role = 'kobita'
 handler = logging.StreamHandler()
 logger = logging.getLogger('discord')
 
+messages = {
+    'no_permission': 'Nie masz uprawnień do tej komendy',
+}
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -93,7 +98,7 @@ async def on_command_error(ctx, error):
             time_left = str(int(time_left)) + ' sek'
         await ctx.send(f'Ta komenda posiada cooldown. Spróbuj znowu za {time_left}')
     elif isinstance(error, commands.MissingPermissions):
-        await ctx.send('Nie masz uprawnień do tej komendy')
+        await ctx.send(messages['no_permission'])
     elif isinstance(error, commands.BadArgument):
         await ctx.send(f'Niepoprawne argumenty. Jeśli używasz {client.command_prefix}rdt, '
                        f'upewnij się ze nazwa subreddit nie zawiera spacji')
@@ -109,8 +114,8 @@ async def on_ready():
     print(client.user)
     print('-----------------')
     print('Ready to go!')
-    asyncio.create_task(mr.schedule_morning_routine(client, show_news=False))
-    asyncio.create_task(f1schedule.schedule_f1_notifications(client))
+    await asyncio.create_task(mr.schedule_morning_routine(client, show_news=False))
+    # asyncio.create_task(f1schedule.schedule_f1_notifications(client))
 
 
 # on message convert content to lowercase
@@ -722,7 +727,7 @@ async def help_command(ctx: commands.Context):
 @client.command('calendar')
 async def calendar_command(ctx: commands.Context, *args: str):
     if ctx.author.name != owner.nick:
-        await ctx.send('Nie masz uprawnień do tej komendy')
+        await ctx.send(messages['no_permission'])
         return
     events = calendar.get_next_event()
     if events is None:
@@ -739,6 +744,20 @@ async def calendar_command(ctx: commands.Context, *args: str):
 async def ryt_command(ctx: commands.Context, *args: str):
     rand_id = random_yt.youtube_search()
     await ctx.send(f'https://www.youtube.com/watch?v={rand_id}')
+
+
+@client.command('lights')
+async def lights_command(ctx: commands.Context, *args: str):
+    if ctx.author.name != owner.nick and ctx.author.name != my_gf.nick:
+        await ctx.send(messages['no_permission'])
+        return
+    if args[0] == 'main':
+        sl.switch_main_lights()
+    if args[0] == 'additional':
+        sl.switch_additional_lights()
+    if args[0] == 'status':
+        status = sl.get_status()
+        await ctx.send(status)
 
 
 def main():
