@@ -34,7 +34,8 @@ from components import (
     pp_len,
     morning_routine as mr,
     f1 as f1schedule,
-    random_yt
+    random_yt,
+    utility as util
 )
 from components.compliments import get_compliment_list
 from components.demotes import get_demotes
@@ -48,7 +49,7 @@ from components.uwuify import uwuify
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-client = commands.Bot(command_prefix='$', intents=intents)
+client = commands.Bot(command_prefix='b$', intents=intents)
 client.remove_command('help')
 
 
@@ -184,7 +185,7 @@ async def compliment(ctx, member=None):
         compliment.reset_cooldown(ctx)
     # check for female_role role in user's roles to check if the user is a female
     if member is None:
-        is_female = female_role in [role.name for role in ctx.author.roles]
+        is_female = util.has_role(female_role, ctx.author)
         # get compliment list
         compliments = get_compliment_list(ctx.author.name, is_female)
         await ctx.send(random.choice(compliments))
@@ -198,7 +199,7 @@ async def compliment(ctx, member=None):
         pass
 
     if isinstance(member, discord.Member):
-        is_female = female_role in [role.name for role in member.roles]
+        is_female = util.has_role(female_role, member)
         name = member.name
         mention = member.mention
     else:
@@ -230,7 +231,7 @@ async def diss(ctx, member=None):
 
     # check if the member is instance of discord.Member
     if isinstance(member, discord.Member):
-        is_female = female_role in [role.name for role in member.roles]
+        is_female = util.has_role(female_role, member)
     else:
         is_female = False
     disses = get_diss_list(member, is_female)
@@ -748,7 +749,7 @@ async def ryt_command(ctx: commands.Context, *args: str):
 
 @client.command('lights')
 async def lights_command(ctx: commands.Context, *args: str):
-    if ctx.author.name != owner.nick and ctx.author.name != my_gf.nick:
+    if not util.has_role('HR', ctx.author):
         await ctx.send(messages['no_permission'])
         return
     if args[0] == 'main':
@@ -763,7 +764,7 @@ async def lights_command(ctx: commands.Context, *args: str):
 
 
 def main():
-    client.run(cfg.TOKEN)
+    client.run(cfg.TOKEN_BETA)
 
 
 if __name__ == '__main__':
