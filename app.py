@@ -753,8 +753,10 @@ async def lights_command(ctx: commands.Context, *args: str):
         return
     if args[0] == 'main':
         sl.switch_main_lights()
+        await ctx.send('Przełączono światła główne')
     if args[0] == 'additional':
         sl.switch_additional_lights()
+        await ctx.send('Przełączono światła dodatkowe')
     if args[0] == 'status':
         status = sl.get_status()
         await ctx.send(status)
