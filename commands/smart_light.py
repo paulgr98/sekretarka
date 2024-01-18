@@ -1,5 +1,5 @@
-import discord
 import components.smart_light as sl
+import time
 
 
 def switch_main_lights() -> None:
@@ -18,6 +18,19 @@ def switch_additional_lights() -> None:
 
     sl.switch_state(dodatkowe_1)
     sl.switch_state(dodatkowe_2)
+
+
+def wake_up() -> None:
+    devs = sl.get_devices()
+
+    sl.turn_on(devs)
+    sl.set_brightness(devs, 100)
+
+    for _ in range(6):
+        sl.turn_off(devs)
+        time.sleep(1)
+        sl.turn_on(devs)
+        time.sleep(1)
 
 
 def get_status() -> str:

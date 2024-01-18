@@ -761,6 +761,10 @@ async def lights_command(ctx: commands.Context, *args: str):
     if args[0] == 'status':
         status = sl.get_status()
         await ctx.send(status)
+    if args[0] == 'wakeup':
+        owner_member = await util.get_user_from_username(ctx, owner.nick)
+        await ctx.send(f'Budzimy {owner_member.mention}!')
+        sl.wake_up()
 
 
 def main():

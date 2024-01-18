@@ -3,7 +3,7 @@ import json
 import time
 
 
-def get_devices():
+def get_devices() -> list[tinytuya.BulbDevice]:
     with open('smart_light.json') as json_file:
         cfg = json.load(json_file)
     devices = []
@@ -17,23 +17,28 @@ def get_devices():
     return devices
 
 
-def switch_state(dev: tinytuya.BulbDevice):
+def switch_state(dev: tinytuya.BulbDevice) -> None:
     dev_status = dev.status()
     dev_state = bool(dev_status["dps"]["20"])
     dev.set_status(not dev_state, 20)
 
 
-def turn_off_all(devs: list[tinytuya.BulbDevice]):
+def turn_off(devs: list[tinytuya.BulbDevice]) -> None:
+    for device in devs:
+        device.turn_off()
+
+
+def turn_on(devs: list[tinytuya.BulbDevice]) -> None:
     for device in devs:
         device.turn_on()
 
 
-def turn_on_all(devs: list[tinytuya.BulbDevice]):
+def set_brightness(devs: list[tinytuya.BulbDevice], brightness_percent: int) -> None:
     for device in devs:
-        device.turn_on()
+        device.set_brightness_percentage(brightness_percent)
 
 
-def play_with_light(devs: list[tinytuya.BulbDevice]):
+def play_with_light(devs: list[tinytuya.BulbDevice]) -> None:
     podstawowe_1 = devs[3]
     podstawowe_2 = devs[2]
     dodatkowe_1 = devs[0]
