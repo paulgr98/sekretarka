@@ -47,7 +47,7 @@ def get_status() -> str:
         "dodatkowe_2": dodatkowe_2.status()
     }
 
-    return str(f'Podstawowe 1: {'ON' if bool(status["podstawowe_1"]["dps"]["20"]) else 'OFF'}\n'
+    return str(f'Podstawowe 1: {"ON" if bool(status["podstawowe_1"]["dps"]["20"]) else "OFF"}\n'
                f'Podstawowe 2: {"ON" if bool(status["podstawowe_2"]["dps"]["20"]) else "OFF"}\n'
                f'Dodatkowe 1: {"ON" if bool(status["dodatkowe_1"]["dps"]["20"]) else "OFF"}\n'
                f'Dodatkowe 2: {"ON" if bool(status["dodatkowe_2"]["dps"]["20"]) else "OFF"}')

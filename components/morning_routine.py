@@ -53,9 +53,13 @@ async def morning_routine(client: discord.Client, show_news: bool):
 async def fun_holidays():
     holidays = fha.FunHolidaysApi()
     names = holidays.get_holidays_for_today()
-    msg = '**Dzisiaj obchodzimy:**\n'
-    for name in names:
-        msg += f'- {name}\n'
+    msg = ''
+    if len(names) == 0 or names is None:
+        msg = '**Dzisiaj nie obchodzimy żadnych nietypowych świąt**\n'
+    else:
+        msg = '**Dzisiaj obchodzimy:**\n'
+        for name in names:
+            msg += f'- {name}\n'
     return msg
 
 
