@@ -57,7 +57,7 @@ async def fun_holidays():
     if len(names) == 0 or names is None:
         msg = '**Dzisiaj nie obchodzimy żadnych nietypowych świąt**\n'
     else:
-        '**Dzisiaj obchodzimy:**\n'
+        msg = '**Dzisiaj obchodzimy:**\n'
         for name in names:
             msg += f'- {name}\n'
     return msg
