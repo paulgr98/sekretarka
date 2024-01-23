@@ -131,6 +131,14 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
     embed2.add_field(name=f"{prefix}ryt",
                      value="Postuje losowy film z YouTube",
                      inline=False)
+    embed2.add_field(name=f"{prefix}lights [akcja]",
+                     value="Przełączanie świateł w pokoju prezesa. Możliwe wartości:\n"
+                           "main - przełącza główne światła\n"
+                           "additional - przełącza dodatkowe światła\n"
+                           "status - wyświetla status świateł\n"
+                           "wakeup - budzi prezesa mrugając światałami\n"
+                           "*** UWAGA *** panie Areczku, ta funkcja dostępna jest tylko dla zarządu",
+                     inline=False)
 
     embeds.append(embed)
     embeds.append(embed2)
