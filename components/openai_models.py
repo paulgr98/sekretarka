@@ -1,30 +1,14 @@
+import g4f
+import g4f.api
 import openai
 
 import config as cfg
+import asyncio
+from threading import Thread
 
 
-class Davinci(object):
-    def __init__(self):
-        openai.api_key = cfg.OPENAI_API_KEY
-        self.model = openai.Completion()
-
-    def complete(self, prompt: str) -> str:
-        completions = self.model.create(
-            engine="text-davinci-002",
-            prompt=prompt,
-            max_tokens=2048,
-            n=1,
-            stop=None,
-            temperature=0.5,
-        )
-
-        message = completions.choices[0].text
-        return message
-
-    def generate_story(self, keywords: str) -> str:
-        prompt = f'Write a story about {keywords}.'
-        story = self.complete(prompt)
-        return story
+async def run_api():
+    g4f.api.Api(engine=g4f, debug=False).run(ip="127.0.0.1:1337")
 
 
 class ChatGPT(object):
@@ -40,3 +24,37 @@ class ChatGPT(object):
         )
         content: str = completion.choices[0].message["content"]
         return content
+
+
+class ChatGPT4Free(object):
+    def __init__(self):
+        self.client = openai.OpenAI(api_key=cfg.HUGGINGFACE_API_KEY, base_url="http://localhost:1337/v1")
+
+    async def complete(self, prompt: str) -> str:
+        chat_completion = self.client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a Polish female assistant, your name is Sekretarka "
+                                              "and your boss is Prezes Pajonk aka. Pawulon."
+                                              "Your default language is Polish"},
+                {"role": "user", "content": prompt}
+            ],
+        )
+        return chat_completion.choices[0].message.content
+
+
+async def main():
+    chat = ChatGPT4Free()
+    while True:
+        prompt = input("You: ")
+        response = await chat.complete(prompt)
+        print(response)
+
+
+if __name__ == '__main__':
+    # run api on other thread
+    api_thread = Thread(target=asyncio.run, args=(run_api(),))
+    api_thread.start()
+
+    # run main
+    asyncio.run(main())

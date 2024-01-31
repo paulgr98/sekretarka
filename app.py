@@ -4,11 +4,11 @@ import logging
 import math
 import random
 import time
+from threading import Thread
 
 import discord
 from discord.ext import commands
-from openai.error import OpenAIError
-from openai.error import RateLimitError
+from openai import APIError, RateLimitError, APIConnectionError
 
 import config as cfg
 from commands import alco_drink
@@ -40,7 +40,7 @@ from components import (
 from components.compliments import get_compliment_list
 from components.demotes import get_demotes
 from components.disses import get_diss_list
-from components.openai_models import ChatGPT
+from components.openai_models import ChatGPT4Free, run_api
 from components.reddit import get_subreddit_random_hot, SubredditOver18
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
 from components.uwuify import uwuify
@@ -81,6 +81,7 @@ messages = {
     'no_permission': 'Nie masz uprawnień do tej komendy',
 }
 
+DISCORD_MESSAGE_LEN_LIMIT = 2000
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -648,12 +649,21 @@ async def story(ctx: commands.Context, *keywords: str):
     try:
         # trigger typing
         async with ctx.typing():
-            story_pl = generate_story.generate_story(prompt)
-        await ctx.reply(story_pl)
-    except OpenAIError as e:
-        if e.http_status == 402:
+            story_task = asyncio.create_task(generate_story.generate_story(prompt))
+            story_txt = await story_task
+        # if response is longer than Discord limit, send it in chunks
+        if len(story_txt) > DISCORD_MESSAGE_LEN_LIMIT:
+            story_chunks = util.split_into_chunks(story_txt, DISCORD_MESSAGE_LEN_LIMIT)
+            for chunk in story_chunks:
+                await ctx.send(chunk)
+        else:
+            await ctx.send(story_txt)
+    except APIConnectionError:
+        await ctx.reply('Nie udało się połączyć z API')
+    except APIError as e:
+        if e.code == 402:
             await ctx.reply('Przekroczono limit zapytań')
-        elif e.http_status == 429:
+        elif e.code == 429:
             testo_bytes = tenor.url_to_file('https://media.tenor.com/A4Tnhi1KDOAAAAAC/testoviron.gif')
             # load bytes to file
             testo_file = discord.File(testo_bytes, filename='testoviron.gif')
@@ -661,8 +671,10 @@ async def story(ctx: commands.Context, *keywords: str):
                             '\n\nAaaa kuhwa, nie dla psa kuhwa, nie dla śmiecia, dla pana to',
                             file=testo_file)
             return
+        elif e.code is not None:
+            await ctx.reply(f'Nieznany błąd z kodem {e.code}')
         else:
-            await ctx.reply(f'Nieznany błąd z kodem {e.http_status}')
+            await ctx.reply('Nieznany błąd')
 
 
 @client.command(aliases=['rr', 'roulette'])
@@ -691,11 +703,12 @@ async def birthday_command(ctx: commands.Context, action: str, *args: str):
 
 @client.command('gpt')
 async def gpt_command(ctx: commands.Context, *args: str):
-    gpt = ChatGPT()
+    gpt = ChatGPT4Free()
     prompt = ' '.join(args)
-    await ctx.typing()
     try:
-        response = gpt.complete(prompt)
+        async with ctx.typing():
+            response_task = asyncio.create_task(gpt.complete(prompt))
+            response = await response_task
     except RateLimitError:
         testo_bytes = tenor.url_to_file('https://media.tenor.com/A4Tnhi1KDOAAAAAC/testoviron.gif')
         # load bytes to file
@@ -704,7 +717,16 @@ async def gpt_command(ctx: commands.Context, *args: str):
                         '\n\nAaaa kuhwa, nie dla psa kuhwa, nie dla śmiecia, dla pana to',
                         file=testo_file)
         return
-    await ctx.send(response)
+    except APIConnectionError:
+        await ctx.reply('Nie udało się połączyć z API')
+        return
+    # if response is longer than Discord limit, send it in chunks
+    if len(response) > DISCORD_MESSAGE_LEN_LIMIT:
+        response_chunks = util.split_into_chunks(response, DISCORD_MESSAGE_LEN_LIMIT)
+        for chunk in response_chunks:
+            await ctx.send(chunk)
+    else:
+        await ctx.send(response)
 
 
 @client.command('f1')
@@ -768,6 +790,10 @@ async def lights_command(ctx: commands.Context, *args: str):
 
 
 def main():
+    # run api on other thread
+    api_thread = Thread(target=asyncio.run, args=(run_api(),))
+    api_thread.start()
+    # run main
     client.run(cfg.TOKEN_BETA)
 
 

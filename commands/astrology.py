@@ -2,7 +2,6 @@ import datetime as dt
 
 import discord
 import requests
-from googletrans import Translator
 
 import config as cfg
 
@@ -41,7 +40,7 @@ def make_astrology_embed(sign: str) -> discord.Embed:
         raise NoSignException('API się zepsuło, spróbuj ponownie później')
 
     # translate the horoscope to polish
-    translator = Translator()
+    translator = None  # TODO: add translator here
     res_json = response.json()
     description = res_json['description']
     description_pl = translator.translate(description, src='en', dest='pl').text
