@@ -49,7 +49,7 @@ from components.uwuify import uwuify
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-client = commands.Bot(command_prefix='$', intents=intents)
+client = commands.Bot(command_prefix='b$', intents=intents)
 client.remove_command('help')
 
 
@@ -82,6 +82,7 @@ messages = {
 }
 
 DISCORD_MESSAGE_LEN_LIMIT = 2000
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -794,7 +795,7 @@ def main():
     api_thread = Thread(target=asyncio.run, args=(run_api(),))
     api_thread.start()
     # run main
-    client.run(cfg.TOKEN)
+    client.run(cfg.TOKEN_BETA)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,5 @@
 import g4f
+from g4f.Provider import Bing
 import g4f.api
 import openai
 
@@ -15,7 +16,8 @@ class ChatGPT(object):
     def __init__(self):
         openai.api_key = cfg.OPENAI_API_KEY
 
-    def complete(self, prompt: str) -> str:
+    @staticmethod
+    def complete(prompt: str) -> str:
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -30,17 +32,19 @@ class ChatGPT4Free(object):
     def __init__(self):
         self.client = openai.OpenAI(api_key=cfg.HUGGINGFACE_API_KEY, base_url="http://localhost:1337/v1")
 
-    async def complete(self, prompt: str) -> str:
-        chat_completion = self.client.chat.completions.create(
-            model="gpt-3.5-turbo",
+    @staticmethod
+    async def complete(prompt: str) -> str:
+        chat_completion = g4f.ChatCompletion.create(
+            model="gpt-4",
             messages=[
                 {"role": "system", "content": "You are a Polish female assistant, your name is Sekretarka "
                                               "and your boss is Prezes Pajonk aka. Pawulon."
                                               "Your default language is Polish"},
                 {"role": "user", "content": prompt}
             ],
+            provider=Bing,
         )
-        return chat_completion.choices[0].message.content
+        return chat_completion
 
 
 async def main():
