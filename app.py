@@ -50,7 +50,7 @@ from components.gpt_chat_history import ChatHistory, Message, GptRole
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-client = commands.Bot(command_prefix='b$', intents=intents)
+client = commands.Bot(command_prefix='$', intents=intents)
 client.remove_command('help')
 
 
@@ -821,7 +821,7 @@ def main():
     api_thread = Thread(target=asyncio.run, args=(run_api(),))
     api_thread.start()
     # run main
-    client.run(cfg.TOKEN_BETA)
+    client.run(cfg.TOKEN)
 
 
 if __name__ == '__main__':
