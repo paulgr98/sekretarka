@@ -1,5 +1,6 @@
 import g4f
-from g4f.Provider import Bing
+from g4f.Provider import Bing, You
+from g4f.models import default
 import g4f.api
 import openai
 
@@ -29,20 +30,25 @@ class ChatGPT(object):
 
 
 class ChatGPT4Free(object):
+    system_message = {"role": "system", "content": "You are a Polish female assistant, your name is Sekretarka "
+                                                   "and your boss is Prezes Pajonk aka. Pawulon."
+                                                   "Your default language is Polish"}
+    provider = Bing
+    model = "gpt-4"
+
     def __init__(self):
         self.client = openai.OpenAI(api_key=cfg.HUGGINGFACE_API_KEY, base_url="http://localhost:1337/v1")
 
-    @staticmethod
-    async def complete(prompt: str) -> str:
+    async def complete(self, prompt: str, messages: dict = None) -> str:
+        if messages is None:
+            messages = [
+                ChatGPT4Free.system_message,
+            ]
+        messages.append({"role": "user", "content": prompt})
         chat_completion = g4f.ChatCompletion.create(
-            model="gpt-4",
-            messages=[
-                {"role": "system", "content": "You are a Polish female assistant, your name is Sekretarka "
-                                              "and your boss is Prezes Pajonk aka. Pawulon."
-                                              "Your default language is Polish"},
-                {"role": "user", "content": prompt}
-            ],
-            provider=Bing,
+            model=ChatGPT4Free.model,
+            messages=messages,
+            provider=ChatGPT4Free.provider,
         )
         return chat_completion
 
@@ -52,7 +58,7 @@ async def main():
     while True:
         prompt = input("You: ")
         response = await chat.complete(prompt)
-        print(response)
+        print(f"Bot: {response}")
 
 
 if __name__ == '__main__':
