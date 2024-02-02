@@ -44,6 +44,7 @@ from components.openai_models import ChatGPT4Free, run_api
 from components.reddit import get_subreddit_random_hot, SubredditOver18
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
 from components.uwuify import uwuify
+from components.gpt_chat_history import ChatHistory, Message, GptRole
 
 # bot instance
 intents = discord.Intents.default()
@@ -705,10 +706,20 @@ async def birthday_command(ctx: commands.Context, action: str, *args: str):
 @client.command('gpt')
 async def gpt_command(ctx: commands.Context, *args: str):
     gpt = ChatGPT4Free()
+    msg = handle_gpt_args(ctx, *args)
+    if msg is not None:
+        await ctx.reply(msg)
+        return
+
     prompt = ' '.join(args)
     try:
         async with ctx.typing():
-            response_task = asyncio.create_task(gpt.complete(prompt))
+            # get users chat history
+            previous_messages = users_chat_history.get(ctx.author.id)
+            if previous_messages is None:
+                response_task = asyncio.create_task(gpt.complete(prompt))
+            else:
+                response_task = asyncio.create_task(gpt.complete(prompt, previous_messages))
             response = await response_task
     except RateLimitError:
         testo_bytes = tenor.url_to_file('https://media.tenor.com/A4Tnhi1KDOAAAAAC/testoviron.gif')
@@ -727,7 +738,20 @@ async def gpt_command(ctx: commands.Context, *args: str):
         for chunk in response_chunks:
             await ctx.send(chunk)
     else:
+        # if there are no errors, add both messages to history
+        users_chat_history.add(ctx.author.id, Message(prompt, GptRole.USER))
+        users_chat_history.add(ctx.author.id, Message(response, GptRole.ASSISTANT))
         await ctx.send(response)
+
+
+def handle_gpt_args(ctx: commands.Context, *args: str, ):
+    global users_chat_history
+    if len(args) == 0:
+        return 'Nie podano argumentów'
+    if args[0] == '--clear':
+        users_chat_history.clear(ctx.author.id)
+        return 'Historia została wyczyszczona'
+    return None
 
 
 @client.command('f1')

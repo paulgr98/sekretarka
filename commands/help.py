@@ -123,7 +123,10 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
     embed2.add_field(name=f"{prefix}gpt [wiadomość]",
                      value="Rozmowa ze sztuczną inteligencją (ChatGPT). "
                            "Można poprosić ją o pomoc, albo żeby coś zrobiła "
-                           "(np. napisz streszczenie książki Ferdydurke)",
+                           "(np. napisz streszczenie książki Ferdydurke)\n"
+                           "Chat pamięta ostatnie 50 wiadomości.\n"
+                           "Argumenty:\n"
+                           "--clear - czyści historię rozmowy",
                      inline=False)
     embed2.add_field(name=f"{prefix}f1",
                      value="Wyświetla następny wyścig Formuły 1",
