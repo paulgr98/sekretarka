@@ -697,7 +697,7 @@ async def money_command(ctx: commands.Context, *args: str):
 
 @client.command('morning')
 async def test_morning_routine(ctx: commands.Context):
-    await mr.morning_routine(client, show_news=False)
+    await mr.morning_routine(client, show_news=True)
 
 
 @client.command('bday')

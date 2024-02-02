@@ -41,7 +41,7 @@ async def morning_routine(client: discord.Client, show_news: bool):
         for channel in channels:
             await channel.send(welcome_text)
 
-        news_embeds = news.get_news_embeds(3)
+        news_embeds = await news.get_news_embeds(3)
         for embed in news_embeds:
             for channel in channels:
                 await channel.send(embed=embed)
