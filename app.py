@@ -78,7 +78,9 @@ female_role = 'kobita'
 handler = logging.StreamHandler()
 logger = logging.getLogger('discord')
 
-messages = {
+users_chat_history = ChatHistory()
+
+error_messages = {
     'no_permission': 'Nie masz uprawnień do tej komendy',
 }
 
@@ -102,7 +104,7 @@ async def on_command_error(ctx, error):
             time_left = str(int(time_left)) + ' sek'
         await ctx.send(f'Ta komenda posiada cooldown. Spróbuj znowu za {time_left}')
     elif isinstance(error, commands.MissingPermissions):
-        await ctx.send(messages['no_permission'])
+        await ctx.send(error_messages['no_permission'])
     elif isinstance(error, commands.BadArgument):
         await ctx.send(f'Niepoprawne argumenty. Jeśli używasz {client.command_prefix}rdt, '
                        f'upewnij się ze nazwa subreddit nie zawiera spacji')
@@ -775,7 +777,7 @@ async def help_command(ctx: commands.Context):
 @client.command('calendar')
 async def calendar_command(ctx: commands.Context, *args: str):
     if ctx.author.name != owner.nick:
-        await ctx.send(messages['no_permission'])
+        await ctx.send(error_messages['no_permission'])
         return
     events = calendar.get_next_event()
     if events is None:
@@ -797,7 +799,7 @@ async def ryt_command(ctx: commands.Context, *args: str):
 @client.command('lights')
 async def lights_command(ctx: commands.Context, *args: str):
     if not util.has_role('HR', ctx.author):
-        await ctx.send(messages['no_permission'])
+        await ctx.send(error_messages['no_permission'])
         return
     if args[0] == 'main':
         sl.switch_main_lights()
