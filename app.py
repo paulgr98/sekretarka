@@ -69,7 +69,7 @@ owner.nick = 'panpajonk'
 my_gf = Usr()
 my_gf.nick = 'marta.6442'
 
-bot_channels = ['bot', 'bot_nsfw', 'bot-spam', 'nsfw']
+bot_channels = ['bot', 'bot_nsfw', 'bot-spam', 'nsfw', 'machine-learning']
 nsfw_channels = ['bot_nsfw', 'nsfw']
 
 female_role = 'kobita'
