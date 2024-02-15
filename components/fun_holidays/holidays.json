@@ -3,6 +3,12 @@
         "day": 1,
         "month": 1,
         "year": 2024,
+        "name": "Nowy Rok"
+    },
+    {
+        "day": 1,
+        "month": 1,
+        "year": 2024,
         "name": "Światowy Dzień Kaca"
     },
     {
@@ -58,6 +64,12 @@
         "month": 1,
         "year": 2024,
         "name": "Światowy Dzień Hipnotyzmu"
+    },
+    {
+        "day": 6,
+        "month": 1,
+        "year": 2024,
+        "name": "Trzech Króli"
     },
     {
         "day": 6,
@@ -273,6 +285,12 @@
         "day": 21,
         "month": 1,
         "year": 2024,
+        "name": "Dzień Babci"
+    },
+    {
+        "day": 21,
+        "month": 1,
+        "year": 2024,
         "name": "Światowy Dzień Śniegu"
     },
     {
@@ -292,6 +310,12 @@
         "month": 1,
         "year": 2024,
         "name": "Dzień Wiewiórki"
+    },
+    {
+        "day": 22,
+        "month": 1,
+        "year": 2024,
+        "name": "Dzień Dziadka"
     },
     {
         "day": 22,
@@ -489,6 +513,12 @@
         "day": 2,
         "month": 2,
         "year": 2024,
+        "name": "Matki Boskiej Gromnicznej"
+    },
+    {
+        "day": 2,
+        "month": 2,
+        "year": 2024,
         "name": "Dzień Gumy Balonowej"
     },
     {
@@ -603,6 +633,12 @@
         "day": 8,
         "month": 2,
         "year": 2024,
+        "name": "Tłusty Czwartek"
+    },
+    {
+        "day": 8,
+        "month": 2,
+        "year": 2024,
         "name": "Święto Służby Więziennej"
     },
     {
@@ -693,6 +729,12 @@
         "day": 13,
         "month": 2,
         "year": 2024,
+        "name": "Śledzik"
+    },
+    {
+        "day": 13,
+        "month": 2,
+        "year": 2024,
         "name": "Światowy Dzień Radia"
     },
     {
@@ -700,6 +742,18 @@
         "month": 2,
         "year": 2024,
         "name": "Międzynarodowy Dzień Prezerwatywy"
+    },
+    {
+        "day": 14,
+        "month": 2,
+        "year": 2024,
+        "name": "Walentynki"
+    },
+    {
+        "day": 14,
+        "month": 2,
+        "year": 2024,
+        "name": "Popielec"
     },
     {
         "day": 14,
@@ -951,7 +1005,7 @@
         "day": 1,
         "month": 3,
         "year": 2024,
-        "name": "Narodowy Dzień Pamięci "
+        "name": "Narodowy Dzień Pamięci \"Żołnierzy Wyklętych\""
     },
     {
         "day": 1,
@@ -1132,6 +1186,12 @@
         "month": 3,
         "year": 2024,
         "name": "Dzień Płatków Śniadaniowych"
+    },
+    {
+        "day": 8,
+        "month": 3,
+        "year": 2024,
+        "name": "Dzień Kobiet"
     },
     {
         "day": 8,
@@ -1503,6 +1563,12 @@
         "day": 24,
         "month": 3,
         "year": 2024,
+        "name": "Niedziela Palmowa"
+    },
+    {
+        "day": 24,
+        "month": 3,
+        "year": 2024,
         "name": "Narodowy Dzień Życia"
     },
     {
@@ -1581,6 +1647,12 @@
         "day": 28,
         "month": 3,
         "year": 2024,
+        "name": "Wielki Czwartek"
+    },
+    {
+        "day": 28,
+        "month": 3,
+        "year": 2024,
         "name": "Dzień Chwastów"
     },
     {
@@ -1599,6 +1671,12 @@
         "day": 29,
         "month": 3,
         "year": 2024,
+        "name": "Wielki Piątek"
+    },
+    {
+        "day": 29,
+        "month": 3,
+        "year": 2024,
         "name": "Dzień Metalowca"
     },
     {
@@ -1606,6 +1684,12 @@
         "month": 3,
         "year": 2024,
         "name": "Święto Polskiej Bielizny"
+    },
+    {
+        "day": 30,
+        "month": 3,
+        "year": 2024,
+        "name": "Wielka Sobota"
     },
     {
         "day": 30,
@@ -1635,6 +1719,12 @@
         "day": 31,
         "month": 3,
         "year": 2024,
+        "name": "Wielkanoc"
+    },
+    {
+        "day": 31,
+        "month": 3,
+        "year": 2024,
         "name": "Światowy Dzień Backupu"
     },
     {
@@ -1642,6 +1732,18 @@
         "month": 3,
         "year": 2024,
         "name": "Światowy dzień budyniu"
+    },
+    {
+        "day": 1,
+        "month": 4,
+        "year": 2024,
+        "name": "Poniedziałek Wielkanocny"
+    },
+    {
+        "day": 1,
+        "month": 4,
+        "year": 2024,
+        "name": "Prima aprilis"
     },
     {
         "day": 1,
@@ -2307,6 +2409,12 @@
         "day": 1,
         "month": 5,
         "year": 2024,
+        "name": "Święto Pracy"
+    },
+    {
+        "day": 1,
+        "month": 5,
+        "year": 2024,
         "name": "Ogólnopolskie Święto Kaszanki"
     },
     {
@@ -2320,6 +2428,12 @@
         "month": 5,
         "year": 2024,
         "name": "Święto Konwalii"
+    },
+    {
+        "day": 2,
+        "month": 5,
+        "year": 2024,
+        "name": "Dzień Flagi RP"
     },
     {
         "day": 2,
@@ -2356,6 +2470,12 @@
         "month": 5,
         "year": 2024,
         "name": "Międzynarodowy Dzień Harry'ego Pottera"
+    },
+    {
+        "day": 3,
+        "month": 5,
+        "year": 2024,
+        "name": "Święto Konstytucji 3 Maja"
     },
     {
         "day": 3,
@@ -2601,6 +2721,12 @@
         "day": 12,
         "month": 5,
         "year": 2024,
+        "name": "Wniebowstąpienie Pańskie"
+    },
+    {
+        "day": 12,
+        "month": 5,
+        "year": 2024,
         "name": "Światowy Dzień Środków Masowego Przekazu"
     },
     {
@@ -2782,6 +2908,12 @@
         "month": 5,
         "year": 2024,
         "name": "Międzynarodowy Dzień Muzeów"
+    },
+    {
+        "day": 19,
+        "month": 5,
+        "year": 2024,
+        "name": "Zielone Świątki"
     },
     {
         "day": 19,
@@ -3015,6 +3147,12 @@
         "day": 26,
         "month": 5,
         "year": 2024,
+        "name": "Dzień Matki"
+    },
+    {
+        "day": 26,
+        "month": 5,
+        "year": 2024,
         "name": "Dzień Samolotów z Papieru"
     },
     {
@@ -3087,6 +3225,12 @@
         "day": 30,
         "month": 5,
         "year": 2024,
+        "name": "Boże Ciało"
+    },
+    {
+        "day": 30,
+        "month": 5,
+        "year": 2024,
         "name": "Dzień Rodzicielstwa Zastępczego"
     },
     {
@@ -3148,6 +3292,12 @@
         "month": 5,
         "year": 2024,
         "name": "Dzień Projektanta Stron Internetowych"
+    },
+    {
+        "day": 1,
+        "month": 6,
+        "year": 2024,
+        "name": "Dzień Dziecka"
     },
     {
         "day": 1,
@@ -3622,6 +3772,12 @@
         "month": 6,
         "year": 2024,
         "name": "Światowy Dzień Lasu Deszczowego"
+    },
+    {
+        "day": 23,
+        "month": 6,
+        "year": 2024,
+        "name": "Dzień Ojca"
     },
     {
         "day": 23,
@@ -4318,6 +4474,18 @@
         "month": 8,
         "year": 2024,
         "name": "Dzień Energetyka"
+    },
+    {
+        "day": 15,
+        "month": 8,
+        "year": 2024,
+        "name": "Wniebowzięcie Najświętszej Maryi Panny"
+    },
+    {
+        "day": 15,
+        "month": 8,
+        "year": 2024,
+        "name": "Święto Wojska Polskiego"
     },
     {
         "day": 16,
@@ -5085,6 +5253,12 @@
         "day": 30,
         "month": 9,
         "year": 2024,
+        "name": "Dzień Chłopaka"
+    },
+    {
+        "day": 30,
+        "month": 9,
+        "year": 2024,
         "name": "Międzynarodowy Dzień Tłumacza"
     },
     {
@@ -5422,6 +5596,12 @@
         "month": 10,
         "year": 2024,
         "name": "Dzień Bez Stanika"
+    },
+    {
+        "day": 14,
+        "month": 10,
+        "year": 2024,
+        "name": "Dzień Nauczyciela"
     },
     {
         "day": 14,
@@ -5877,6 +6057,12 @@
         "day": 31,
         "month": 10,
         "year": 2024,
+        "name": "Haloween"
+    },
+    {
+        "day": 31,
+        "month": 10,
+        "year": 2024,
         "name": "Dzień Rozrzutności"
     },
     {
@@ -5895,7 +6081,19 @@
         "day": 1,
         "month": 11,
         "year": 2024,
+        "name": "Wszystkich Świętych"
+    },
+    {
+        "day": 1,
+        "month": 11,
+        "year": 2024,
         "name": "Światowy Dzień Wegan"
+    },
+    {
+        "day": 2,
+        "month": 11,
+        "year": 2024,
+        "name": "Zaduszki"
     },
     {
         "day": 2,
@@ -6040,6 +6238,12 @@
         "month": 11,
         "year": 2024,
         "name": "Światowy Dzień Nauki dla Pokoju i Rozwoju"
+    },
+    {
+        "day": 11,
+        "month": 11,
+        "year": 2024,
+        "name": "Święto Niepodległości"
     },
     {
         "day": 11,
@@ -6441,6 +6645,12 @@
         "day": 29,
         "month": 11,
         "year": 2024,
+        "name": "Andrzejki"
+    },
+    {
+        "day": 29,
+        "month": 11,
+        "year": 2024,
         "name": "Międzynarodowy Dzień Inżyniera Systemów"
     },
     {
@@ -6543,6 +6753,12 @@
         "day": 4,
         "month": 12,
         "year": 2024,
+        "name": "Barbórka"
+    },
+    {
+        "day": 4,
+        "month": 12,
+        "year": 2024,
         "name": "Dzień Górnika"
     },
     {
@@ -6580,6 +6796,12 @@
         "month": 12,
         "year": 2024,
         "name": "Dzień Marynarza Śródlądowego"
+    },
+    {
+        "day": 6,
+        "month": 12,
+        "year": 2024,
+        "name": "Mikołajki"
     },
     {
         "day": 6,
@@ -6837,7 +7059,19 @@
         "day": 24,
         "month": 12,
         "year": 2024,
+        "name": "Wigilia Bożego Narodzenia"
+    },
+    {
+        "day": 24,
+        "month": 12,
+        "year": 2024,
         "name": "Dzień Raju"
+    },
+    {
+        "day": 25,
+        "month": 12,
+        "year": 2024,
+        "name": "Boże Narodzenie"
     },
     {
         "day": 27,
@@ -6862,6 +7096,12 @@
         "month": 12,
         "year": 2024,
         "name": "Dzień Serka Wiejskiego"
+    },
+    {
+        "day": 31,
+        "month": 12,
+        "year": 2024,
+        "name": "Sylwester"
     },
     {
         "day": 31,
