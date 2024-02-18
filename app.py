@@ -156,6 +156,19 @@ async def hi(ctx):
     await ctx.send(f'Hej {ctx.author.name}')
 
 
+# get user's avatar in embed
+@client.command()
+async def avatar(ctx, member: discord.Member = None):
+    if member is None:
+        member = ctx.author
+    embed_title = f'{member.display_name}'
+    if member.name != member.display_name:
+        embed_title += f' ({member.name})'
+    embed = discord.Embed(title=embed_title, color=0x328CED)
+    embed.set_image(url=member.display_avatar.url)
+    await ctx.send(embed=embed)
+
+
 # deleting given amount of messages above
 @client.command()
 @commands.has_permissions(manage_messages=True)
