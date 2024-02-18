@@ -50,7 +50,7 @@ from components.gpt_chat_history import ChatHistory, Message, GptRole
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-client = commands.Bot(command_prefix='$', intents=intents)
+client = commands.Bot(command_prefix='b$', intents=intents)
 client.remove_command('help')
 
 
@@ -154,6 +154,19 @@ async def hi(ctx):
         await ctx.send('Hej skarbie ❤')
         return
     await ctx.send(f'Hej {ctx.author.name}')
+
+
+# get user's avatar in embed
+@client.command()
+async def avatar(ctx, member: discord.Member = None):
+    if member is None:
+        member = ctx.author
+    embed_title = f'{member.display_name}'
+    if member.name != member.display_name:
+        embed_title += f' ({member.name})'
+    embed = discord.Embed(title=embed_title, color=0x328CED)
+    embed.set_image(url=member.display_avatar.url)
+    await ctx.send(embed=embed)
 
 
 # deleting given amount of messages above
@@ -821,7 +834,7 @@ def main():
     api_thread = Thread(target=asyncio.run, args=(run_api(),))
     api_thread.start()
     # run main
-    client.run(cfg.TOKEN)
+    client.run(cfg.TOKEN_BETA)
 
 
 if __name__ == '__main__':
