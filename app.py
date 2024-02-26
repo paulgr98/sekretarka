@@ -1,3 +1,4 @@
+import config as cfg
 import asyncio
 import datetime as dt
 import logging
@@ -10,7 +11,6 @@ import discord
 from discord.ext import commands
 from openai import APIError, RateLimitError, APIConnectionError
 
-import config as cfg
 from commands import alco_drink
 from commands import astrology
 from commands import birthday_tracker as bt
@@ -23,6 +23,7 @@ from commands import help
 from commands import poll
 from commands import weather
 from commands import smart_light as sl
+from commands import text_to_speach as tts
 from commands.casino import money as money_cmd
 from commands.casino import roulette as roulette_cmd
 from components import (
@@ -827,6 +828,21 @@ async def lights_command(ctx: commands.Context, *args: str):
         owner_member = await util.get_user_from_username(ctx, owner.nick)
         await ctx.send(f'Budzimy {owner_member.mention}!')
         sl.wake_up()
+
+
+@client.command('tts')
+async def text_to_speach_command(ctx: commands.Context, *args: str):
+    tts_client = tts.TextToSpeach(client)
+    if len(args) == 0:
+        await ctx.send('Brak argumentów')
+        return
+    if args[0] == '--join':
+        await tts_client.join_voice_channel(ctx)
+        return
+    if args[0] == '--leave':
+        await tts_client.leave_voice_channel(ctx)
+        return
+    await tts_client.text_to_speach(ctx, ' '.join(args))
 
 
 def main():
