@@ -158,5 +158,12 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                                "wakeup - budzi prezesa mrugając światałami\n"
                                "*** UWAGA *** panie Areczku, ta funkcja dostępna jest tylko dla zarządu",
                          )
+    help_embed.add_field(name=f"{prefix}tts [tekst]",
+                         value="Odtwarza tekst [tekst] jako mowę. Argumenty:\n"
+                               "--join - dołącza do kanału głosowego\n"
+                               "--leave - opuszcza kanał głosowy\n"
+                               "Jeśli nie podano żadnego argumentu, bot dołączy do kanału głosowego, "
+                               "odczyta tekst i opuści kanał głosowy",
+                         )
 
     return help_embed.get_discord_embeds()
