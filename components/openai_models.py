@@ -1,12 +1,11 @@
-import g4f
-from g4f.Provider import Bing, You
-from g4f.models import default
-import g4f.api
-import openai
-
 import config as cfg
 import asyncio
 from threading import Thread
+
+import openai
+import g4f
+from g4f.Provider import Bing
+import g4f.api
 
 
 async def run_api():
