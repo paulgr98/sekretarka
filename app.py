@@ -68,7 +68,7 @@ owner = Usr()
 owner.nick = 'panpajonk'
 
 my_gf = Usr()
-my_gf.nick = 'marta.6442'
+my_gf.nick = 'error_404_gf_not_found'
 
 bot_channels = ['bot', 'bot_nsfw', 'bot-spam', 'nsfw', 'machine-learning']
 nsfw_channels = ['bot_nsfw', 'nsfw']
