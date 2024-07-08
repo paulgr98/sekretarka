@@ -1,53 +1,40 @@
-import config as cfg
 import asyncio
-from threading import Thread
 
-import openai
-import g4f
-from g4f.Provider import Bing
-import g4f.api
+from g4f import api
+from g4f.client import Client, ChatCompletion
+from g4f.Provider import Blackbox
+from uvicorn import Config, Server
 
 
 async def run_api():
-    g4f.api.Api(engine=g4f, debug=False).run(ip="127.0.0.1:1337")
-
-
-class ChatGPT(object):
-    def __init__(self):
-        openai.api_key = cfg.OPENAI_API_KEY
-
-    @staticmethod
-    def complete(prompt: str) -> str:
-        completion = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
-        )
-        content: str = completion.choices[0].message["content"]
-        return content
+    app = api.create_app()
+    config = Config(app, host="localhost", port=1337, log_level=0)
+    server = Server(config)
+    await server.serve()
 
 
 class ChatGPT4Free(object):
     system_message = {"role": "system", "content": "You are a Polish female assistant, your name is Sekretarka "
                                                    "and your boss is Prezes Pajonk aka. Pawulon."
+                                                   "You provide information and help everyone with their problems."
+                                                   "Answer like a normal person, you don't have to "
+                                                   "greet the user every time."
                                                    "Your default language is Polish"}
-    provider = Bing
-    model = "gpt-4"
+    model = "default"
 
     def __init__(self):
-        self.client = openai.OpenAI(api_key=cfg.HUGGINGFACE_API_KEY, base_url="http://localhost:1337/v1")
+        self.client = Client()
 
-    async def complete(self, prompt: str, messages: dict = None) -> str:
+    async def complete(self, prompt: str, messages: dict = None) -> ChatCompletion:
         if messages is None:
             messages = [
                 ChatGPT4Free.system_message,
             ]
         messages.append({"role": "user", "content": prompt})
-        chat_completion = g4f.ChatCompletion.create(
-            model=ChatGPT4Free.model,
+        chat_completion = self.client.chat.completions.create(
             messages=messages,
-            provider=ChatGPT4Free.provider,
+            model=ChatGPT4Free.model,
+            provider=Blackbox,
         )
         return chat_completion
 
@@ -57,13 +44,8 @@ async def main():
     while True:
         prompt = input("You: ")
         response = await chat.complete(prompt)
-        print(f"Bot: {response}")
+        print(f"Bot: {response.choices[0].message.content}")
 
 
 if __name__ == '__main__':
-    # run api on other thread
-    api_thread = Thread(target=asyncio.run, args=(run_api(),))
-    api_thread.start()
-
-    # run main
     asyncio.run(main())

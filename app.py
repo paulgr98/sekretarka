@@ -711,7 +711,7 @@ async def money_command(ctx: commands.Context, *args: str):
 
 @client.command('morning')
 async def test_morning_routine(ctx: commands.Context):
-    await mr.morning_routine(client, show_news=True)
+    await mr.morning_routine(client, show_news=False)
 
 
 @client.command('bday')
@@ -736,7 +736,7 @@ async def gpt_command(ctx: commands.Context, *args: str):
                 response_task = asyncio.create_task(gpt.complete(prompt))
             else:
                 response_task = asyncio.create_task(gpt.complete(prompt, previous_messages))
-            response = await response_task
+            response = (await response_task).choices[0].message.content
     except RateLimitError:
         testo_bytes = tenor.url_to_file('https://media.tenor.com/A4Tnhi1KDOAAAAAC/testoviron.gif')
         # load bytes to file
@@ -749,15 +749,26 @@ async def gpt_command(ctx: commands.Context, *args: str):
         await ctx.reply('Nie udało się połączyć z API')
         return
     # if response is longer than Discord limit, send it in chunks
+    users_chat_history.add(ctx.author.id, Message(prompt, GptRole.USER))
     if len(response) > DISCORD_MESSAGE_LEN_LIMIT:
         response_chunks = util.split_into_chunks(response, DISCORD_MESSAGE_LEN_LIMIT)
         for chunk in response_chunks:
+            chunk = clean_blackbox_provider_response(chunk)
+            users_chat_history.add(ctx.author.id, Message(response, GptRole.ASSISTANT))
             await ctx.send(chunk)
     else:
         # if there are no errors, add both messages to history
+        response = clean_blackbox_provider_response(response)
         users_chat_history.add(ctx.author.id, Message(prompt, GptRole.USER))
         users_chat_history.add(ctx.author.id, Message(response, GptRole.ASSISTANT))
         await ctx.send(response)
+
+
+def clean_blackbox_provider_response(response: str):
+    # if contains rv1$@$, get only the text after it
+    if 'rv1$@$' in response:
+        response = response.split('rv1$@$')[1]
+    return response
 
 
 def handle_gpt_args(ctx: commands.Context, *args: str, ):
