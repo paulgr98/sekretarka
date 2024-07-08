@@ -663,36 +663,8 @@ async def story(ctx: commands.Context, *keywords: str):
         await ctx.reply('Podaj słowo kluczowe (np. kot)')
         return
     prompt = ' '.join(keywords)
-    # check for api errors
-    try:
-        # trigger typing
-        async with ctx.typing():
-            story_task = asyncio.create_task(generate_story.generate_story(prompt))
-            story_txt = await story_task
-        # if response is longer than Discord limit, send it in chunks
-        if len(story_txt) > DISCORD_MESSAGE_LEN_LIMIT:
-            story_chunks = util.split_into_chunks(story_txt, DISCORD_MESSAGE_LEN_LIMIT)
-            for chunk in story_chunks:
-                await ctx.send(chunk)
-        else:
-            await ctx.send(story_txt)
-    except APIConnectionError:
-        await ctx.reply('Nie udało się połączyć z API')
-    except APIError as e:
-        if e.code == 402:
-            await ctx.reply('Przekroczono limit zapytań')
-        elif e.code == 429:
-            testo_bytes = tenor.url_to_file('https://media.tenor.com/A4Tnhi1KDOAAAAAC/testoviron.gif')
-            # load bytes to file
-            testo_file = discord.File(testo_bytes, filename='testoviron.gif')
-            await ctx.reply('Przekroczono limit zapytań...'
-                            '\n\nAaaa kuhwa, nie dla psa kuhwa, nie dla śmiecia, dla pana to',
-                            file=testo_file)
-            return
-        elif e.code is not None:
-            await ctx.reply(f'Nieznany błąd z kodem {e.code}')
-        else:
-            await ctx.reply('Nieznany błąd')
+    prompt = 'Napisz krótką historyjkę ' + prompt
+    await gpt_command(ctx, prompt)
 
 
 @client.command(aliases=['rr', 'roulette'])
