@@ -87,7 +87,7 @@ async def get_birthday_text(client: discord.Client):
 async def schedule_morning_routine(client: discord.Client, show_news: bool = True):
     # set target time to 7:00
     target = dt.datetime.now()
-    target = target.replace(hour=7, minute=0, second=0, microsecond=0)
+    target = target.replace(hour=16, minute=12, second=0, microsecond=0)
     awaited_today = False
     while True:
         now = dt.datetime.now()
@@ -98,10 +98,9 @@ async def schedule_morning_routine(client: discord.Client, show_news: bool = Tru
             continue
         # wait for the amount of time left until the target time
         await asyncio.sleep(wait_time)
-        awaited_today = False
         now = dt.datetime.now()
         if now.day == target.day and now.hour == target.hour and now.minute == target.minute and not awaited_today:
-            target += dt.timedelta(days=1)
             awaited_today = True
             # execute morning routine and set target time to 7:00 tomorrow
             await morning_routine(client, show_news)
+            target += dt.timedelta(days=1)
