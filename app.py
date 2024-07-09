@@ -664,7 +664,7 @@ async def story(ctx: commands.Context, *keywords: str):
         return
     prompt = ' '.join(keywords)
     prompt = 'Napisz krótką historyjkę ' + prompt
-    await gpt_command(ctx, prompt)
+    await gpt_command(ctx, prompt, include_msg_history=False)
 
 
 @client.command(aliases=['rr', 'roulette'])
@@ -692,7 +692,7 @@ async def birthday_command(ctx: commands.Context, action: str, *args: str):
 
 
 @client.command('gpt')
-async def gpt_command(ctx: commands.Context, *args: str):
+async def gpt_command(ctx: commands.Context, *args: str, include_msg_history: bool = True):
     gpt = ChatGPT4Free()
     msg = handle_gpt_args(ctx, *args)
     if msg is not None:
@@ -705,9 +705,13 @@ async def gpt_command(ctx: commands.Context, *args: str):
             # get users chat history
             previous_messages = users_chat_history.get(ctx.author.id)
             if previous_messages is None:
-                response_task = asyncio.create_task(gpt.complete(prompt))
+                response_task = asyncio.create_task(
+                    gpt.complete(prompt, include_msg_history=include_msg_history)
+                )
             else:
-                response_task = asyncio.create_task(gpt.complete(prompt, previous_messages))
+                response_task = asyncio.create_task(
+                    gpt.complete(prompt, previous_messages, include_msg_history=include_msg_history)
+                )
             response = (await response_task).choices[0].message.content
     except RateLimitError:
         testo_bytes = tenor.url_to_file('https://media.tenor.com/A4Tnhi1KDOAAAAAC/testoviron.gif')
