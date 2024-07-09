@@ -25,8 +25,8 @@ class ChatGPT4Free(object):
     def __init__(self):
         self.client = Client()
 
-    async def complete(self, prompt: str, messages: dict = None) -> ChatCompletion:
-        if messages is None:
+    async def complete(self, prompt: str, messages: dict = None, include_msg_history: bool = True) -> ChatCompletion:
+        if messages is None or not include_msg_history:
             messages = [
                 ChatGPT4Free.system_message,
             ]

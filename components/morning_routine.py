@@ -87,7 +87,7 @@ async def get_birthday_text(client: discord.Client):
 async def schedule_morning_routine(client: discord.Client, show_news: bool = True):
     # set target time to 7:00
     target = dt.datetime.now()
-    target = target.replace(hour=16, minute=12, second=0, microsecond=0)
+    target = target.replace(hour=7, minute=0, second=0, microsecond=0)
     awaited_today = False
     while True:
         now = dt.datetime.now()
