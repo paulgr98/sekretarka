@@ -85,22 +85,22 @@ async def get_birthday_text(client: discord.Client):
 
 
 async def schedule_morning_routine(client: discord.Client, show_news: bool = True):
-    # set target time to 7:00
-    target = dt.datetime.now()
-    target = target.replace(hour=7, minute=0, second=0, microsecond=0)
-    awaited_today = False
     while True:
         now = dt.datetime.now()
+        # Calculate the next target time (7:00 AM tomorrow if it's past 7:00 AM today)
+        if now.hour >= 7:
+            target = (now + dt.timedelta(days=1)).replace(hour=7, minute=0, second=0, microsecond=0)
+        else:
+            target = now.replace(hour=7, minute=0, second=0, microsecond=0)
+
+        # Calculate wait time in seconds
         wait_time = (target - now).total_seconds()
-        if wait_time < 0:
-            # if the target time has already passed, set target time to 7:00 tomorrow
-            target += dt.timedelta(days=1)
-            continue
-        # wait for the amount of time left until the target time
+
+        # Wait until the target time
         await asyncio.sleep(wait_time)
-        now = dt.datetime.now()
-        if now.day == target.day and now.hour == target.hour and now.minute == target.minute and not awaited_today:
-            awaited_today = True
-            # execute morning routine and set target time to 7:00 tomorrow
-            await morning_routine(client, show_news)
-            target += dt.timedelta(days=1)
+
+        # Execute the morning routine
+        await morning_routine(client, show_news)
+
+        # Wait a bit before starting the loop again to prevent immediate re-execution in edge cases
+        await asyncio.sleep(10)
