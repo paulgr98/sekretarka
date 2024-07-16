@@ -165,5 +165,15 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                                "Jeśli nie podano żadnego argumentu, bot dołączy do kanału głosowego, "
                                "odczyta tekst i opuści kanał głosowy",
                          )
+    help_embed.add_field(name=f"{prefix}xyz x y z",
+                         value="Dodaje koordynaty jako rola użytkownika. Przykład: "
+                               f"{prefix}xyz -420 69 2137 - doda koordynaty -420 69 2137 jako rolę użytkownikowi\n"
+                               f"*** UWAGA *** Podajemy koordynaty jako liczby całkowite, bez kropek ani przecinków!",
+                         )
+    help_embed.add_field(name=f"{prefix}delxyz x y z",
+                         value="Usuwa koordynaty jako rola użytkownika. Przykład: "
+                               f"{prefix}delxyz -420 69 2137 - usunie koordynaty -420 69 2137 jako rolę użytkownikowi\n"
+                               f"*** UWAGA *** Podajemy koordynaty jako liczby całkowite, bez kropek ani przecinków!",
+                         )
 
     return help_embed.get_discord_embeds()
