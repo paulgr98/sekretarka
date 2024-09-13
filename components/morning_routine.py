@@ -93,6 +93,10 @@ async def schedule_morning_routine(client: discord.Client, show_news: bool = Tru
         else:
             target = now.replace(hour=7, minute=0, second=0, microsecond=0)
 
+        # Ensure the target time is correctly calculated even if the month or year changes
+        if target.month != now.month or target.year != now.year:
+            target = (now + dt.timedelta(days=1)).replace(hour=7, minute=0, second=0, microsecond=0)
+
         # Calculate wait time in seconds
         wait_time = (target - now).total_seconds()
 
