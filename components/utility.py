@@ -26,6 +26,9 @@ async def get_user_from_username(ctx: commands.Context, username: str) -> discor
 def has_role(role_name: str, member: discord.Member) -> bool:
     return role_name in [role.name for role in member.roles]
 
+def has_roles(role_names: list[str], member: discord.Member) -> bool:
+    return any(role_name in [role.name for role in member.roles] for role_name in role_names)
+
 
 def split_into_chunks(text: str, max_char_length: int) -> list[str]:
     """

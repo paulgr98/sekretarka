@@ -314,3 +314,4 @@ poetry.toml
 /smart_light.json
 /*.mp3
 /components/testing/
+/user_config.json

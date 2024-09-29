@@ -1,0 +1,25 @@
+{
+  "user": {
+    "owner": {
+      "id": null,
+      "nick": null
+    },
+    "co_owner": {
+      "id": null,
+      "nick": null
+    }
+  },
+  "server": {
+    "bot_channel_names": [
+      "bot"
+    ],
+    "nsfw_channel_names": [
+      "nsfw"
+    ],
+    "female_role_name": "female",
+    "general_channel_cooldown_time": 0
+  },
+  "bot": {
+    "prefix": "$"
+  }
+}
