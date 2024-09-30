@@ -384,7 +384,7 @@ async def shipme(ctx):
     females = []
     for u in users:
         roles = [r.name.lower() for r in u.roles]
-        if is_user_female(ctx) and 'bot' not in roles:
+        if await is_user_female(ctx) and 'bot' not in roles:
             females.append(u)
 
     males = []
