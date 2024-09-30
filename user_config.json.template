@@ -19,9 +19,13 @@
     "female_roles": [
       "female"
     ],
+    "special_permission_roles": [
+      "special"
+    ],
     "general_channel_cooldown_time": 0
   },
   "bot": {
-    "prefix": "$"
+    "prefix": "$",
+    "enable_developer_mode": true
   }
 }

@@ -813,7 +813,15 @@ async def ryt_command(ctx: commands.Context, *args: str):
 @client.command('lights')
 async def lights_command(ctx: commands.Context, *args: str):
     global bot_config
-    if not util.has_role('HR', ctx.author):
+    if args is None or len(args) == 0:
+        await ctx.send('Brak argumentów\n'
+                       'Dostępne opcje: main, additional, status, wakeup')
+        return
+    if args[0] not in ['main', 'additional', 'status', 'wakeup']:
+        await ctx.send('Niepoprawny argument\n'
+                       'Dostępne opcje: main, additional, status, wakeup')
+        return
+    if not util.has_roles(bot_config.special_permission_roles, ctx.author):
         await ctx.send(error_messages['no_permission'])
         return
     if args[0] == 'main':
@@ -928,7 +936,10 @@ def main():
     api_thread = Thread(target=asyncio.run, args=(run_api(),))
     api_thread.start()
     # run main
-    client.run(cfg.TOKEN)
+    if bot_config.enable_developer_mode:
+        client.run(cfg.TOKEN_BETA)
+    else:
+        client.run(cfg.TOKEN)
 
 
 if __name__ == '__main__':

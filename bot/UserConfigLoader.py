@@ -21,6 +21,7 @@ class UserConfigLoader(object):
         self.config.bot_channel_names = data['server']['bot_channel_names']
         self.config.nsfw_channel_names = data['server']['nsfw_channel_names']
         self.config.female_roles = data['server']['female_roles']
+        self.config.special_permission_roles = data['server']['special_permission_roles']
         self.config.general_channel_cooldown_time = data['server']['general_channel_cooldown_time']
 
     def load_co_owner(self, data):
@@ -41,3 +42,6 @@ class UserConfigLoader(object):
     def load_bot(self, data):
         bot_prefix = data['bot']['prefix']
         self.config.bot_command_prefix = bot_prefix
+        is_developer_mode = data['bot']['enable_developer_mode']
+        self.config.enable_developer_mode = is_developer_mode
+
