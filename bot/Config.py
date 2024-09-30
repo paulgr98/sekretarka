@@ -7,3 +7,4 @@ class Config(object):
         self.nsfw_channel_names = []
         self.female_roles = []
         self.general_channel_cooldown_time = 0
+        self.bot_command_prefix = None

@@ -15,10 +15,12 @@ class UserConfigLoader(object):
         self.load_owner(data)
         self.load_co_owner(data)
         self.load_server(data)
+        self.load_bot(data)
 
     def load_server(self, data):
         self.config.bot_channel_names = data['server']['bot_channel_names']
         self.config.nsfw_channel_names = data['server']['nsfw_channel_names']
+        self.config.female_roles = data['server']['female_roles']
         self.config.general_channel_cooldown_time = data['server']['general_channel_cooldown_time']
 
     def load_co_owner(self, data):
@@ -35,3 +37,7 @@ class UserConfigLoader(object):
 
     def get_config(self):
         return self.config
+
+    def load_bot(self, data):
+        bot_prefix = data['bot']['prefix']
+        self.config.bot_command_prefix = bot_prefix

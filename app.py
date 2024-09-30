@@ -47,17 +47,17 @@ from components.reddit import get_subreddit_random_hot, SubredditOver18
 from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
 from components.uwuify import uwuify
 
-# bot instance
-intents = discord.Intents.default()
-intents.members = True
-intents.message_content = True
-client = commands.Bot(command_prefix='$', intents=intents)
-client.remove_command('help')
-
 config_loader = UserConfigLoader()
 config_loader.load('user_config.json')
 bot_config = config_loader.get_config()
 COOLDOWN = bot_config.general_channel_cooldown_time
+
+# bot instance
+intents = discord.Intents.default()
+intents.members = True
+intents.message_content = True
+client = commands.Bot(command_prefix=bot_config.bot_command_prefix, intents=intents)
+client.remove_command('help')
 
 # logger config
 handler = logging.StreamHandler()
@@ -193,7 +193,7 @@ async def compliment(ctx, member=None):
         compliment.reset_cooldown(ctx)
     # check for female_role role in user's roles to check if the user is a female
     if member is None:
-        is_female = await is_user_female(ctx)
+        is_female = await is_current_user_female(ctx)
         # get compliment list
         compliments = get_compliment_list(ctx.author.name, is_female)
         await ctx.send(random.choice(compliments))
@@ -207,7 +207,7 @@ async def compliment(ctx, member=None):
         pass
 
     if isinstance(member, discord.Member):
-        is_female = await is_user_female(ctx)
+        is_female = await is_current_user_female(ctx)
         name = member.name
         mention = member.mention
     else:
@@ -218,9 +218,9 @@ async def compliment(ctx, member=None):
     await ctx.send(f'Komplement dla {mention}:\n{random.choice(compliments)}')
 
 
-async def is_user_female(ctx):
+async def is_current_user_female(ctx):
     global bot_config
-    is_female = util.has_roles(bot_config.female_roles, ctx.author)
+    is_female = await is_user_female(ctx.author)
     return is_female
 
 
@@ -383,15 +383,22 @@ async def shipme(ctx):
     # get list of users with role female_role
     females = []
     for u in users:
-        roles = [r.name.lower() for r in u.roles]
-        if await is_user_female(ctx) and 'bot' not in roles:
+        user_roles = [r.name.lower() for r in u.roles]
+        if await is_user_female(u) and 'bot' not in user_roles:
             females.append(u)
+
+    if females is None or len(females) == 0:
+        await ctx.send('Error, brak dziewuch :/')
+        return
 
     males = []
     for u in users:
-        roles = [r.name for r in u.roles]
-        if u not in females and 'bot' not in roles:
+        user_roles = [r.name for r in u.roles]
+        if u not in females and 'bot' not in user_roles:
             males.append(u)
+
+    if males is None or len(males) == 0:
+        await ctx.send('Error, brak chłopów :/')
 
     # if message author is in females, ship with males
     if ctx.author in females:
@@ -402,6 +409,12 @@ async def shipme(ctx):
     # save ship to file
     save_users_match_for_today(ctx.guild.id, ctx.author.id, ship.id)
     await ctx.send(f'{ctx.author.mention} myślę, że najlepszy ship na dzisiaj dla Ciebie to... {ship.mention}!')
+
+
+async def is_user_female(user: discord.Member):
+    global bot_config
+    is_female = util.has_roles(bot_config.female_roles, user)
+    return is_female
 
 
 # command to see your top ship from all time
@@ -915,7 +928,7 @@ def main():
     api_thread = Thread(target=asyncio.run, args=(run_api(),))
     api_thread.start()
     # run main
-    client.run(cfg.TOKEN)
+    client.run(cfg.TOKEN_BETA)
 
 
 if __name__ == '__main__':

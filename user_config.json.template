@@ -16,7 +16,9 @@
     "nsfw_channel_names": [
       "nsfw"
     ],
-    "female_role_name": "female",
+    "female_roles": [
+      "female"
+    ],
     "general_channel_cooldown_time": 0
   },
   "bot": {
