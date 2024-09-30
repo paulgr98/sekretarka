@@ -928,7 +928,7 @@ def main():
     api_thread = Thread(target=asyncio.run, args=(run_api(),))
     api_thread.start()
     # run main
-    client.run(cfg.TOKEN_BETA)
+    client.run(cfg.TOKEN)
 
 
 if __name__ == '__main__':
