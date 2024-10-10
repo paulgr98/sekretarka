@@ -1,5 +1,6 @@
-import discord
 import math
+
+import discord
 
 
 class HelpEmbedField(object):
@@ -75,8 +76,10 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
     help_embed.add_field(name=f"{prefix}shipstat",
                          value="Wyświetla użytkownika, z którym masz największą liczbę shipów",
                          )
-    help_embed.add_field(name=f"{prefix}roll [minimum=1] [maximum=6]",
-                         value="Wyświetla losową liczbę między [minimum] a [maximum]",
+    help_embed.add_field(name=f"{prefix}roll [dnd_dice_code=1d20]",
+                         value="Rzuca kośćmi D&D w formacie [dnd_dice_code].\n"
+                               "Przykłady: 1d20, d12, 2d6, 3d8+2, d6-2.\n"
+                               "Domyślnie jest to kość 1d20",
                          )
     help_embed.add_field(name=f"{prefix}coin",
                          value="Rzuca monetą i wyświetla wynik (orzeł albo reszka)",
@@ -164,16 +167,6 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                                "--leave - opuszcza kanał głosowy\n"
                                "Jeśli nie podano żadnego argumentu, bot dołączy do kanału głosowego, "
                                "odczyta tekst i opuści kanał głosowy",
-                         )
-    help_embed.add_field(name=f"{prefix}xyz x y z",
-                         value="Dodaje koordynaty jako rola użytkownika. Przykład: "
-                               f"{prefix}xyz -420 69 2137 - doda koordynaty -420 69 2137 jako rolę użytkownikowi\n"
-                               f"*** UWAGA *** Podajemy koordynaty jako liczby całkowite, bez kropek ani przecinków!",
-                         )
-    help_embed.add_field(name=f"{prefix}delxyz x y z",
-                         value="Usuwa koordynaty jako rola użytkownika. Przykład: "
-                               f"{prefix}delxyz -420 69 2137 - usunie koordynaty -420 69 2137 jako rolę użytkownikowi\n"
-                               f"*** UWAGA *** Podajemy koordynaty jako liczby całkowite, bez kropek ani przecinków!",
                          )
 
     return help_embed.get_discord_embeds()
