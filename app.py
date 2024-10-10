@@ -1,6 +1,5 @@
 import asyncio
 import datetime as dt
-import logging
 import math
 import random
 import re
@@ -13,6 +12,7 @@ from openai import RateLimitError, APIConnectionError
 
 import config as cfg
 from bot.UserConfigLoader import UserConfigLoader
+from bot.logger import logger
 from commands import alco_drink
 from commands import astrology
 from commands import birthday_tracker as bt
@@ -27,6 +27,8 @@ from commands import text_to_speach as tts
 from commands import weather
 from commands.casino import money as money_cmd
 from commands.casino import roulette as roulette_cmd
+from commands.dnd import coin as dnd_coin
+from commands.dnd import dice as dnd_dice
 from components import (
     nameday as nd,
     tenor,
@@ -58,10 +60,6 @@ intents.members = True
 intents.message_content = True
 client = commands.Bot(command_prefix=bot_config.bot_command_prefix, intents=intents)
 client.remove_command('help')
-
-# logger config
-handler = logging.StreamHandler()
-logger = logging.getLogger('discord')
 
 users_chat_history = ChatHistory()
 
@@ -95,8 +93,8 @@ async def on_command_error(ctx, error):
         await ctx.send(f'Niepoprawne argumenty. Jeśli używasz {client.command_prefix}rdt, '
                        f'upewnij się ze nazwa subreddit nie zawiera spacji')
     else:
+        logger.error(error)
         await ctx.send('Error! Insert kremówka! <a:jp2:985844814597742683>')
-        logger.error(f'{error} ({error.__class__.__name__})')
 
 
 # print message that the bot is ready
@@ -482,27 +480,19 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
 
 
 # command to get random number between given range
-@client.command()
-async def roll(ctx, minimum: int = 1, maximum: int = 6):
-    if minimum < 0 or maximum < 0:
-        await ctx.send('Wartości muszą być większe lub równe 0')
-        return
-    if maximum > 999999:
-        await ctx.send('Maksymalna wartość to 999999')
-        return
-    if minimum > maximum:
-        await ctx.send(f'Wylosowano... {random.randint(maximum, minimum)}!')
-    await ctx.send(f'Wylosowano... {random.randint(minimum, maximum)}!')
+@client.command('roll')
+async def roll(ctx, code: str):
+    if code is None or code == '':
+        await ctx.reply('Rzucam 1D20...')
+        code = '1d20'
+    dice = dnd_dice.DndDice(ctx)
+    await dice.roll(code)
 
 
 # command to throw a coin
-@client.command()
+@client.command(aliases=['flip'])
 async def coin(ctx):
-    coin_flip = random.randint(0, 1)
-    if coin_flip == 0:
-        await ctx.send('Wypadł orzeł!')
-        return
-    await ctx.send('Wypadła reszka!')
+    await dnd_coin.coin(ctx)
 
 
 # dictionary to save user id and their start time
