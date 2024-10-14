@@ -5,7 +5,7 @@ import discord
 from discord.ext import commands
 
 from components import birthday_tracker as bt
-from components import utility
+from bot import utility
 
 
 async def birthday_main(ctx: commands.Context, action: str, *args: str):

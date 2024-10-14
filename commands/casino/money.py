@@ -1,6 +1,6 @@
 from discord.ext import commands
 
-from components import utility
+from bot import utility
 from components.casino import money
 
 

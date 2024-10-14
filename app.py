@@ -2,7 +2,6 @@ import asyncio
 import datetime as dt
 import math
 import random
-import re
 import time
 from threading import Thread
 
@@ -37,9 +36,9 @@ from components import (
     magic_ball,
     pp_len,
     morning_routine as mr,
-    random_yt,
-    utility as util
+    random_yt
 )
+from bot import utility as util
 from components.compliments import get_compliment_list
 from components.demotes import get_demotes
 from components.disses import get_diss_list
@@ -842,83 +841,6 @@ async def text_to_speach_command(ctx: commands.Context, *args: str):
         await tts_client.leave_voice_channel(ctx)
         return
     await tts_client.text_to_speach(ctx, ' '.join(args))
-
-
-@client.command('xyz')
-async def add_coordinates_role_command(ctx: commands.Context, *args: str):
-    role_name = ' '.join(args)
-    if not await __match_coordinates_pattern__(role_name):
-        await ctx.reply(error_messages['wrong_coordinates'])
-        return
-    if await __add_role_for_user__(ctx, role_name):
-        await ctx.reply(f'Dodano rolę {role_name}')
-
-
-async def __match_coordinates_pattern__(role_name: str):
-    # role name must contain only numbers and match a pattern of coordinates
-    role_name.strip()
-    pattern = re.compile(r"-?\d+\s-?\d+\s-?\d+")
-    if not pattern.match(role_name):
-        return False
-    return True
-
-
-async def __add_role_for_user__(ctx: commands.Context, role_name: str):
-    role = discord.utils.get(ctx.guild.roles, name=role_name)
-    if role is None:
-        role = await __add_role_to_server__(ctx, role_name)
-    if await __does_user_have_role__(ctx, role_name):
-        await ctx.reply(f'Posiadasz już rolę {role_name}')
-        return False
-    await ctx.author.add_roles(role)
-    return True
-
-
-async def __does_user_have_role__(ctx: commands.Context, role_name: str):
-    role = discord.utils.get(ctx.guild.roles, name=role_name)
-    if role is None:
-        return False
-    return role in ctx.author.roles
-
-
-async def __add_role_to_server__(ctx: commands.Context, role_name: str):
-    role = await ctx.guild.create_role(
-        name=role_name,
-        color=discord.Color.light_gray(),
-        hoist=False,
-        mentionable=False,
-    )
-    return role
-
-
-@client.command('delxyz')
-async def remove_coordinates_role_command(ctx: commands.Context, *args: str):
-    role_name = ' '.join(args)
-    if not await __match_coordinates_pattern__(role_name):
-        await ctx.reply(error_messages['wrong_coordinates'])
-        return
-    if await __remove_role_from_user__(ctx, role_name):
-        await ctx.reply(f'Usunięto rolę {role_name}')
-    await __try_remove_role_from_server__(ctx, role_name)
-
-
-async def __remove_role_from_user__(ctx: commands.Context, role_name: str):
-    role = discord.utils.get(ctx.guild.roles, name=role_name)
-    # check if the user has the role
-    if not __does_user_have_role__(ctx, role_name):
-        await ctx.reply(f'Nie posiadasz roli {role_name}')
-        return False
-    await ctx.author.remove_roles(role)
-    return True
-
-
-async def __try_remove_role_from_server__(ctx: commands.Context, role_name: str):
-    # if no user has the role, remove it from the server
-    role = discord.utils.get(ctx.guild.roles, name=role_name)
-    if role is None:
-        return
-    if len(role.members) == 0:
-        await role.delete()
 
 
 def main():
