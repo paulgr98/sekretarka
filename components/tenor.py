@@ -2,7 +2,7 @@ import io
 
 import requests
 
-import config as cfg
+from config import config as cfg
 
 
 class Tenor(object):

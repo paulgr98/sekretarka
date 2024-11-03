@@ -1,6 +1,6 @@
 import requests
 
-import config as cfg
+from config import config as cfg
 
 url = 'https://free-epic-games.p.rapidapi.com/free'
 

@@ -73,9 +73,6 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
     help_embed.add_field(name=f"{prefix}shipme",
                          value="Wyświetla ship dla Ciebie",
                          )
-    help_embed.add_field(name=f"{prefix}shipstat",
-                         value="Wyświetla użytkownika, z którym masz największą liczbę shipów",
-                         )
     help_embed.add_field(name=f"{prefix}roll [dnd_dice_code=1d20]",
                          value="Rzuca kośćmi D&D w formacie [dnd_dice_code].\n"
                                "Przykłady: 1d20, d12, 2d6, 3d8+2, d6-2.\n"

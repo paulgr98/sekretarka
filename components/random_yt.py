@@ -1,6 +1,6 @@
 from googleapiclient.discovery import build
 import random
-import config as cfg
+from config import config as cfg
 import string
 
 DEVELOPER_KEY = cfg.GOOGLE_API_KEY

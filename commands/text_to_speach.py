@@ -1,4 +1,5 @@
 import discord
+from discord.ext import commands
 from gtts import gTTS
 import asyncio
 from typing import Optional
@@ -15,7 +16,7 @@ class TextToSpeach:
             return True
         return False
 
-    async def join_voice_channel(self, ctx) -> Optional[discord.VoiceClient]:
+    async def join_voice_channel(self, ctx: commands.Context) -> Optional[discord.VoiceClient]:
         if not ctx.author.voice:
             await ctx.send('Najpierw dołącz do kanału głosowego')
             return

@@ -1,25 +1,29 @@
-import asyncio
 import datetime as dt
 import math
 import random
 import time
 from threading import Thread
 
+from config import DbConfig
+from database.DbConnector import DbConnector
+
+db_connector = DbConnector(keyspace=DbConfig.DB_KEYSPACE, contact_points=DbConfig.DB_CONTACT_POINTS,
+                           username=DbConfig.DB_USERNAME, password=DbConfig.DB_PASSWORD, port=DbConfig.DB_PORT)
+
 import discord
 from discord.ext import commands
 from openai import RateLimitError, APIConnectionError
-
-import config as cfg
+import asyncio
+import help
+from bot import utility as util
 from bot.UserConfigLoader import UserConfigLoader
 from bot.logger import logger
 from commands import alco_drink
 from commands import astrology
 from commands import birthday_tracker as bt
-from commands import calendar
 from commands import converter
 from commands import f1cmd
 from commands import free
-from commands import help
 from commands import poll
 from commands import smart_light as sl
 from commands import text_to_speach as tts
@@ -38,18 +42,18 @@ from components import (
     morning_routine as mr,
     random_yt
 )
-from bot import utility as util
 from components.compliments import get_compliment_list
 from components.demotes import get_demotes
 from components.disses import get_diss_list
 from components.gpt_chat_history import ChatHistory, Message, GptRole
 from components.openai_models import ChatGPT4Free, run_api
 from components.reddit import get_subreddit_random_hot, SubredditOver18
-from components.shipping import save_users_match_for_today, get_users_match_for_today, get_user_top_match
+from components.shipping import ShippingService
 from components.uwuify import uwuify
+from config import config as cfg
 
 config_loader = UserConfigLoader()
-config_loader.load('user_config.json')
+config_loader.load('config/user_config.json')
 bot_config = config_loader.get_config()
 COOLDOWN = bot_config.general_channel_cooldown_time
 
@@ -371,7 +375,8 @@ async def shipme(ctx):
     # get list of all users in the server
     users = ctx.guild.members
     # try to get user from already existing list for today
-    ship_id = get_users_match_for_today(str(ctx.guild.id), str(ctx.author.id))
+    service = ShippingService(db_connector)
+    ship_id = service.get_users_match_for_today(str(ctx.guild.id), str(ctx.author.id))
     if ship_id is not None:
         ship = client.get_user(int(ship_id))
         await ctx.send(f'{ctx.author.mention} myślę, że najlepszy ship na dzisiaj dla Ciebie to... {ship.mention}!')
@@ -404,7 +409,7 @@ async def shipme(ctx):
         ship = random.choice(females)
 
     # save ship to file
-    save_users_match_for_today(ctx.guild.id, ctx.author.id, ship.id)
+    service.save_users_match_for_today(ctx.guild.id, ctx.author.id, ship.id)
     await ctx.send(f'{ctx.author.mention} myślę, że najlepszy ship na dzisiaj dla Ciebie to... {ship.mention}!')
 
 
@@ -412,23 +417,6 @@ async def is_user_female(user: discord.Member):
     global bot_config
     is_female = util.has_roles(bot_config.female_roles, user)
     return is_female
-
-
-# command to see your top ship from all time
-@client.command()
-async def shipstat(ctx):
-    # get list of all users in the server
-    users = ctx.guild.members
-    # get top ship for the user
-    top_ship_id = get_user_top_match(str(ctx.author.id))
-    if top_ship_id is None:
-        await ctx.send(f'{ctx.author.mention} nie ma jeszcze żadnego shipa!')
-        return
-    if top_ship_id in [u.id for u in users]:
-        top_ship = client.get_user(int(top_ship_id))
-        await ctx.send(f'{ctx.author.mention} Twój najlepszy ship od początku to... {top_ship.mention}!')
-        return
-    await ctx.send(f'{ctx.author.mention} Twojego najlepszego shipa (ID: {top_ship_id}) nie ma w serwerze :/')
 
 
 # command to get daily horoscopes for the user
@@ -777,22 +765,6 @@ async def help_command(ctx: commands.Context):
         await ctx.send(embed=embed)
 
 
-async def calendar_command(ctx: commands.Context, *args: str):
-    global bot_config
-    if ctx.author.name != bot_config.owner.nick:
-        await ctx.send(error_messages['no_permission'])
-        return
-    events = calendar.get_next_event()
-    if events is None:
-        await ctx.send('Nie znaleziono żadnych wydarzeń')
-        return
-    for event in events:
-        start = event['start'].get('dateTime', event['start'].get('date'))
-        # make date from 2023-10-06T10:30:00+02:00 to 06.10.2023 10:30
-        start = dt.datetime.strptime(start, '%Y-%m-%dT%H:%M:%S%z').strftime('%d.%m.%Y %H:%M')
-        await ctx.send(f'{event["summary"]} - {start}')
-
-
 @client.command('ryt')
 async def ryt_command(ctx: commands.Context, *args: str):
     rand_id = random_yt.youtube_search()
@@ -843,16 +815,29 @@ async def text_to_speach_command(ctx: commands.Context, *args: str):
     await tts_client.text_to_speach(ctx, ' '.join(args))
 
 
-def main():
+async def connect_to_db():
+    await db_connector.connect()
+
+
+async def main():
     # run api on other thread
     api_thread = Thread(target=asyncio.run, args=(run_api(),))
     api_thread.start()
     # run main
     if bot_config.enable_developer_mode:
-        client.run(cfg.TOKEN_BETA)
+        await client.start(cfg.TOKEN_BETA)
     else:
-        client.run(cfg.TOKEN)
+        await client.start(cfg.TOKEN)
 
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(connect_to_db())
+    asyncio.run(main())
+
+# TODO: files to make into Cassandra:
+# - matches.json
+# - holidays.json
+# - birthdays.json
+# - money.json
+# - claims.json
+# - compliments.py

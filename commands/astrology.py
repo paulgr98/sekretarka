@@ -3,7 +3,7 @@ import datetime as dt
 import discord
 import requests
 
-import config as cfg
+from config import config as cfg
 
 # astro API config
 # https://rapidapi.com/sameer.kumar/api/aztro/

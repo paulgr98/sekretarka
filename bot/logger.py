@@ -9,5 +9,8 @@ class BotLogger(object):
     def error(self, error):
         self.logger.error(f'{error} ({error.__class__.__name__})')
 
+    def info(self, message):
+        self.logger.info(message)
+
 
 logger = BotLogger()

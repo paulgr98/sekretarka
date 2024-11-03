@@ -1,4 +1,6 @@
 import re
+import datetime as dt
+import hashlib
 
 import discord
 from discord.ext import commands
@@ -94,3 +96,11 @@ async def try_remove_role_from_server(ctx: commands.Context, role_name: str):
         return
     if len(role.members) == 0:
         await role.delete()
+
+
+def get_id_date_hash(object_id: str, date: dt.datetime = None) -> str:
+    if date is None:
+        date = dt.datetime.now()
+    date_str = date.strftime('%d.%m.%Y')
+    hash_key = hashlib.sha1(str(object_id).encode('utf-8') + str(date_str).encode('utf-8'))
+    return hash_key.hexdigest()

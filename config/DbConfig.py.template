@@ -1,0 +1,11 @@
+# Cassandra DB keyspace
+DB_KEYSPACE = ''
+
+# Cassandra DB contact points
+DB_CONTACT_POINTS = ['']
+
+# Cassandra DB username
+DB_USERNAME = ''
+
+# Cassandra DB password
+DB_PASSWORD = ''

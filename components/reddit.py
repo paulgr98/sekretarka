@@ -4,7 +4,7 @@ import asyncpraw
 import asyncprawcore.exceptions
 from discord.ext import commands
 
-import config as cfg
+from config import config as cfg
 
 
 class SubredditOver18(Exception):

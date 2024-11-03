@@ -1,10 +1,9 @@
 import asyncio
-import calendar
 import datetime as dt
 
 import discord
 
-import config as cfg
+from config import config as cfg
 from commands import (
     news,
     birthday_tracker as bt,

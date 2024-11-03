@@ -1,8 +1,8 @@
 import asyncio
 
 from g4f import api
-from g4f.client import Client, ChatCompletion
 from g4f.Provider import Blackbox
+from g4f.client import Client, ChatCompletion
 from uvicorn import Config, Server
 
 
@@ -25,6 +25,13 @@ class ChatGPT4Free(object):
     def __init__(self):
         self.client = Client()
 
+    async def __delete_blckbox_ad__(self, chat_completion: ChatCompletion):
+        # search for "Thank you for using BLACKBOX..." and delete everything before new line character
+        if chat_completion.choices[0].message.content.startswith("Thank you for using BLACKBOX"):
+            chat_completion.choices[0].message.content = chat_completion.choices[0].message.content.split("\n", 1)[1]
+
+        return chat_completion
+
     async def complete(self, prompt: str, messages: dict = None, include_msg_history: bool = True) -> ChatCompletion:
         if messages is None or not include_msg_history:
             messages = [
@@ -36,6 +43,7 @@ class ChatGPT4Free(object):
             model=ChatGPT4Free.model,
             provider=Blackbox,
         )
+        chat_completion = await self.__delete_blckbox_ad__(chat_completion)
         return chat_completion
 
 

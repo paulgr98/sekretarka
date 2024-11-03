@@ -1,6 +1,6 @@
 import requests
 
-import config
+from config import config
 
 
 def get_location_key(city):
