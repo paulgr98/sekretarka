@@ -6,9 +6,10 @@ from bot.User import User
 
 class UserConfigLoader(object):
     def __init__(self):
-        self.config = Config()
+        self.config = None
 
     def load(self, file_path: str):
+        self.config = Config()
         with open(file_path, 'r') as file:
             data = json.load(file)
 
@@ -36,12 +37,13 @@ class UserConfigLoader(object):
         owner.nick = data["user"]['owner']['nick']
         self.config.owner = owner
 
-    def get_config(self):
-        return self.config
-
     def load_bot(self, data):
         bot_prefix = data['bot']['prefix']
         self.config.bot_command_prefix = bot_prefix
         is_developer_mode = data['bot']['enable_developer_mode']
         self.config.enable_developer_mode = is_developer_mode
 
+    def get_config(self):
+        if self.config is None:
+            raise ValueError("Config is not loaded yet.")
+        return self.config

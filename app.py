@@ -28,7 +28,7 @@ from commands import poll
 from commands import smart_light as sl
 from commands import text_to_speach as tts
 from commands import weather
-from commands.casino import money as money_cmd
+from commands.casino.money import MoneyManager
 from commands.casino import roulette as roulette_cmd
 from commands.dnd import coin as dnd_coin
 from commands.dnd import dice as dnd_dice
@@ -389,7 +389,7 @@ async def shipme(ctx):
         if await is_user_female(u) and 'bot' not in user_roles:
             females.append(u)
 
-    if females is None or len(females) == 0:
+    if len(females) == 0:
         await ctx.send('Error, brak dziewuch :/')
         return
 
@@ -399,7 +399,7 @@ async def shipme(ctx):
         if u not in females and 'bot' not in user_roles:
             males.append(u)
 
-    if males is None or len(males) == 0:
+    if len(males) == 0:
         await ctx.send('Error, brak chłopów :/')
 
     # if message author is in females, ship with males
@@ -668,7 +668,8 @@ async def roulette_command(ctx: commands.Context, *args: str):
 
 @client.command('money')
 async def money_command(ctx: commands.Context, *args: str):
-    await money_cmd.money_command(ctx, client, *args)
+    money_manager = MoneyManager(db_connector, ctx)
+    await money_manager.process(*args)
 
 
 @client.command('morning')
@@ -774,7 +775,7 @@ async def ryt_command(ctx: commands.Context, *args: str):
 @client.command('lights')
 async def lights_command(ctx: commands.Context, *args: str):
     global bot_config
-    if args is None or len(args) == 0:
+    if len(args) == 0:
         await ctx.send('Brak argumentów\n'
                        'Dostępne opcje: main, additional, status, wakeup')
         return
@@ -835,9 +836,6 @@ if __name__ == '__main__':
     asyncio.run(main())
 
 # TODO: files to make into Cassandra:
-# - matches.json
 # - holidays.json
 # - birthdays.json
-# - money.json
-# - claims.json
 # - compliments.py

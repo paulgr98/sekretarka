@@ -1,6 +1,6 @@
-import re
 import datetime as dt
 import hashlib
+import re
 
 import discord
 from discord.ext import commands
@@ -26,6 +26,17 @@ async def get_user_from_username(ctx: commands.Context, username: str) -> discor
         return None
 
 
+async def get_user_from_id(ctx: commands.Context, user_id: int) -> discord.Member or None:
+    try:
+        # Fetch user object from id
+        user = await ctx.bot.fetch_user(user_id)
+        return user
+    except discord.NotFound:
+        return None
+    except discord.HTTPException:
+        return None
+
+
 def has_role(role_name: str, member: discord.Member) -> bool:
     return role_name in [role.name for role in member.roles]
 
@@ -35,9 +46,6 @@ def has_roles(role_names: list[str], member: discord.Member) -> bool:
 
 
 def split_into_chunks(text: str, max_char_length: int) -> list[str]:
-    """
-    Splits text by whitespace into chunks of max_char_length characters
-    """
     chunks = []
     current_chunk = ""
     words = re.split(r'(\s)', text)  # split by whitespace and keep it
@@ -98,9 +106,28 @@ async def try_remove_role_from_server(ctx: commands.Context, role_name: str):
         await role.delete()
 
 
-def get_id_date_hash(object_id: str, date: dt.datetime = None) -> str:
-    if date is None:
+def generate_objects_hash(*objects_ids, include_date: bool = False, date: dt.datetime = None) -> str:
+    if include_date and date is None:
         date = dt.datetime.now()
-    date_str = date.strftime('%d.%m.%Y')
-    hash_key = hashlib.sha1(str(object_id).encode('utf-8') + str(date_str).encode('utf-8'))
+    hash_key = hashlib.sha1()
+    for obj_id in objects_ids:
+        hash_key.update(str(obj_id).encode('utf-8'))
+    if include_date:
+        date_str = date.strftime('%d.%m.%Y')
+        hash_key.update(str(date_str).encode('utf-8'))
     return hash_key.hexdigest()
+
+
+def main():
+    hash1 = generate_objects_hash('123', include_date=False)
+    print(hash1)
+    hash2 = generate_objects_hash('123', include_date=True)
+    print(hash2)
+    hash3 = generate_objects_hash('123', '456', include_date=False)
+    print(hash3)
+    hash4 = generate_objects_hash('123', '456', include_date=True)
+    print(hash4)
+
+
+if __name__ == '__main__':
+    main()
