@@ -836,6 +836,5 @@ if __name__ == '__main__':
     asyncio.run(main())
 
 # TODO: files to make into Cassandra:
-# - holidays.json
 # - birthdays.json
 # - compliments.py

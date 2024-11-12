@@ -2,7 +2,7 @@ import datetime as dt
 
 import requests
 
-
+@DeprecationWarning
 class FunHolidaysApi(object):
     def __init__(self):
         self.url = "https://pniedzwiedzinski.github.io/kalendarz-swiat-nietypowych/"

@@ -4,7 +4,7 @@ import json
 
 class FunHolidaysApi(object):
     def __init__(self):
-        self.holiday_file = 'components/fun_holidays/holidays.json'
+        self.holiday_file = 'data/holidays.json'
 
     def get_holidays_for_date(self, month: int, day: int) -> list[str]:
         with open(self.holiday_file, 'r', encoding='utf-8') as f:
