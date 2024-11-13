@@ -304,6 +304,7 @@ poetry.toml
 /data/
 /logs.txt
 /venv/
+/venv39/
 /__pycache__/
 /.idea/*.iml
 /.idea/misc.xml

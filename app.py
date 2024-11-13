@@ -679,7 +679,8 @@ async def test_morning_routine(ctx: commands.Context):
 
 @client.command('bday')
 async def birthday_command(ctx: commands.Context, action: str, *args: str):
-    await bt.birthday_main(ctx, action, *args)
+    tracker = bt.BirthdayTracker(db_connector, ctx)
+    await tracker.process(action, *args)
 
 
 @client.command('gpt')
@@ -834,7 +835,3 @@ async def main():
 if __name__ == '__main__':
     asyncio.run(connect_to_db())
     asyncio.run(main())
-
-# TODO: files to make into Cassandra:
-# - birthdays.json
-# - compliments.py
