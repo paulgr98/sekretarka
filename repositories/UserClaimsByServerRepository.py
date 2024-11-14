@@ -2,7 +2,7 @@ from cassandra.cqlengine.management import sync_table
 
 from repositories.UserMoneyByServerRepository import UserMoneyByServerRepository
 from models.UserClaimsByServer import UserClaimsByServer
-from utility import generate_objects_hash
+from bot.utility import generate_objects_hash
 
 
 class UserClaimsByServerRepository:

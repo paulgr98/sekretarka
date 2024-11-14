@@ -5,7 +5,7 @@ from cassandra.cqlengine.management import sync_table
 from config import DbConfig
 from database.DbConnector import DbConnector
 from models.UserMoneyByServer import UserMoneyByServer
-from utility import generate_objects_hash
+from bot.utility import generate_objects_hash
 
 
 class UserMoneyByServerRepository:

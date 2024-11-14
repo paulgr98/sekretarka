@@ -5,7 +5,7 @@ from cassandra.cqlengine.management import sync_table
 from cassandra.util import Date
 
 from models.UserBirthDayByServer import UserBirthDayByServer
-from utility import generate_objects_hash
+from bot.utility import generate_objects_hash
 
 
 def __format_date__(original_date: str, original_date_format: str, result_date_format) -> str:

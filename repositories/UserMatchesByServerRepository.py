@@ -6,7 +6,7 @@ from cassandra.cqlengine.management import sync_table
 from config import DbConfig
 from database.DbConnector import DbConnector
 from models.UserMatchesByServer import UserMatchesByServer
-from utility import generate_objects_hash
+from bot.utility import generate_objects_hash
 
 
 class UserMatchesByServerRepository:
