@@ -1,4 +1,4 @@
-from database.DbConnector import DbConnector
+from bot.database.DbConnector import DbConnector
 from repositories.UserMatchesByServerRepository import UserMatchesByServerRepository
 
 

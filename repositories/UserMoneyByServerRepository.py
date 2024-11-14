@@ -3,7 +3,7 @@ import asyncio
 from cassandra.cqlengine.management import sync_table
 
 from config import DbConfig
-from database.DbConnector import DbConnector
+from bot.database.DbConnector import DbConnector
 from models.UserMoneyByServer import UserMoneyByServer
 from bot.utility import generate_objects_hash
 

@@ -1,4 +1,4 @@
-from database.DbConnector import DbConnector
+from bot.database.DbConnector import DbConnector
 from repositories.UserClaimsByServerRepository import UserClaimsByServerRepository
 from repositories.UserMoneyByServerRepository import UserMoneyByServerRepository
 

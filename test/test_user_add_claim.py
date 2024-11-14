@@ -2,7 +2,7 @@ import asyncio
 import unittest
 
 from config import DbConfig
-from database.DbConnector import DbConnector
+from bot.database.DbConnector import DbConnector
 from models.BotBaseModel import BotBaseModel
 from repositories.UserClaimsByServerRepository import UserClaimsByServerRepository
 from repositories.UserMoneyByServerRepository import UserMoneyByServerRepository
