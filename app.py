@@ -4,8 +4,8 @@ import random
 import time
 from threading import Thread
 
-from config import DbConfig
 from bot.database.DbConnector import DbConnector
+from config import DbConfig
 
 db_connector = DbConnector(keyspace=DbConfig.DB_KEYSPACE, contact_points=DbConfig.DB_CONTACT_POINTS,
                            username=DbConfig.DB_USERNAME, password=DbConfig.DB_PASSWORD, port=DbConfig.DB_PORT)
@@ -14,7 +14,7 @@ import discord
 from discord.ext import commands
 from openai import RateLimitError, APIConnectionError
 import asyncio
-import help
+from bot import help
 from bot import utility as util
 from bot.UserConfigLoader import UserConfigLoader
 from bot.logger import logger
