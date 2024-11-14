@@ -8,7 +8,7 @@ from typing import Optional
 class TextToSpeach:
     def __init__(self, client):
         self._client: discord.Client = client
-        self._filename = 'tts.mp3'
+        self._file_path = 'data/tts.mp3'
 
     async def is_already_in_voice_channel(self, ctx) -> bool:
         voice = discord.utils.get(self._client.voice_clients, guild=ctx.guild)
@@ -43,7 +43,7 @@ class TextToSpeach:
         if not voice:
             return
         tts = gTTS(text=text, lang='pl', slow=False)
-        tts.save(self._filename)
+        tts.save(self._file_path)
 
         def after_playing(error):
             if joined_vc:
@@ -51,4 +51,4 @@ class TextToSpeach:
                 fut = asyncio.run_coroutine_threadsafe(coro, self._client.loop)
                 fut.result()
 
-        voice.play(discord.FFmpegPCMAudio(self._filename), after=after_playing)
+        voice.play(discord.FFmpegPCMAudio(self._file_path), after=after_playing)
