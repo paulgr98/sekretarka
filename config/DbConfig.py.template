@@ -4,6 +4,9 @@ DB_KEYSPACE = ''
 # Cassandra DB contact points
 DB_CONTACT_POINTS = ['']
 
+# Cassandra DB port
+DB_PORT = 1234
+
 # Cassandra DB username
 DB_USERNAME = ''
 

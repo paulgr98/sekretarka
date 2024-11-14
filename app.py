@@ -5,7 +5,7 @@ import time
 from threading import Thread
 
 from config import DbConfig
-from database.DbConnector import DbConnector
+from bot.database.DbConnector import DbConnector
 
 db_connector = DbConnector(keyspace=DbConfig.DB_KEYSPACE, contact_points=DbConfig.DB_CONTACT_POINTS,
                            username=DbConfig.DB_USERNAME, password=DbConfig.DB_PASSWORD, port=DbConfig.DB_PORT)
