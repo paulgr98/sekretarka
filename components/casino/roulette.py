@@ -25,21 +25,30 @@ class Bet(object):
 
 
 class Roulette(object):
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = super(Roulette, cls).__new__(cls, *args, **kwargs)
+        return cls._instance
+
     def __init__(self):
-        self.round_time = 60
-        self.wheel = Wheel()
-        self.bets = []
-        self.last_result: Field = Field(0)
-        self.is_started = False
-        self.possible_bets = ['Liczby od 0 do 36',
-                              'even', 'odd',
-                              'red', 'black',
-                              '1-18', '19-36',
-                              '1st 12', '2nd 12', '3rd 12',
-                              '1st row', '2nd row', '3rd row']
-        for i in range(0, 37):
-            field = Field(i)
-            self.wheel.add_field(field)
+        if not hasattr(self, 'initialized'):
+            self.round_time = 60
+            self.wheel = Wheel()
+            self.bets = []
+            self.last_result: Field = Field(0)
+            self.is_started = False
+            self.possible_bets = ['Liczby od 0 do 36',
+                                  'even', 'odd',
+                                  'red', 'black',
+                                  '1-18', '19-36',
+                                  '1st 12', '2nd 12', '3rd 12',
+                                  '1st row', '2nd row', '3rd row']
+            for i in range(0, 37):
+                field = Field(i)
+                self.wheel.add_field(field)
+            self.initialized = True
 
     def set_round_time(self, time):
         self.round_time = time

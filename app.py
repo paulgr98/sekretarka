@@ -663,7 +663,8 @@ async def roulette_command(ctx: commands.Context, *args: str):
     if ctx.channel.name not in bot_config.bot_channel_names:
         await ctx.reply('Tej komendy można używać tylko na kanale do tego przeznaczonym')
         return
-    await roulette_cmd.roulette_main(ctx, *args)
+    roulette_cmd_instance = roulette_cmd.RouletteCommand(ctx, db_connector)
+    await roulette_cmd_instance.process(*args)
 
 
 @client.command('money')
