@@ -50,7 +50,7 @@ class BirthdayTracker:
         if user is None or date is None:
             return
         self.bday_repo.add_birthday(self.ctx.guild.id, user.id, date)
-        await self.ctx.reply(f'Dodano urodziny użytkownika {user.display_display_name} na dzień {date}')
+        await self.ctx.reply(f'Dodano urodziny użytkownika {user.display_name} na dzień {date}')
 
     async def process_remove_birthday(self, *args: str):
         if len(args) != 1:
