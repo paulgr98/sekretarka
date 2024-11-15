@@ -5,8 +5,8 @@ from typing import Coroutine, Callable
 
 import discord
 import pytz
-from formula1py import F1
 
+from components.f1_api import F1
 from config import config as cfg
 
 
@@ -53,6 +53,10 @@ async def schedule_f1_notifications(client: discord.Client):
     asyncio.create_task(quali_scheduler)
     asyncio.create_task(race_scheduler)
 
+    if "SprintQualifying" in race:
+        sprint_qualifying_scheduler = scheduler(client, get_sprint_qualifying_time, sprint_qualifying_notification)
+        asyncio.create_task(sprint_qualifying_scheduler)
+
     if "Sprint" in race:
         sprint_scheduler = scheduler(client, get_sprint_time, sprint_notification)
         asyncio.create_task(sprint_scheduler)
@@ -93,6 +97,16 @@ def get_sprint_time() -> dt.datetime:
     sprint_time = race['Sprint']['time']
     sprint_target = str_to_local_dt(sprint_date, sprint_time)
     return sprint_target
+
+
+def get_sprint_qualifying_time() -> dt.datetime:
+    now = get_now_time()
+    sq = get_next_race(now)
+
+    sq_date = sq['SprintQualifying']['date']
+    sq_time = sq['SprintQualifying']['time']
+    sq_target = str_to_local_dt(sq_date, sq_time)
+    return sq_target
 
 
 def str_to_local_dt(date: str, time: str) -> dt.datetime:
@@ -160,6 +174,10 @@ async def qualifying_notification(client: discord.Client) -> None:
 
 async def sprint_notification(client: discord.Client) -> None:
     await notification(client, 'Sprint zaczyna się za 15 minut!')
+
+
+async def sprint_qualifying_notification(client: discord.Client) -> None:
+    await notification(client, 'Kwalifikacje sprintu zaczynają się za 15 minut!')
 
 
 async def notification(client: discord.Client, message: str) -> None:

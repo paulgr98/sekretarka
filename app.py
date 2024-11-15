@@ -40,7 +40,8 @@ from components import (
     magic_ball,
     pp_len,
     morning_routine as mr,
-    random_yt
+    random_yt,
+    f1 as f1schedule,
 )
 from components.compliments import get_compliment_list
 from components.demotes import get_demotes
@@ -108,7 +109,7 @@ async def on_ready():
     print('-----------------')
     print('Ready to go!')
     await asyncio.create_task(mr.schedule_morning_routine(client, show_news=False))
-    # asyncio.create_task(f1schedule.schedule_f1_notifications(client))
+    asyncio.create_task(f1schedule.schedule_f1_notifications(client))
 
 
 # on message convert content to lowercase
