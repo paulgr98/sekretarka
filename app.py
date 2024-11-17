@@ -197,7 +197,7 @@ async def compliment(ctx, member=None):
     if member is None:
         is_female = await is_current_user_female(ctx)
         # get compliment list
-        compliments = get_compliment_list(ctx.author.name, is_female)
+        compliments = get_compliment_list(ctx.author.display_name, is_female)
         await ctx.send(random.choice(compliments))
         return
 
@@ -209,18 +209,18 @@ async def compliment(ctx, member=None):
         pass
 
     if isinstance(member, discord.Member):
-        is_female = await is_current_user_female(ctx)
-        name = member.name
+        is_female = await is_user_female(member)
+        name = member.display_name
         mention = member.mention
     else:
-        is_female = False
+        is_female = str(member).endswith("a")
         name = member
         mention = member
     compliments = get_compliment_list(name, is_female)
-    await ctx.send(f'Komplement dla {mention}:\n{random.choice(compliments)}')
+    await ctx.reply(f'Komplement dla {mention}:\n{random.choice(compliments)}')
 
 
-async def is_current_user_female(ctx):
+async def is_current_user_female(ctx: commands.Context) -> bool:
     global bot_config
     is_female = await is_user_female(ctx.author)
     return is_female
