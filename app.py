@@ -62,8 +62,8 @@ COOLDOWN = bot_config.general_channel_cooldown_time
 intents = discord.Intents.default()
 intents.members = True
 intents.message_content = True
-client = commands.Bot(command_prefix=bot_config.bot_command_prefix, intents=intents)
-client.remove_command('help')
+bot_client = commands.Bot(command_prefix=bot_config.bot_command_prefix, intents=intents)
+bot_client.remove_command('help')
 
 users_chat_history = ChatHistory()
 
@@ -78,12 +78,12 @@ DISCORD_MESSAGE_LEN_LIMIT = 2000
 # ----------------------------------------------------------------------------------------------------------------------
 
 # handle errors
-@client.event
+@bot_client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send(f'Nie ma takiej komendy. Wpisz {client.command_prefix}pomoc żeby wyświetlić listę komend')
+        await ctx.send(f'Nie ma takiej komendy. Wpisz {bot_client.command_prefix}pomoc żeby wyświetlić listę komend')
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f'Brak argumentu. Wpisz {client.command_prefix}pomoc żeby wyświetlić listę komend')
+        await ctx.send(f'Brak argumentu. Wpisz {bot_client.command_prefix}pomoc żeby wyświetlić listę komend')
     elif isinstance(error, commands.CommandOnCooldown):
         time_left = error.retry_after
         if time_left > COOLDOWN:
@@ -94,7 +94,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MissingPermissions):
         await ctx.send(error_messages['no_permission'])
     elif isinstance(error, commands.BadArgument):
-        await ctx.send(f'Niepoprawne argumenty. Jeśli używasz {client.command_prefix}rdt, '
+        await ctx.send(f'Niepoprawne argumenty. Jeśli używasz {bot_client.command_prefix}rdt, '
                        f'upewnij się ze nazwa subreddit nie zawiera spacji')
     else:
         logger.error(error)
@@ -102,30 +102,30 @@ async def on_command_error(ctx, error):
 
 
 # print message that the bot is ready
-@client.event
+@bot_client.event
 async def on_ready():
     print('Logged in as')
-    print(client.user)
+    print(bot_client.user)
     print('-----------------')
     print('Ready to go!')
-    await asyncio.create_task(mr.schedule_morning_routine(client, show_news=False))
-    asyncio.create_task(f1schedule.schedule_f1_notifications(client))
+    await asyncio.create_task(mr.schedule_morning_routine(bot_client, db_connector, show_news=False))
+    await asyncio.create_task(f1schedule.schedule_f1_notifications(bot_client))
 
 
 # on message convert content to lowercase
-@client.event
+@bot_client.event
 async def on_message(message):
     global bot_config
     owner = bot_config.owner
     co_owner = bot_config.co_owner
-    if message.author == client.user:
+    if message.author == bot_client.user:
         return
-    if message.content.startswith(client.command_prefix):
+    if message.content.startswith(bot_client.command_prefix):
         # lower only the first part of the message
         head = message.content.split(' ')[0]
         tail = message.content.split(' ')[1:]
         message.content = head.lower() + ' ' + ' '.join(tail)
-        await client.process_commands(message)
+        await bot_client.process_commands(message)
     if owner.is_busy and f'<@{owner.id}>' in message.content:
         await message.channel.send('Prezes Pajonk obecnie jest zajęty. Spróbuj później')
     if co_owner.is_busy and f'<@{co_owner.id}>' in message.content:
@@ -133,13 +133,13 @@ async def on_message(message):
 
 
 # simple ping command
-@client.command()
+@bot_client.command()
 async def ping(ctx):
     await ctx.send('Jebnij się w łeb')
 
 
 # simple hi command
-@client.command()
+@bot_client.command()
 async def hi(ctx):
     global bot_config
     if ctx.author.name == bot_config.owner.nick:
@@ -149,7 +149,7 @@ async def hi(ctx):
 
 
 # get user's avatar in embed
-@client.command()
+@bot_client.command()
 async def avatar(ctx, member: discord.Member = None):
     if member is None:
         member = ctx.author
@@ -162,24 +162,24 @@ async def avatar(ctx, member: discord.Member = None):
 
 
 # deleting given amount of messages above
-@client.command()
+@bot_client.command()
 @commands.has_permissions(manage_messages=True)
-async def purge(ctx, amount=2):
+async def purge(ctx, amount=1):
     if amount <= 50:
-        await ctx.channel.purge(limit=amount)
+        await ctx.channel.purge(limit=amount+1)
     else:
         await ctx.send('Nie możesz usunąć więcej niż 50 jednocześnie')
 
 
 # deleting given amount of messages send by the bot
-@client.command()
+@bot_client.command()
 async def undo(ctx, amount=1):
     await ctx.channel.purge(limit=1)
     # get last 200 messages
     # messages = await ctx.channel.history(limit=200).flatten() # flatten() removed
     messages = [msg async for msg in ctx.channel.history(limit=200)]
     # filter messages where the client is the bot
-    messages = [m for m in messages if m.author == client.user]
+    messages = [m for m in messages if m.author == bot_client.user]
     # limit the messages to the given amount
     messages = messages[:amount]
     # delete messages
@@ -187,7 +187,7 @@ async def undo(ctx, amount=1):
 
 
 # compliment command that send one random compliment from predefined list
-@client.command()
+@bot_client.command()
 @commands.cooldown(1, COOLDOWN, commands.BucketType.channel)
 async def compliment(ctx, member=None):
     global bot_config
@@ -227,7 +227,7 @@ async def is_current_user_female(ctx):
 
 
 # diss command that send one random diss from predefined list
-@client.command()
+@bot_client.command()
 @commands.cooldown(1, COOLDOWN, commands.BucketType.channel)
 async def diss(ctx, member=None):
     global bot_config
@@ -255,19 +255,19 @@ async def diss(ctx, member=None):
 
 
 # the opposite of motivate command
-@client.command()
+@bot_client.command()
 async def demote(ctx):
     texts = get_demotes()
     await ctx.send(random.choice(texts))
 
 
 # get random post from given subreddit
-@client.command()
+@bot_client.command()
 async def rdt(ctx, subreddit: str = 'memes', limit: int = 50):
     global bot_config
     post = None
     if ctx.channel.name not in bot_config.bot_channel_names:
-        await ctx.send(f'komendy {client.command_prefix}rdt można używać tylko na kanale do tego przeznaczonym')
+        await ctx.send(f'komendy {bot_client.command_prefix}rdt można używać tylko na kanale do tego przeznaczonym')
         return
     try:
         is_channel_nsfw: bool = str(ctx.channel.name).lower() in bot_config.nsfw_channel_names
@@ -292,7 +292,7 @@ async def rdt(ctx, subreddit: str = 'memes', limit: int = 50):
 
 
 # uwuify the message above
-@client.command()
+@bot_client.command()
 async def uwu(ctx):
     # get message above command
     # message = await ctx.channel.history(limit=2).flatten() # flatten() removed
@@ -307,7 +307,7 @@ to_ban = {}
 
 
 # ban command. but not actually baning anyone. just for fun
-@client.command()
+@bot_client.command()
 async def ban(ctx, member: discord.Member):
     global bot_config
     # if there are more than 5 people to ban, remove the oldest one
@@ -316,7 +316,7 @@ async def ban(ctx, member: discord.Member):
     if member.name == bot_config.owner.nick:
         await ctx.send('Nie masz tu mocy :sunglasses:')
         return
-    if member.id == client.user.id:
+    if member.id == bot_client.user.id:
         await ctx.send('Tylko buk może mnie sondzić!')
         return
     if member.id == ctx.author.id:
@@ -328,9 +328,9 @@ async def ban(ctx, member: discord.Member):
 
 
 # if reaction is added to the ban message, count the heart reactions
-@client.event
+@bot_client.event
 async def on_reaction_add(reaction, user):
-    if user == client.user:
+    if user == bot_client.user:
         return
     # get the message from reaction
     message = reaction.message
@@ -346,7 +346,7 @@ async def on_reaction_add(reaction, user):
                 await message.channel.send(f'No i banujemy {member.mention}! Na własne życzenie xD')
 
 
-@client.command('zw')
+@bot_client.command('zw')
 async def im_busy(ctx):
     global bot_config
     owner = bot_config.owner
@@ -370,7 +370,7 @@ async def im_busy(ctx):
 
 
 # command to find gf or bf for the user
-@client.command()
+@bot_client.command()
 async def shipme(ctx):
     global bot_config
     # get list of all users in the server
@@ -379,7 +379,7 @@ async def shipme(ctx):
     service = ShippingService(db_connector)
     ship_id = service.get_users_match_for_today(str(ctx.guild.id), str(ctx.author.id))
     if ship_id is not None:
-        ship = client.get_user(int(ship_id))
+        ship = bot_client.get_user(int(ship_id))
         await ctx.send(f'{ctx.author.mention} myślę, że najlepszy ship na dzisiaj dla Ciebie to... {ship.mention}!')
         return
 
@@ -421,11 +421,11 @@ async def is_user_female(user: discord.Member):
 
 
 # command to get daily horoscopes for the user
-@client.command()
+@bot_client.command()
 async def astro(ctx, sign: str):
     global bot_config
     if ctx.channel.name not in bot_config.bot_channel_names:
-        await ctx.send(f'komendy {client.command_prefix}astro można używać tylko na kanale do tego przeznaczonym')
+        await ctx.send(f'komendy {bot_client.command_prefix}astro można używać tylko na kanale do tego przeznaczonym')
         return
 
     try:
@@ -437,7 +437,7 @@ async def astro(ctx, sign: str):
 
 
 # command to check for name days
-@client.command()
+@bot_client.command()
 async def nameday(ctx):
     names = nd.get_names()
     today = dt.datetime.now().strftime('%d.%m.%Y')
@@ -449,11 +449,11 @@ async def nameday(ctx):
 
 
 # command to get weather forecast for the given city
-@client.command()
+@bot_client.command()
 async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
     global bot_config
     if ctx.channel.name not in bot_config.bot_channel_names:
-        await ctx.send(f'komendy {client.command_prefix}wthr można używać tylko na kanale do tego przeznaczonym')
+        await ctx.send(f'komendy {bot_client.command_prefix}wthr można używać tylko na kanale do tego przeznaczonym')
         return
 
     if days > 4:
@@ -468,7 +468,7 @@ async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
 
 
 # command to get random number between given range
-@client.command('roll')
+@bot_client.command('roll')
 async def roll(ctx, code: str):
     if code is None or code == '':
         await ctx.reply('Rzucam 1D20...')
@@ -478,7 +478,7 @@ async def roll(ctx, code: str):
 
 
 # command to throw a coin
-@client.command(aliases=['flip'])
+@bot_client.command(aliases=['flip'])
 async def coin(ctx):
     await dnd_coin.coin(ctx)
 
@@ -488,7 +488,7 @@ stopwatch_dict = {}
 
 
 # simple stopwatch command to measure time
-@client.command(aliases=['sw'])
+@bot_client.command(aliases=['sw'])
 async def stopwatch(ctx, action: str):
     if action == 'start':
         if ctx.author.id in stopwatch_dict:
@@ -519,7 +519,7 @@ async def stopwatch(ctx, action: str):
         await ctx.message.reply('Wpisz start, stop lub reset')
 
 
-@client.command('poll')
+@bot_client.command('poll')
 async def create_poll(ctx, *, content: str):
     # remove whitespaces from the beginning and end of the string
     content = content.strip()
@@ -553,7 +553,7 @@ async def create_poll(ctx, *, content: str):
         await msg.add_reaction(reaction)
 
 
-@client.command('essa')
+@bot_client.command('essa')
 async def calc_essa(ctx, *, member=None):
     if member is None:
         member = ctx.author
@@ -569,7 +569,7 @@ async def calc_essa(ctx, *, member=None):
 
 
 # command to get a random cocktail recipe or search for a specific one form thecocktaildb.com
-@client.command()
+@bot_client.command()
 async def drink(ctx: commands.Context, *drink_name: str):
     name = ' '.join(drink_name)
     embed = alco_drink.make_drink_embed(name)
@@ -580,11 +580,11 @@ async def drink(ctx: commands.Context, *drink_name: str):
 
 
 # free epic store games
-@client.command('free')
+@bot_client.command('free')
 async def epic_free_games(ctx: commands.Context, period: str = 'current'):
     global bot_config
     if ctx.channel.name not in bot_config.bot_channel_names:
-        await ctx.reply(f'Komendy {client.command_prefix}free można używać tylko na kanale do tego przeznaczonym')
+        await ctx.reply(f'Komendy {bot_client.command_prefix}free można używać tylko na kanale do tego przeznaczonym')
         return
     try:
         free_games = epic.get_free_games(period)
@@ -606,30 +606,30 @@ async def send_gif(ctx: commands.Context, *search_query: str, is_random: bool = 
     await ctx.send(f'{ctx.author.mention} {gif}')
 
 
-@client.command('gif')
+@bot_client.command('gif')
 async def send_random_gif(ctx: commands.Context, *search_query: str):
     await send_gif(ctx, *search_query, is_random=True)
 
 
-@client.command('topgif')
+@bot_client.command('topgif')
 async def send_top_gif(ctx: commands.Context, *search_query: str):
     await send_gif(ctx, *search_query, is_random=False)
 
 
-@client.command('convert')
+@bot_client.command('convert')
 async def convert(ctx: commands.Context, method: str, *args: str):
     text = ' '.join(args)
     result = converter.convert(method, text)
     await ctx.reply(result)
 
 
-@client.command('8ball')
+@bot_client.command('8ball')
 async def eight_ball(ctx: commands.Context):
     answer = magic_ball.get_random_answer()
     await ctx.reply(answer)
 
 
-@client.command('pp')
+@bot_client.command('pp')
 async def pp_length(ctx: commands.Context, member=None):
     if member is None:
         member = ctx.author
@@ -643,11 +643,11 @@ async def pp_length(ctx: commands.Context, member=None):
 
 
 # command to generate a story using OpenAI API
-@client.command('story')
+@bot_client.command('story')
 async def story(ctx: commands.Context, *keywords: str):
     global bot_config
     if ctx.channel.name not in bot_config.bot_channel_names:
-        await ctx.reply(f'Komendy {client.command_prefix}story można używać tylko na kanale do tego przeznaczonym')
+        await ctx.reply(f'Komendy {bot_client.command_prefix}story można używać tylko na kanale do tego przeznaczonym')
         return
     # check if there are any keywords
     if len(keywords) == 0:
@@ -658,7 +658,7 @@ async def story(ctx: commands.Context, *keywords: str):
     await gpt_command(ctx, prompt, include_msg_history=False)
 
 
-@client.command(aliases=['rr', 'roulette'])
+@bot_client.command(aliases=['rr', 'roulette'])
 async def roulette_command(ctx: commands.Context, *args: str):
     global bot_config
     if ctx.channel.name not in bot_config.bot_channel_names:
@@ -668,24 +668,24 @@ async def roulette_command(ctx: commands.Context, *args: str):
     await roulette_cmd_instance.process(*args)
 
 
-@client.command('money')
+@bot_client.command('money')
 async def money_command(ctx: commands.Context, *args: str):
     money_manager = MoneyManager(db_connector, ctx)
     await money_manager.process(*args)
 
 
-@client.command('morning')
+@bot_client.command('morning')
 async def test_morning_routine(ctx: commands.Context):
-    await mr.morning_routine(client, show_news=False)
+    await mr.morning_routine(bot_client, db_connector, show_news=False)
 
 
-@client.command('bday')
+@bot_client.command('bday')
 async def birthday_command(ctx: commands.Context, action: str, *args: str):
     tracker = bt.BirthdayTracker(db_connector, ctx)
     await tracker.process(action, *args)
 
 
-@client.command('gpt')
+@bot_client.command('gpt')
 async def gpt_command(ctx: commands.Context, *args: str, include_msg_history: bool = True):
     gpt = ChatGPT4Free()
     msg = handle_gpt_args(ctx, *args)
@@ -751,31 +751,31 @@ def handle_gpt_args(ctx: commands.Context, *args: str, ):
     return None
 
 
-@client.command('f1')
+@bot_client.command('f1')
 async def f1_command(ctx: commands.Context):
     embed = f1cmd.make_next_race_embed()
     await ctx.send("Następny wyścig", embed=embed)
 
 
 # help command to show all commands
-@client.command(aliases=['pomoc', 'help'])
+@bot_client.command(aliases=['pomoc', 'help'])
 async def help_command(ctx: commands.Context):
     global bot_config
     if ctx.channel.name not in bot_config.bot_channel_names:
         await ctx.reply('Tej komendy można używać tylko na kanale do tego przeznaczonym')
         return
-    embeds = help.get_help_embed(client.command_prefix)
+    embeds = help.get_help_embed(bot_client.command_prefix)
     for embed in embeds:
         await ctx.send(embed=embed)
 
 
-@client.command('ryt')
+@bot_client.command('ryt')
 async def ryt_command(ctx: commands.Context, *args: str):
     rand_id = random_yt.youtube_search()
     await ctx.send(f'https://www.youtube.com/watch?v={rand_id}')
 
 
-@client.command('lights')
+@bot_client.command('lights')
 async def lights_command(ctx: commands.Context, *args: str):
     global bot_config
     if len(args) == 0:
@@ -804,9 +804,9 @@ async def lights_command(ctx: commands.Context, *args: str):
         sl.wake_up()
 
 
-@client.command('tts')
+@bot_client.command('tts')
 async def text_to_speach_command(ctx: commands.Context, *args: str):
-    tts_client = tts.TextToSpeach(client)
+    tts_client = tts.TextToSpeach(bot_client)
     if len(args) == 0:
         await ctx.send('Brak argumentów')
         return
@@ -829,9 +829,9 @@ async def main():
     api_thread.start()
     # run main
     if bot_config.enable_developer_mode:
-        await client.start(cfg.TOKEN_BETA)
+        await bot_client.start(cfg.TOKEN_BETA)
     else:
-        await client.start(cfg.TOKEN)
+        await bot_client.start(cfg.TOKEN)
 
 
 if __name__ == '__main__':

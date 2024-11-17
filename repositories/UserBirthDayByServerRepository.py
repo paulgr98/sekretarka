@@ -43,7 +43,10 @@ class UserBirthDayByServerRepository:
         else:
             return None
 
-    def get_birthday_for_date(self, server_id, date) -> list[tuple]:
+    def get_birthday_for_date(self, server_id, date: str) -> list[tuple]:
+        """
+            date is a str in format dd.mm.yyyy
+        """
         server_hash = generate_objects_hash(server_id, include_date=False)
         date_obj = datetime.strptime(date, self.user_date_format)
         day = date_obj.day
