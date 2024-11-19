@@ -81,9 +81,9 @@ DISCORD_MESSAGE_LEN_LIMIT = 2000
 @bot_client.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send(f'Nie ma takiej komendy. Wpisz {bot_client.command_prefix}pomoc żeby wyświetlić listę komend')
+        await ctx.send(f'Nie ma takiej komendy. Wpisz {bot_client.command_prefix}pomoc, żeby wyświetlić listę komend')
     elif isinstance(error, commands.MissingRequiredArgument):
-        await ctx.send(f'Brak argumentu. Wpisz {bot_client.command_prefix}pomoc żeby wyświetlić listę komend')
+        await ctx.send(f'Brak argumentu. Wpisz {bot_client.command_prefix}pomoc, żeby wyświetlić listę komend')
     elif isinstance(error, commands.CommandOnCooldown):
         time_left = error.retry_after
         if time_left > COOLDOWN:
@@ -94,8 +94,7 @@ async def on_command_error(ctx, error):
     elif isinstance(error, commands.MissingPermissions):
         await ctx.send(error_messages['no_permission'])
     elif isinstance(error, commands.BadArgument):
-        await ctx.send(f'Niepoprawne argumenty. Jeśli używasz {bot_client.command_prefix}rdt, '
-                       f'upewnij się ze nazwa subreddit nie zawiera spacji')
+        await ctx.send(f'Niepoprawne argumenty. Wpisz {bot_client.command_prefix}pomoc, żeby wyświetlić listę komend')
     else:
         logger.error(error)
         await ctx.send('Error! Insert kremówka! <a:jp2:985844814597742683>')
@@ -108,7 +107,7 @@ async def on_ready():
     print(bot_client.user)
     print('-----------------')
     print('Ready to go!')
-    await asyncio.create_task(mr.schedule_morning_routine(bot_client, db_connector, show_news=False))
+    await asyncio.create_task(mr.schedule_morning_routine(bot_client, db_connector))
     await asyncio.create_task(f1schedule.schedule_f1_notifications(bot_client))
 
 
@@ -166,7 +165,7 @@ async def avatar(ctx, member: discord.Member = None):
 @commands.has_permissions(manage_messages=True)
 async def purge(ctx, amount=1):
     if amount <= 50:
-        await ctx.channel.purge(limit=amount+1)
+        await ctx.channel.purge(limit=amount + 1)
     else:
         await ctx.send('Nie możesz usunąć więcej niż 50 jednocześnie')
 
@@ -675,8 +674,35 @@ async def money_command(ctx: commands.Context, *args: str):
 
 
 @bot_client.command('morning')
-async def test_morning_routine(ctx: commands.Context):
-    await mr.morning_routine(bot_client, db_connector, show_news=False)
+async def morning_routine_command(ctx: commands.Context, action: str = None, channel: discord.TextChannel = None):
+    bad_usage_text = f"Poprawne użycie komendy to: {bot_client.command_prefix}morning [add|remove] <#kanal_tekstowy>"
+
+    # Case 1: Send the morning message if no action is provided
+    if not action and not channel:
+        await mr.morning_routine_single(ctx, db_connector)
+        return
+
+    # Case 2: Validate action parameter
+    if action not in ['add', 'remove']:
+        await ctx.reply(bad_usage_text)
+        return
+
+    # Ensure the channel is provided and is a valid text channel
+    if not channel or not isinstance(channel, discord.TextChannel):
+        await ctx.reply("Musisz podać poprawny kanał tekstowy.")
+        return
+
+    # Case 3: Handle adding a channel to the morning routine
+    if action == 'add':
+        success = await mr.add_channel_to_morning_routine(db_connector, channel)
+        if success:
+            await ctx.reply(f'Kanał {channel.mention} został dodany do listy kanałów do rannych wiadomości.')
+
+    # Case 4: Handle removing a channel from the morning routine
+    elif action == 'remove':
+        success = await mr.remove_channel_from_morning_routine(db_connector, channel)
+        if success:
+            await ctx.reply(f'Kanał {channel.mention} został usunięty z listy kanałów do rannych wiadomości.')
 
 
 @bot_client.command('bday')

@@ -3,134 +3,135 @@ import datetime as dt
 from typing import Optional
 
 import discord
+from discord.ext import commands
+from bot.logger import logger
 
-from commands import news
-from components import (
-    nameday as nd,
-)
+from bot.database.DbConnector import DbConnector
+from components import nameday as nd
 from components.fun_holidays import fun_holidays_api_v2 as fha
-from config import config as cfg
+from repositories.MorningChannelsByServerRepository import MorningChannelsByServerRepository
 from repositories.UserBirthDayByServerRepository import UserBirthDayByServerRepository
 
-# Constants for better readability
-MORNING_HOUR = 7
-MORNING_MINUTE = 0
-MORNING_SECOND = 0
+MORNING_HOUR, MORNING_MINUTE, MORNING_SECOND = 7, 0, 0
 SLEEP_INTERVAL_SECONDS = 10
 NEWS_COUNT = 3
-
-DAY_NAMES = {
-    0: 'Poniedziałek',
-    1: 'Wtorek',
-    2: 'Środa',
-    3: 'Czwartek',
-    4: 'Piątek',
-    5: 'Sobota',
-    6: 'Niedziela'
-}
+DAY_NAMES = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela']
 
 
-async def morning_routine(bot_client: discord.Client, db_connector, show_news: bool):
-    channels = await get_morning_channels(bot_client)
-    now = dt.datetime.now()
-    now_str = await get_today_date_str()
-
-    welcome_text = "**Dzień dobry!**\n"
-    welcome_text += f"Dzisiaj jest **{now_str}** - {DAY_NAMES[now.weekday()]}\n"
-
-    names = nd.get_names()
-    names = ', '.join(names)
-    welcome_text += f"\n**Imieniny obchodzą:** {names}\n"
-
-    channel_bday_info = {}
-    for channel in channels:
-        server_id: int = channel.guild.id
-        bday_info = await get_birthday_text(bot_client, server_id, db_connector)
-        channel_bday_info[channel.id] = ""
-        if bday_info is not None:
-            channel_bday_info[channel.id] = f"\n{bday_info}"
-
-    holidays = await fun_holidays()
-    holidays_text = f"\n{holidays}\n"
-
-    if show_news:
-        news_text = '\n**Aktualne wiadomości z TVN24:**'
-        for channel in channels:
-            welcome_text += channel_bday_info[channel.id]
-            welcome_text += holidays_text
-            welcome_text += news_text
-            await channel.send(welcome_text)
-
-        news_embeds = await news.get_news_embeds(NEWS_COUNT)
-        for embed in news_embeds:
-            for channel in channels:
-                await channel.send(embed=embed)
-    else:
-        for channel in channels:
-            welcome_text += channel_bday_info[channel.id]
-            welcome_text += holidays_text
-            await channel.send(welcome_text)
+async def add_channel_to_morning_routine(db_connector: DbConnector, channel: discord.TextChannel):
+    """Add a channel to the morning routine."""
+    repo = MorningChannelsByServerRepository(db_connector)
+    try:
+        await repo.add_channel(channel.guild.id, channel.id)
+    except Exception as e:
+        # Log the exception if needed (e.g., logging library or print statement)
+        logger.error(f"Error adding channel {channel.id}: {e}")
+        return False
+    return True
 
 
-async def get_today_date_str():
+async def remove_channel_from_morning_routine(db_connector: DbConnector, channel: discord.TextChannel):
+    """Remove a channel from the morning routine."""
+    repo = MorningChannelsByServerRepository(db_connector)
+    try:
+        await repo.remove_channel(channel.guild.id, channel.id)
+    except Exception as e:
+        # Log the exception if needed (e.g., logging library or print statement)
+        logger.error(f"Error removing channel {channel.id}: {e}")
+        return False
+    return True
+
+
+async def get_today_date_str() -> str:
+    """Get the current date as a formatted string."""
     return dt.datetime.now().strftime('%d.%m.%Y')
 
 
-async def fun_holidays():
+async def fetch_fun_holidays() -> str:
+    """Fetch today's fun holidays."""
     holidays = fha.FunHolidaysApi()
     names = holidays.get_holidays_for_today()
     if not names:
         return '**Dzisiaj nie obchodzimy żadnych świąt**\n'
-
-    msg = '**Dzisiaj obchodzimy:**\n'
-    for name in names:
-        msg += f'- {name}\n'
-    return msg
+    return '**Dzisiaj obchodzimy:**\n' + ''.join(f'- {name}\n' for name in names)
 
 
-async def get_birthday_text(bot_client: discord.Client, server_id: int, db_connector) \
-        -> Optional[str]:
-    bdays: list = await get_server_bdays(server_id, db_connector)
+async def get_birthday_text(guild: discord.Guild, db_connector: DbConnector) -> Optional[str]:
+    """Fetch today's birthdays for a specific server."""
+    bday_repo = UserBirthDayByServerRepository(db_connector)
+    today_str = await get_today_date_str()
+    bdays = await bday_repo.get_birthday_for_date(guild.id, today_str)
 
-    if bdays is None or not bdays:
+    if not bdays:
         return None
 
     msg = '**Urodziny mają**\n'
-    users = []
+    users = [discord.utils.get(guild.members, id=int(uid)) for uid, _ in bdays]
+    users = [user for user in users if user]
 
-    for user_id, date in bdays:
-        user = discord.utils.get(bot_client.get_all_members(), id=int(user_id))
-        if user:
-            users.append(user)
-            date_dt = dt.datetime.strptime(date, '%d.%m.%Y')
-            age = dt.datetime.now().year - date_dt.year
-            msg += f'- {user.display_name} ({age} lat)\n'
+    for user, (_, date) in zip(users, bdays):
+        age = dt.datetime.now().year - dt.datetime.strptime(date, '%d.%m.%Y').year
+        msg += f'- {user.display_name} ({age} lat)\n'
 
     if users:
-        msg += '\n'
-        msg += ' '.join([usr.mention for usr in users])
-        msg += '\n**Wszystkiego najlepszego!** Zdrówka i spełnienia marzeń :heart:\n'
-
+        mentions = ' '.join(user.mention for user in users)
+        msg += f'\n{mentions}\n**Wszystkiego najlepszego!** Zdrówka i spełnienia marzeń :heart:\n'
     return msg
 
 
-async def get_server_bdays(server_id: int, db_connector) -> list[tuple]:
-    bday_repo = UserBirthDayByServerRepository(db_connector)
+async def get_morning_channels(bot_client: discord.Client, db_connector: DbConnector, server_id: int) -> list[
+    discord.TextChannel]:
+    """Retrieve the list of channels for morning messages."""
+    repo = MorningChannelsByServerRepository(db_connector)
+    channels_ids = await repo.get_channels(server_id)
+    return [bot_client.get_channel(int(cid)) for cid in channels_ids if bot_client.get_channel(int(cid))]
+
+
+async def send_morning_message(channels: list[discord.TextChannel], message: str):
+    """Send the morning message to all specified channels."""
+    for channel in channels:
+        if channel:
+            await channel.send(message)
+
+
+async def generate_morning_message(guild: discord.Guild, db_connector: DbConnector) -> str:
+    """Generate the full morning message for a specific server."""
     now_str = await get_today_date_str()
-    bdays = bday_repo.get_birthday_for_date(server_id, now_str)
-    return bdays
+    welcome_text = f"**Dzień dobry!**\nDzisiaj jest **{now_str}** - {DAY_NAMES[dt.datetime.now().weekday()]}\n"
+    namedays = ', '.join(nd.get_names())
+    bday_text = await get_birthday_text(guild, db_connector)
+    holidays_text = await fetch_fun_holidays()
+
+    message = f"{welcome_text}\n**Imieniny obchodzą:** {namedays}\n\n"
+    if bday_text:
+        message += bday_text
+    message += holidays_text
+    return message
 
 
-async def get_morning_channels(bot_client: discord.Client):
-    channels = [bot_client.get_channel(channel_id) for channel_id in cfg.MORNING_CHANNEL_ID]
-    return channels
+async def morning_routine_all(bot_client: discord.Client, db_connector: DbConnector):
+    """Send the morning message to all servers configured."""
+    for guild in bot_client.guilds:
+        channels = await get_morning_channels(bot_client, db_connector, guild.id)
+        if channels:
+            message = await generate_morning_message(guild, db_connector)
+            await send_morning_message(channels, message)
 
 
-async def schedule_morning_routine(bot_client: discord.Client, db_connector, show_news: bool = True):
+async def morning_routine_single(ctx: commands.Context, db_connector: DbConnector):
+    """Send the morning message to a specific server initiated by a user command."""
+    channels = await get_morning_channels(ctx.bot, db_connector, ctx.guild.id)
+    if not channels:
+        await ctx.reply(f"Brak dodanych kanałów.\nUżyj komendy {ctx.bot.command_prefix}morning add <#kanal_tekstowy>")
+        return
+    message = await generate_morning_message(ctx.guild, db_connector)
+    await send_morning_message(channels, message)
+
+
+async def schedule_morning_routine(bot_client: discord.Client, db_connector: DbConnector):
+    """Schedule the morning routine every day at the specified time."""
     while True:
         now = dt.datetime.now()
-
-        # Determine target time
         if now.hour >= MORNING_HOUR and now.minute >= MORNING_MINUTE:
             target = (now + dt.timedelta(days=1)).replace(
                 hour=MORNING_HOUR, minute=MORNING_MINUTE, second=MORNING_SECOND, microsecond=0
@@ -139,15 +140,7 @@ async def schedule_morning_routine(bot_client: discord.Client, db_connector, sho
             target = now.replace(
                 hour=MORNING_HOUR, minute=MORNING_MINUTE, second=MORNING_SECOND, microsecond=0
             )
-
-        # Calculate wait time in seconds
         wait_time = (target - now).total_seconds()
-
-        # Wait until the target time
         await asyncio.sleep(wait_time)
-
-        # Execute the morning routine
-        await morning_routine(bot_client, db_connector, show_news)
-
-        # Wait a bit before starting the loop again to prevent immediate re-execution in edge cases
+        await morning_routine_all(bot_client, db_connector)
         await asyncio.sleep(SLEEP_INTERVAL_SECONDS)
