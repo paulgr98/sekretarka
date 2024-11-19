@@ -11,7 +11,6 @@ def get_compliment_list(username, is_female):
         'Chodź się rozmnażać, takie geny nie mogą przepaść :smirk:',
         ':point_right: :ok_hand:?',
         'Masz może mapę? :map: Bo zgubiłam się w Twoich oczach :see_no_evil:',
-        f'Daj mi spokój {"atencjuszko" if is_female else "atencjuszu"} :angry:',
         'Czy jesteś może tosterem? Bo chciałabym się z Tobą wykąpać :tired_face:',
         'Przyciągasz mnie jak traktor przyczepkę :tractor:',
         f'Dasz mi 10 minut? Muszę zadzwonić do mamy i powiedzieć że spotkałam {"kobietę" if is_female else "mężczyznę"}'
