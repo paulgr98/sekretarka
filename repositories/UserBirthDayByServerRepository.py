@@ -21,7 +21,7 @@ class UserBirthDayByServerRepository:
         self.server_date_format = "%Y-%m-%d"
         sync_table(UserBirthDayByServer)
 
-    def add_birthday(self, server_id, user_id, birth_day) -> None:
+    async def add_birthday(self, server_id, user_id, birth_day) -> None:
         server_hash = generate_objects_hash(server_id, include_date=False)
         user_id = str(user_id)
         birth_day = __format_date__(birth_day, self.user_date_format, self.server_date_format)
@@ -33,7 +33,7 @@ class UserBirthDayByServerRepository:
         else:
             UserBirthDayByServer.create(server_hash=server_hash, user_id=user_id, user_birth_day=birth_day)
 
-    def get_birthday(self, server_id, user_id) -> Optional[str]:
+    async def get_birthday(self, server_id, user_id) -> Optional[str]:
         server_hash = generate_objects_hash(server_id, include_date=False)
         user_id = str(user_id)
         records = UserBirthDayByServer.objects(server_hash=server_hash, user_id=user_id).all()
@@ -43,7 +43,7 @@ class UserBirthDayByServerRepository:
         else:
             return None
 
-    def get_birthday_for_date(self, server_id, date: str) -> list[tuple]:
+    async def get_birthday_for_date(self, server_id, date: str) -> list[tuple]:
         """
             date is a str in format dd.mm.yyyy
         """
@@ -58,7 +58,7 @@ class UserBirthDayByServerRepository:
                 result.append((record.user_id, record.user_birth_day.date().strftime(self.user_date_format)))
         return result
 
-    def delete_user_on_server(self, server_id, user_id) -> bool:
+    async def delete_user_on_server(self, server_id, user_id) -> bool:
         server_hash = generate_objects_hash(server_id, include_date=False)
         user_id = str(user_id)
         records = UserBirthDayByServer.objects(server_hash=server_hash, user_id=user_id).all()
@@ -66,18 +66,18 @@ class UserBirthDayByServerRepository:
             record.delete()
         return len(records) > 0
 
-    def delete_user_on_all_servers(self, user_id) -> None:
+    async def delete_user_on_all_servers(self, user_id) -> None:
         user_id = str(user_id)
         records = UserBirthDayByServer.objects(user_id=user_id).all()
         for record in records:
             record.delete()
 
-    def get_all_birthdays_on_server(self, server_id) -> list[tuple]:
+    async def get_all_birthdays_on_server(self, server_id) -> list[tuple]:
         server_hash = generate_objects_hash(server_id, include_date=False)
         records = UserBirthDayByServer.objects(server_hash=server_hash).all()
         return [(record.user_id, record.user_birth_day.date().strftime(self.user_date_format)) for record in records]
 
-    def clear_all_entries(self) -> None:
+    async def clear_all_entries(self) -> None:
         records = UserBirthDayByServer.objects.all()
         for record in records:
             record.delete()

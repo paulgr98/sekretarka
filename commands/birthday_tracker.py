@@ -49,7 +49,7 @@ class BirthdayTracker:
         user, date = await self.get_user_and_date_from_args(*args)
         if user is None or date is None:
             return
-        self.bday_repo.add_birthday(self.ctx.guild.id, user.id, date)
+        await self.bday_repo.add_birthday(self.ctx.guild.id, user.id, date)
         await self.ctx.reply(f'Dodano urodziny użytkownika {user.display_name} na dzień {date}')
 
     async def process_remove_birthday(self, *args: str):
@@ -60,14 +60,14 @@ class BirthdayTracker:
         if user is None:
             await self.ctx.reply('Niepoprawne użycie komendy. Użyj: !bday remove <@user>')
             return
-        deleted: bool = self.bday_repo.delete_user_on_server(self.ctx.guild.id, user.id)
+        deleted: bool = await self.bday_repo.delete_user_on_server(self.ctx.guild.id, user.id)
         if not deleted:
             await self.ctx.reply(f'Nie znaleziono urodzin użytkownika {user.display_name}')
             return
         await self.ctx.reply(f'Usunięto urodziny użytkownika {user.display_name}')
 
     async def list_all_birthdays(self):
-        birthdays = self.bday_repo.get_all_birthdays_on_server(self.ctx.guild.id)
+        birthdays = await self.bday_repo.get_all_birthdays_on_server(self.ctx.guild.id)
         if len(birthdays) == 0:
             await self.ctx.reply('Brak urodzin do wyświetlenia')
             return
@@ -81,7 +81,7 @@ class BirthdayTracker:
 
     async def get_today_birthdays(self) -> tuple[str, str] or None:
         today = dt.datetime.today().strftime('%d.%m.%Y')
-        birthdays = self.bday_repo.get_birthday_for_date(self.ctx.guild.id, today)
+        birthdays = await self.bday_repo.get_birthday_for_date(self.ctx.guild.id, today)
         if len(birthdays) == 0:
             return None
         return birthdays
@@ -116,7 +116,7 @@ class BirthdayTracker:
             await self.ctx.reply('Niepoprawne użycie komendy. Użyj: $bday get <@user>')
             return
 
-        birthday = self.bday_repo.get_birthday(self.ctx.guild.id, user.id)
+        birthday = await self.bday_repo.get_birthday(self.ctx.guild.id, user.id)
         if birthday is None:
             await self.ctx.reply(f'Nie znaleziono urodzin użytkownika {user.display_name}')
             return
