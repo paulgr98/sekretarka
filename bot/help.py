@@ -165,5 +165,11 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                                "Jeśli nie podano żadnego argumentu, bot dołączy do kanału głosowego, "
                                "odczyta tekst i opuści kanał głosowy",
                          )
+    help_embed.add_field(name=f"{prefix}morning [add|remove] <#kanal_tekstowy>",
+                         value="Dodaje lub usuwa kanał do listy kanałów do porannych wiadomości. "
+                               "Jeżeli nie podano akcji, wysyła wiadomość z porannymi wiadomościami "
+                               "na skonfigurowanych kanałach.\n"
+                               "***UWAGA***: Opcja dostępna tylko dla administratorów!",
+                         )
 
     return help_embed.get_discord_embeds()

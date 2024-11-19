@@ -674,6 +674,7 @@ async def money_command(ctx: commands.Context, *args: str):
 
 
 @bot_client.command('morning')
+@commands.has_permissions(administrator=True)
 async def morning_routine_command(ctx: commands.Context, action: str = None, channel: discord.TextChannel = None):
     bad_usage_text = f"Poprawne użycie komendy to: {bot_client.command_prefix}morning [add|remove] <#kanal_tekstowy>"
 
