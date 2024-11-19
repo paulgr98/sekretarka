@@ -5,6 +5,7 @@ from cassandra.cluster import Cluster
 from cassandra.cqlengine import connection
 
 from config import DbConfig
+from bot.logger import logger
 
 
 class DbConnector:

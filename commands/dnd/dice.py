@@ -80,13 +80,13 @@ class DndDice(object):
         if self.context is not None:
             await self.context.reply(msg)
         else:
-            print(msg)
+            logger.error(msg)
 
     async def show_message(self, msg):
         if self.context is not None:
             await self.context.reply(msg)
         else:
-            print(msg)
+            logger.error(msg)
 
     def validate_values(self, throws, faces, modifier):
         if throws > self.MAX_THROWS:
