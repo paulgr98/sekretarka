@@ -19,7 +19,7 @@ from bot import utility as util
 from bot.UserConfigLoader import UserConfigLoader
 from bot.logger import logger
 from commands import alco_drink
-from commands import astrology
+import astrology_api as astro_api
 from commands import birthday_tracker as bt
 from commands import converter
 from commands import f1cmd
@@ -423,16 +423,14 @@ async def is_user_female(user: discord.Member):
 @bot_client.command()
 async def astro(ctx, sign: str):
     global bot_config
-    if ctx.channel.name not in bot_config.bot_channel_names:
-        await ctx.send(f'komendy {bot_client.command_prefix}astro można używać tylko na kanale do tego przeznaczonym')
-        return
-
     try:
-        embed = astrology.make_astrology_embed(sign)
-        await ctx.send(embed=embed)
-    except astrology.NoSignException as e:
-        await ctx.send(e)
-        return
+        maker = astro_api.HoroscopeMaker()
+        embed = maker.make_horoscope(sign).translate().get_embed()
+        await ctx.reply(embed=embed)
+    except astro_api.NoHoroscopeSignException as exc:
+        await ctx.reply(exc)
+    except ValueError as ignored:
+        await ctx.send("Coś się... coś się popsuło i nie było mnie słychać...")
 
 
 # command to check for name days
