@@ -19,7 +19,6 @@ from bot import utility as util
 from bot.UserConfigLoader import UserConfigLoader
 from bot.logger import logger
 from commands import alco_drink
-import astrology_api as astro_api
 from commands import birthday_tracker as bt
 from commands import converter
 from commands import f1cmd
@@ -42,6 +41,7 @@ from components import (
     morning_routine as mr,
     random_yt,
     f1 as f1schedule,
+    astrology_api as astro_api
 )
 from components.compliments import get_compliment_list
 from components.demotes import get_demotes
@@ -645,7 +645,7 @@ async def story(ctx: commands.Context, *keywords: str):
         return
     prompt = ' '.join(keywords)
     prompt = 'Napisz krótką historyjkę ' + prompt
-    await gpt_command(ctx, prompt, include_msg_history=False)
+    await gpt_command(ctx, prompt, False)
 
 
 @bot_client.command(aliases=['rr', 'roulette'])
