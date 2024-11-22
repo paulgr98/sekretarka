@@ -424,7 +424,7 @@ async def astro(ctx, sign: str):
         await ctx.reply(embed=embed)
     except astro_api.NoHoroscopeSignException as exc:
         await ctx.reply(exc)
-    except ValueError as ignored:
+    except ValueError:
         await ctx.reply("Coś się... coś się popsuło i nie było mnie słychać...")
 
 
@@ -788,7 +788,7 @@ async def help_command(ctx: commands.Context):
 
 
 @bot_client.command('ryt')
-async def ryt_command(ctx: commands.Context, *args: str):
+async def ryt_command(ctx: commands.Context):
     rand_id = random_yt.youtube_search()
     await ctx.reply(f'https://www.youtube.com/watch?v={rand_id}')
 
