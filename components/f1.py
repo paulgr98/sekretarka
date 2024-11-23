@@ -10,15 +10,8 @@ from components.f1_api import F1
 from config import config as cfg
 
 
-# dict_keys(['season', 'round', 'url', 'raceName', 'Circuit', 'date', 'time', 'FirstPractice', 'SecondPractice',
-# 'ThirdPractice', 'Qualifying'])
-
-# dict_keys(['season', 'round', 'url', 'raceName', 'Circuit', 'date', 'time', 'FirstPractice', 'Qualifying',
-# 'SecondPractice', 'Sprint'])
-
 def get_current_season():
     f1 = F1()
-    # Get the current season
     current_season = f1.current_schedule().json['MRData']['RaceTable']
     return current_season
 
@@ -27,7 +20,6 @@ def get_next_race(target_dt: dt.datetime):
     season = get_current_season()
     races_list = season['Races']
 
-    # convert target_dt to local timezone
     target_dt = dt_to_local_dt(target_dt)
 
     next_race = None
@@ -35,8 +27,6 @@ def get_next_race(target_dt: dt.datetime):
         race_date = race['date']
         race_time = race['time']
         local_race_dt = str_to_local_dt(race_date, race_time)
-        # skipping all the races that are in the past
-        # get first race that is in the future
         if local_race_dt > target_dt:
             next_race = race
             break
@@ -47,19 +37,18 @@ async def schedule_f1_notifications(client: discord.Client):
     now = get_now_time()
     race = get_next_race(now)
 
-    quali_scheduler = scheduler(client, get_qualification_time, qualifying_notification)
-    race_scheduler = scheduler(client, get_race_time, race_notification)
-
-    asyncio.create_task(quali_scheduler)
-    asyncio.create_task(race_scheduler)
+    tasks = [
+        scheduler(client, get_qualification_time, qualifying_notification),
+        scheduler(client, get_race_time, race_notification)
+    ]
 
     if "SprintQualifying" in race:
-        sprint_qualifying_scheduler = scheduler(client, get_sprint_qualifying_time, sprint_qualifying_notification)
-        asyncio.create_task(sprint_qualifying_scheduler)
+        tasks.append(scheduler(client, get_sprint_qualifying_time, sprint_qualifying_notification))
 
     if "Sprint" in race:
-        sprint_scheduler = scheduler(client, get_sprint_time, sprint_notification)
-        asyncio.create_task(sprint_scheduler)
+        tasks.append(scheduler(client, get_sprint_time, sprint_notification))
+
+    await asyncio.gather(*tasks)
 
 
 def get_now_time() -> dt.datetime:
@@ -145,23 +134,18 @@ async def scheduler(client: discord.Client,
                     get_target_dt: Callable[[], dt.datetime],
                     take_action: Callable[[discord.Client], Coroutine]) -> None:
     while True:
-        # 15 minutes before race
         target_dt = get_target_dt()
         target_dt -= dt.timedelta(minutes=15)
         now = get_now_time()
         wait_time = (target_dt - now).total_seconds()
-        # if time already passed, skip this iteration
         if wait_time < 0:
             break
-        # wait until the target time
         await asyncio.sleep(wait_time)
         now = get_now_time()
-        # check if the target time has been reached
         if now.day == target_dt.day and now.hour == target_dt.hour and now.minute == target_dt.minute:
             await take_action(client)
-            # wait for 4 days until the race week ends
-            four_days_time = dt.timedelta(days=4).total_seconds()
-            await asyncio.sleep(four_days_time)
+            wait_until_next_race_week = dt.timedelta(days=4).total_seconds()
+            await asyncio.sleep(wait_until_next_race_week)
 
 
 async def race_notification(client: discord.Client) -> None:

@@ -107,8 +107,11 @@ async def on_ready():
     print(bot_client.user)
     print('-----------------')
     print('Ready to go!')
-    await asyncio.create_task(mr.schedule_morning_routine(bot_client, db_connector))
-    await asyncio.create_task(f1schedule.schedule_f1_notifications(bot_client))
+    tasks = [
+        mr.schedule_morning_routine(bot_client, db_connector),
+        f1schedule.schedule_f1_notifications(bot_client)
+    ]
+    await asyncio.gather(*tasks)
 
 
 # on message convert content to lowercase
@@ -300,6 +303,8 @@ async def uwu(ctx):
 
 # dictionary to store members to ban with the id of the message as key
 to_ban = {}
+
+
 # ban command. but not actually baning anyone. just for fun
 @bot_client.command()
 async def ban(ctx, member: discord.Member):
@@ -314,7 +319,8 @@ async def ban(ctx, member: discord.Member):
         await ctx.reply('Tylko buk może mnie sondzić!')
         return
     if member.id == ctx.author.id:
-        message = await ctx.reply(f'Tego chcesz? xD Spoko. 2 :heart: pod tą wiadomością i banujemy {ctx.author.mention}')
+        message = await ctx.reply(
+            f'Tego chcesz? xD Spoko. 2 :heart: pod tą wiadomością i banujemy {ctx.author.mention}')
         to_ban[message.id] = member
         return
     message = await ctx.reply(f'5 ❤ pod tą wiadomością i banujemy {member.mention}!')
@@ -477,6 +483,8 @@ async def coin(ctx):
 
 # dictionary to save user id and their start time
 stopwatch_dict = {}
+
+
 # simple stopwatch command to measure time
 @bot_client.command(aliases=['sw'])
 async def stopwatch(ctx, action: str):
@@ -798,11 +806,11 @@ async def lights_command(ctx: commands.Context, *args: str):
     global user_config
     if len(args) == 0:
         await ctx.reply('Brak argumentów\n'
-                       'Dostępne opcje: main, additional, status, wakeup')
+                        'Dostępne opcje: main, additional, status, wakeup')
         return
     if args[0] not in ['main', 'additional', 'status', 'wakeup']:
         await ctx.reply('Niepoprawny argument\n'
-                       'Dostępne opcje: main, additional, status, wakeup')
+                        'Dostępne opcje: main, additional, status, wakeup')
         return
     if not util.has_roles(user_config.special_permission_roles, ctx.author):
         await ctx.reply(error_messages['no_permission'])
