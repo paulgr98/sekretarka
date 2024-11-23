@@ -4,9 +4,9 @@ from typing import Optional
 
 import discord
 from discord.ext import commands
-from bot.logger import logger
 
 from bot.database.DbConnector import DbConnector
+from bot.logger import logger
 from components import nameday as nd
 from components.fun_holidays import fun_holidays_api_v2 as fha
 from repositories.MorningChannelsByServerRepository import MorningChannelsByServerRepository
@@ -14,7 +14,6 @@ from repositories.UserBirthDayByServerRepository import UserBirthDayByServerRepo
 
 MORNING_HOUR, MORNING_MINUTE, MORNING_SECOND = 7, 0, 0
 SLEEP_INTERVAL_SECONDS = 10
-NEWS_COUNT = 3
 DAY_NAMES = ['Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota', 'Niedziela']
 
 
