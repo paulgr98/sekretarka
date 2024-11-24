@@ -19,6 +19,7 @@ from bot import utility as util
 from bot.UserConfigLoader import UserConfigLoader
 from bot.logger import logger
 from commands import alco_drink
+from commands import meal_command
 from commands import birthday_tracker as bt
 from commands import converter
 from commands import f1cmd
@@ -575,6 +576,24 @@ async def drink(ctx: commands.Context, *drink_name: str):
         await ctx.reply('Nie znaleziono drinka :/')
         return
     await ctx.reply(embed=embed)
+
+
+@bot_client.command()
+async def meal(ctx: commands.Context, *args: str):
+    meal_cmd = meal_command.MealCommand(ctx)
+    if len(args) == 0:
+        options = meal_command.get_options()
+        await ctx.reply(options)
+        return
+    if "--list" in args:
+        response = await meal_cmd.list_filter_options()
+        await ctx.reply(response)
+        return
+    random_meal = await meal_cmd.get_embed(*args)
+    if random_meal is None:
+        await ctx.reply('Nie znaleziono posiłku, musisz głodować')
+        return
+    await ctx.reply(embed=random_meal)
 
 
 # free epic store games
