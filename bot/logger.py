@@ -1,11 +1,13 @@
+import inspect
 import logging
+import os
 
 
 class BotLogger(object):
     def __init__(self):
-        discord_formatter = logging.Formatter('%(asctime)s | %(levelname)s | %(filename)s:%(lineno)d | %(message)s',
+        discord_formatter = logging.Formatter('%(asctime)s | %(source_file)s:%(source_line)d | %(message)s',
                                               datefmt='%H:%M:%S')
-        app_formatter = logging.Formatter('%(asctime)s | %(filename)s:%(lineno)d | %(message)s',
+        app_formatter = logging.Formatter('%(asctime)s | %(source_file)s:%(source_line)d | %(message)s',
                                           datefmt='%H:%M:%S')
 
         self.discord_logger = logging.getLogger('discord')
@@ -25,13 +27,23 @@ class BotLogger(object):
         self.app_logger.propagate = False
 
     def error(self, error):
-        self.discord_logger.error(f'{error} ({error.__class__.__name__})')
+        frame = inspect.currentframe().f_back
+        filename = os.path.basename(frame.f_code.co_filename)
+        lineno = frame.f_lineno
+        self.discord_logger.error(f'{error} ({error.__class__.__name__})',
+                                  extra={'source_file': filename, 'source_line': lineno})
 
     def info(self, message):
-        self.app_logger.info(message)
+        frame = inspect.currentframe().f_back
+        filename = os.path.basename(frame.f_code.co_filename)
+        lineno = frame.f_lineno
+        self.app_logger.info(message, extra={'source_file': filename, 'source_line': lineno})
 
     def debug(self, message):
-        self.app_logger.debug(message)
+        frame = inspect.currentframe().f_back
+        filename = os.path.basename(frame.f_code.co_filename)
+        lineno = frame.f_lineno
+        self.app_logger.debug(message, extra={'source_file': filename, 'source_line': lineno})
 
 
 logger = BotLogger()
