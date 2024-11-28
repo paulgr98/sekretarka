@@ -39,9 +39,9 @@ class DbConnector:
                     self.session.set_keyspace(self.keyspace)
                 connection.register_connection('default', session=self.session)
                 connection.set_default_connection('default')
-                print("DB connection successful")
+                logger.info("DB connection successful")
             except Exception as e:
-                print(f"DB connection failed: {e}")
+                logger.error(f"DB connection failed: {e}")
                 self.session = None
 
 
