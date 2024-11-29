@@ -48,16 +48,16 @@ def make_next_race_embed():
     )
     embed.add_field(name="Tor:", value=race['Circuit']['circuitName'], inline=False)
 
-    add_blank_line(embed)
-    add_event_field(embed, EventDetails(race['Qualifying'], "Kwalifikacje", current_dt))
+    if 'SprintQualifying' in race:
+        add_blank_line(embed)
+        add_event_field(embed, EventDetails(race['SprintQualifying'], "Kwalifikacje Sprintu", current_dt))
 
     if 'Sprint' in race:
         add_blank_line(embed)
         add_event_field(embed, EventDetails(race['Sprint'], "Sprint", current_dt))
 
-        if 'SprintQualifying' in race:
-            add_blank_line(embed)
-            add_event_field(embed, EventDetails(race['SprintQualifying'], "Kwalifikacje Sprintu", current_dt))
+    add_blank_line(embed)
+    add_event_field(embed, EventDetails(race['Qualifying'], "Kwalifikacje", current_dt))
 
     add_blank_line(embed)
     add_event_field(embed, EventDetails(race, "Wyścig", current_dt))
