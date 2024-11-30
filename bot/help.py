@@ -63,6 +63,8 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                          value="Wyświetla prognozę pogody dla miasta [miasto], za [dni] dni")
     help_embed.add_field(name=f"{prefix}drink [nazwa drinka=None]",
                          value="Wyświetla losowy przepis na drinka, lub konkretny, jeśli podany")
+    help_embed.add_field(name=f"{prefix}drink",
+                         value="Wyświetla opcje do losowych posiłków")
     help_embed.add_field(name=f"{prefix}free [okres=current]",
                          value="Wyświetla listę darmowych gier z Epic Games Store, w okresie [okres]. Możliwe wartości: "
                                "current, upcoming")
@@ -77,6 +79,9 @@ def get_help_embed(prefix: str) -> list[discord.Embed]:
                          value="Rzuca kośćmi D&D w formacie [dnd_dice_code].\n"
                                "Przykłady: 1d20, d12, 2d6, 3d8+2, d6-2.\n"
                                "Domyślnie jest to kość 1d20",
+                         )
+    help_embed.add_field(name=f"{prefix}duel",
+                         value="Obsługa pojedynków.",
                          )
     help_embed.add_field(name=f"{prefix}coin",
                          value="Rzuca monetą i wyświetla wynik (orzeł albo reszka)",
