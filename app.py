@@ -3,6 +3,7 @@ import math
 import random
 import time
 from threading import Thread
+from typing import cast, Union
 
 from bot.database.DbConnector import DbConnector
 from config import DbConfig
@@ -28,6 +29,7 @@ from commands import poll
 from commands import smart_light as sl
 from commands import text_to_speach as tts
 from commands import weather
+from commands.duels import DuelManager
 from commands.casino.money import MoneyManager
 from commands.casino import roulette as roulette_cmd
 from commands.dnd import coin as dnd_coin
@@ -108,6 +110,10 @@ async def on_ready():
     print(bot_client.user)
     print('-----------------')
     print('Ready to go!')
+
+    loaded_cogs = [cog for cog in bot_client.cogs]
+    logger.info(f"Loaded cogs: {loaded_cogs}")
+
     tasks = [
         mr.schedule_morning_routine(bot_client, db_connector),
         f1schedule.schedule_f1_notifications(bot_client)
@@ -409,7 +415,6 @@ async def shipme(ctx):
         ship = random.choice(males)
     else:
         ship = random.choice(females)
-
     # save ship to file
     service.save_users_match_for_today(ctx.guild.id, ctx.author.id, ship.id)
     await ctx.reply(f'{ctx.author.mention} myślę, że najlepszy ship na dzisiaj dla Ciebie to... {ship.mention}!')
@@ -473,7 +478,7 @@ async def roll(ctx, code: str):
         await ctx.reply('Rzucam 1D20...')
         code = '1d20'
     dice = dnd_dice.DndDice(ctx)
-    await dice.roll(code)
+    await dice.roll_command(code)
 
 
 # command to throw a coin
@@ -864,14 +869,76 @@ async def text_to_speach_command(ctx: commands.Context, *args: str):
     await tts_client.text_to_speach(ctx, ' '.join(args))
 
 
+@bot_client.command()
+async def duel(ctx: commands.Context, arg: Union[discord.User, str] = None):
+    bad_command_use = (f"Poprawne użycie komendy to: "
+                       f"{ctx.prefix}duel [@opponent | accept | reject | roll]")
+    duel_manager = cast(DuelManager, bot_client.get_cog('DuelManager'))
+    if duel_manager is None:
+        raise RuntimeError("DuelManager not found")
+
+    try:
+        if arg is None:
+            await ctx.reply(f"Poprawne użycie komendy to: "
+                            f"{ctx.prefix}duel [@opponent | accept | reject | roll]")
+            return
+        if arg == bot_client.user:
+            await ctx.reply("Ze mną i tak nie masz szans :sunglasses:")
+            return
+        if isinstance(arg, discord.User):
+            if arg == ctx.author:
+                await ctx.reply("Sam ze sobą chcesz się pojedynkować? Jesteś głupi czy głupi?")
+                return
+            await duel_manager.make_duel(ctx, arg)
+            return
+
+        if not isinstance(arg, str):
+            await ctx.reply(bad_command_use)
+            return
+
+        if arg == "accept":
+            await duel_manager.accept(ctx)
+        elif arg == "reject":
+            await duel_manager.reject(ctx)
+        elif arg == "roll":
+            await duel_manager.roll(ctx)
+        else:
+            await ctx.reply(bad_command_use)
+
+    except Exception as e:
+        logger.error(f"Error in duel command: {e}")
+        await ctx.reply("Ooopsie, Pawulon znowu coś zepsuł UwU")
+
+
 async def connect_to_db():
     await db_connector.connect()
+
+
+async def load_extensions():
+    extensions = [
+        "commands.duels"
+    ]
+    for extension in extensions:
+        try:
+            await bot_client.load_extension(extension)
+            logger.info(f"Successfully loaded extension '{extension}'")
+        except Exception as e:
+            logger.error(f"Failed to load extension '{extension}': {e}")
+            raise e
 
 
 async def main():
     # run api on other thread
     api_thread = Thread(target=asyncio.run, args=(run_api(),))
     api_thread.start()
+
+    try:
+        await load_extensions()
+        logger.info("All extensions loaded successfully")
+    except Exception as e:
+        logger.error(f"Failed to load extensions: {e}")
+        return
+
     # run main
     if user_config.enable_developer_mode:
         await bot_client.start(cfg.TOKEN_BETA)

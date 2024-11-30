@@ -1,4 +1,5 @@
 import asyncio
+import dataclasses
 import random
 import re
 
@@ -29,6 +30,14 @@ async def get_formatted_message(modifier, results, throws, total):
         msg += f"({results_str}){modifier_str}"
         msg += f" = {total}"
     return msg
+
+
+@dataclasses.dataclass
+class DnDDiceResult:
+    def __init__(self, modifier: int = 0):
+        self.results = []
+        self.modifier = modifier
+        self.total = 0
 
 
 class DndDice(object):
@@ -97,24 +106,31 @@ class DndDice(object):
             raise CustomDiceError(
                 f"Zła wartość modyfikatora! Poprawnie między {self.MIN_MODIFIER} a {self.MAX_MODIFIER}")
 
-    async def roll(self, code: str):
+    async def roll(self, code: str) -> DnDDiceResult:
+        throws, faces, modifier = await self.get_values(code)
+        self.validate_values(throws, faces, modifier)
+        results = []
+        for _ in range(throws):
+            results.append(get_random_number(faces))
+        total = sum(results) + modifier
+        result = DnDDiceResult(modifier)
+        result.results = results
+        result.total = total
+        return result
+
+    async def roll_command(self, code: str):
         try:
-            throws, faces, modifier = await self.get_values(code)
-            self.validate_values(throws, faces, modifier)
-
             if __name__ == "__main__":
-                print(f"T:{throws}, F:{faces}, M:{modifier}")
+                print(f"Code: {code}")
 
-            results = []
-            for _ in range(throws):
-                results.append(get_random_number(faces))
-
-            total = sum(results) + modifier
-            msg = await get_formatted_message(modifier, results, throws, total)
-
+            result = await self.roll(code)
+            msg = await get_formatted_message(
+                result.modifier,
+                result.results,
+                len(result.results),
+                result.total
+            )
             await self.show_message(msg)
-
-
         except ValueError as exc:
             logger.error(exc)
             await self.show_error_message()
@@ -163,8 +179,8 @@ async def main():
         "-1d-10",
         "-1d-10+5",
         "dupa",
-        "dupaddupa"
-        "dupa dupa dupa"
+        "dupaddupa",
+        "dupa dupa dupa",
         "1 d 20",
         "100d20",
         "10d300",
@@ -175,7 +191,7 @@ async def main():
     for code in test_codes:
         print(f"Testing code: {code}")
         dnd = DndDice(None)
-        await dnd.roll(code)
+        await dnd.roll_command(code)
         print()
 
 
