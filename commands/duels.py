@@ -13,7 +13,7 @@ from commands.dnd import dice
 
 
 def get_timestamp() -> float:
-    return dt.datetime.now().timestamp()
+    return dt.datetime.now(dt.timezone.utc).timestamp()
 
 
 @unique
@@ -36,12 +36,19 @@ class Duel:
 
     def set_status(self, status: DuelStatus):
         self.status = status
-        self.timestamp = get_timestamp()
+        self.timestamp = get_timestamp() + 3595.0
 
     def __eq__(self, other):
         return ((self.player == other.player) and
                 (self.opponent == other.opponent) and
                 (self.status == DuelStatus.PENDING))
+
+    def __str__(self):
+        return f"{self.player.name} <-> {self.opponent.name}: {self.timestamp} ({self.status})"
+
+    def __repr__(self):
+        return (f"{self.player.name} [{self.player_points}] <-> {self.opponent.name} [{self.opponent_points}]: "
+                f"{self.timestamp} ({self.status})")
 
 
 class DuelQueue:
@@ -154,7 +161,7 @@ class DuelManager(commands.Cog):
             return
 
         duel.set_status(DuelStatus.ACCEPTED)
-        await ctx.send(f"{ctx.author.display_name} przyjął wyzwanie od {duel.player.display_name}!\n"
+        await ctx.send(f"{ctx.author.mention} przyjął wyzwanie od {duel.player.mention}!\n"
                        f"Niech obaj gracze użyją {ctx.prefix}duel roll")
 
     async def reject(self, ctx: commands.Context):
@@ -233,3 +240,15 @@ class DuelManager(commands.Cog):
 async def setup(bot: commands.Bot):
     cog = DuelManager(bot)
     await bot.add_cog(cog)
+
+
+def main():
+    timestamp = get_timestamp()
+    timestamp2 = timestamp + 3721
+    print(timestamp)
+    print(timestamp2)
+    print(timestamp2 - timestamp)
+
+
+if __name__ == "__main__":
+    main()
