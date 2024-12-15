@@ -37,6 +37,9 @@ async def schedule_f1_notifications(client: discord.Client):
     now = get_now_time()
     race = get_next_race(now)
 
+    if race is None:
+        return
+
     tasks = [
         scheduler(client, get_qualification_time, qualifying_notification),
         scheduler(client, get_race_time, race_notification)

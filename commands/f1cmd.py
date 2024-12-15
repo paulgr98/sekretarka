@@ -40,6 +40,9 @@ def make_next_race_embed():
     current_dt = f1.get_now_time()
     race = f1.get_next_race(current_dt)
 
+    if race is None:
+        return make_season_ended_embed()
+
     race_round = race['round']
     race_name = race['raceName']
     embed = discord.Embed(
@@ -62,4 +65,13 @@ def make_next_race_embed():
     add_blank_line(embed)
     add_event_field(embed, EventDetails(race, "Wyścig", current_dt))
 
+    return embed
+
+
+def make_season_ended_embed():
+    embed = discord.Embed(
+        title="Season został już zakończony!",
+        colour=0xff2800
+    )
+    embed.add_field(name="Widzimy się w kolejnym sezonie!", value="", inline=False)
     return embed
