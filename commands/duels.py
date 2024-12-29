@@ -36,7 +36,7 @@ class Duel:
 
     def set_status(self, status: DuelStatus):
         self.status = status
-        self.timestamp = get_timestamp() + 3595.0
+        self.timestamp = get_timestamp()
 
     def __eq__(self, other):
         return ((self.player == other.player) and

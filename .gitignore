@@ -318,3 +318,4 @@ poetry.toml
 /config/user_config.json
 /config/*.py
 /config/DbConfig.py
+.qodo
