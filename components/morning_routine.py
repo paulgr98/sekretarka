@@ -142,4 +142,3 @@ async def schedule_morning_routine(bot_client: discord.Client, db_connector: DbC
         wait_time = (target - now).total_seconds()
         await asyncio.sleep(wait_time)
         await morning_routine_all(bot_client, db_connector)
-        await asyncio.sleep(SLEEP_INTERVAL_SECONDS)
