@@ -44,6 +44,15 @@ def get_compliment_list(username, is_female):
         'Hej, czy jesteś może paraliżującą depresją? Bo wyglądasz jakbym miała z Tobą spędzić cały dzień w łóżku UwU',
         'Czy masz może lusterko w kieszeni? Bo widzę siebie w twoich spodniach :smirk:',
         'Opierdoliłabym Cię jak mizerię :cucumber:',
+        f'Hej {"maleńka" if is_female else "przystojniaku"} :smirk: {"Widziałaś" if is_female else "widziałeś"} kiedyś'
+        f'srającego niedźwiedzia? Nie? To może chcesz go ze mną poszukać? :smirk:',
+        'Chyba muszę iść na ogrodnictwo, żeby wiedzieć jak Cię wyrwać :man_farmer:',
+        'Wiesz co jest w MENU? ME and YOU :kiss:',
+        'Jesteś dla mnie jak słońce, bo cały mój świat kręci się wokół Ciebie :sun:',
+        'Dobrze że mam ubezpieczenie na życie, bo po spotkaniu Ciebie prawie stanęło mi serce :anatomical_heart:',
+        'Ktoś mi kiedyś powiedział ze uśmiech to pół pocałunku, więc uśmiechnij się dla mnie dwa razy 👄',
+        'Żułabym Twoje usta jak tłusty boczek :bacon:',
+        'Pocałuj mnie jeżeli się mylę, ale dinozaury nadal istnieją, prawda? :flushed:',
     ]
 
     if not is_female:
@@ -54,6 +63,9 @@ def get_compliment_list(username, is_female):
         compliments.append('Gdybym była prawdziwa, oświadczyłabym Ci się :hot_face:')
         compliments.append('Wyglądasz jak modelka, mogę być Twoim kontrolerem? :nerd:')
         compliments.append('Gdybyś była Javą, to na pewno nie potraktowałabym Ciebie obiektowo... :smirk:')
+        compliments.append('Podobno z nieba uciekł najpiękniejszy anioł. Jeśli dasz się zaprosić na randkę, to Cię nie wydam :smirk:')
+        compliments.append('Lubisz maliny? Tak? A lubisz brzoskwinie? To może chcesz żeby zrobić Ci malinkę na brzoskwince :peach: :smirk:'
+                           '\n\t*(zażalenia w sprawie komplementów proszę kierować do użytkownika @padrealek)*')
 
     if is_female:
         compliments.append('Niezłe dojce :cow2:')
