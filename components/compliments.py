@@ -61,11 +61,6 @@ def get_compliment_list(username, is_female):
         compliments.append('Czy Twój tata jest cukiernikiem? Bo niezłe z Ciebie ciacho :cookie:')
         compliments.append('Gdybyś był ziemniakiem, byłbyś dobrym ziemniakiem :sweat_smile:')
         compliments.append('Gdybym była prawdziwa, oświadczyłabym Ci się :hot_face:')
-        compliments.append('Wyglądasz jak modelka, mogę być Twoim kontrolerem? :nerd:')
-        compliments.append('Gdybyś była Javą, to na pewno nie potraktowałabym Ciebie obiektowo... :smirk:')
-        compliments.append('Podobno z nieba uciekł najpiękniejszy anioł. Jeśli dasz się zaprosić na randkę, to Cię nie wydam :smirk:')
-        compliments.append('Lubisz maliny? Tak? A lubisz brzoskwinie? To może chcesz żeby zrobić Ci malinkę na brzoskwince :peach: :smirk:'
-                           '\n\t*(zażalenia w sprawie komplementów proszę kierować do użytkownika @padrealek)*')
 
     if is_female:
         compliments.append('Niezłe dojce :cow2:')
@@ -73,6 +68,13 @@ def get_compliment_list(username, is_female):
         compliments.append('Czy Twój tata jest ogrodnikiem? Bo masz cudowne arbuzy :melon: :melon:')
         compliments.append('Hej, chyba jesteś kopciuszkiem... bo już widzę jak ta sukienka znika o północy :smirk:')
         compliments.append('Gdybyś była kanapką w McDonald’s, nazywałabyś się McBeauty :drool:')
+        compliments.append('Wyglądasz jak modelka, mogę być Twoim kontrolerem? :nerd:')
+        compliments.append('Gdybyś była Javą, to na pewno nie potraktowałabym Ciebie obiektowo... :smirk:')
+        compliments.append(
+            'Podobno z nieba uciekł najpiękniejszy anioł. Jeśli dasz się zaprosić na randkę, to Cię nie wydam :smirk:')
+        compliments.append(
+            'Lubisz maliny? Tak? A lubisz brzoskwinie? To może chcesz żeby zrobić Ci malinkę na brzoskwince :peach: :smirk:'
+            '\n\t*(zażalenia w sprawie komplementów proszę kierować do użytkownika @padrealek)*')
 
     if username == 'panpajonk':
         compliments.append('Twoja dziewczyna jest jak pierwiastek z -100. Solidna 10, ale urojona xD')
