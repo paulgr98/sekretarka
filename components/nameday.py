@@ -3,14 +3,13 @@ import json
 import requests
 
 country = 'pl'
-timezone = 'Europe/Warsaw'
-url = f"https://nameday.abalin.net/api/V1/today?country={country}&timezone={timezone}"
+url = "https://nameday.abalin.net/api/V2/today"
 
 
 def get_names():
     response = requests.get(url)
     data = json.loads(response.text)
-    names_string = data['nameday'][country]
+    names_string = data['data'][country]
     names_string = names_string.replace(' ', '')
     names = names_string.split(',')
     return names
