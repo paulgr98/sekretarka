@@ -97,7 +97,8 @@ async def generate_morning_message(guild: discord.Guild, db_connector: DbConnect
     """Generate the full morning message for a specific server."""
     now_str = await get_today_date_str()
     welcome_text = f"**Dzień dobry!**\nDzisiaj jest **{now_str}** - {DAY_NAMES[dt.datetime.now().weekday()]}\n"
-    namedays = ', '.join(nd.get_names())
+    namedays = nd.get_names()
+    namedays = ', '.join(namedays) if namedays else 'nie mam pojęcia kto dzisiaj obchodzi imieniny, coś się zepsuło.'
     bday_text = await get_birthday_text(guild, db_connector)
     holidays_text = await fetch_fun_holidays()
 

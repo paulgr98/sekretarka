@@ -445,8 +445,7 @@ async def astro(ctx, sign: str):
 async def nameday(ctx):
     names = nd.get_names()
     today = dt.datetime.now().strftime('%d.%m.%Y')
-    # merge names from list to string with spaces and comma between names
-    name_string = ', '.join(names)
+    name_string = ', '.join(names) if names else 'nie wiem, bo coś się zepsuło'
     embed = discord.Embed(title=f'Imieniny na dzień {today}', color=0x4CC2F5)
     embed.add_field(name='Imieniny obchodzą: ', value=name_string, inline=False)
     await ctx.reply(embed=embed)
