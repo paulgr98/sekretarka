@@ -83,7 +83,10 @@ async def get_morning_channels(bot_client: discord.Client, db_connector: DbConne
     """Retrieve the list of channels for morning messages."""
     repo = MorningChannelsByServerRepository(db_connector)
     channels_ids = await repo.get_channels(server_id)
-    return [bot_client.get_channel(int(cid)) for cid in channels_ids if bot_client.get_channel(int(cid))]
+    # remove potential stupid duplicated channels
+    unique_ids = list(dict.fromkeys(int(cid) for cid in channels_ids))
+    channels = [bot_client.get_channel(cid) for cid in unique_ids]
+    return [ch for ch in channels if ch]
 
 
 async def send_morning_message(channels: list[discord.TextChannel], message: str):
@@ -132,14 +135,11 @@ async def schedule_morning_routine(bot_client: discord.Client, db_connector: DbC
     """Schedule the morning routine every day at the specified time."""
     while True:
         now = dt.datetime.now()
-        if now.hour >= MORNING_HOUR and now.minute >= MORNING_MINUTE:
-            target = (now + dt.timedelta(days=1)).replace(
-                hour=MORNING_HOUR, minute=MORNING_MINUTE, second=MORNING_SECOND, microsecond=0
-            )
-        else:
-            target = now.replace(
-                hour=MORNING_HOUR, minute=MORNING_MINUTE, second=MORNING_SECOND, microsecond=0
-            )
+        target = now.replace(hour=MORNING_HOUR, minute=MORNING_MINUTE, second=MORNING_SECOND, microsecond=0)
+        if now >= target:
+            target += dt.timedelta(days=1)
         wait_time = (target - now).total_seconds()
+        logger.info(f"Morning routine scheduled to run at {target.isoformat()} (sleeping {wait_time:.2f}s)")
         await asyncio.sleep(wait_time)
+        logger.info("Executing morning routine for all guilds")
         await morning_routine_all(bot_client, db_connector)

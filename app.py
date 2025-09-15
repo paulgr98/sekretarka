@@ -77,6 +77,9 @@ error_messages = {
 
 DISCORD_MESSAGE_LEN_LIMIT = 2000
 
+# stupid flag to make sure schedulers only start once
+background_tasks_started = False
+
 
 # ----------------------------------------------------------------------------------------------------------------------
 
@@ -114,11 +117,12 @@ async def on_ready():
     loaded_cogs = [cog for cog in bot_client.cogs]
     logger.info(f"Loaded cogs: {loaded_cogs}")
 
-    tasks = [
-        mr.schedule_morning_routine(bot_client, db_connector),
-        f1schedule.schedule_f1_notifications(bot_client)
-    ]
-    await asyncio.gather(*tasks)
+    global background_tasks_started
+    if not background_tasks_started:
+        background_tasks_started = True
+        bot_client.loop.create_task(mr.schedule_morning_routine(bot_client, db_connector))
+        bot_client.loop.create_task(f1schedule.schedule_f1_notifications(bot_client))
+        logger.info("Background tasks started")
 
 
 # on message convert content to lowercase
