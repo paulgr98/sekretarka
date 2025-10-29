@@ -6,7 +6,7 @@ import discord
 import pytz
 from discord.ext import commands
 
-from weather import get_5_day_forecast
+from commands.weather import get_5_day_forecast
 
 
 async def get_user_from_mention(ctx: commands.Context, mention: str) -> discord.Member or None:
