@@ -1,6 +1,8 @@
 # compliment list
+from typing import Optional
 
-def get_compliment_list(username, is_female):
+
+def get_compliment_list(username: str, is_female: bool, additional_info: Optional[dict] = None):
     compliments = [
         'Niezły tak zwany ass ( ͡° ͜ʖ ͡°)',
         f'Zajebałam się w Tobie w chuj, będziesz {"moją szmaciurą" if is_female else "moim panem"}?',
@@ -53,6 +55,9 @@ def get_compliment_list(username, is_female):
         'Ktoś mi kiedyś powiedział ze uśmiech to pół pocałunku, więc uśmiechnij się dla mnie dwa razy 👄',
         'Żułabym Twoje usta jak tłusty boczek :bacon:',
         'Pocałuj mnie jeżeli się mylę, ale dinozaury nadal istnieją, prawda? :flushed:',
+        f'Podobno jutro słońce ma wstać o '
+        f'{additional_info["sunrise_time"] if (additional_info and "sunrise_time" in additional_info) else "06:00"}, '
+        f'ale coś im sie chyba pojebało, bo Ty nie wstajesz tak wcześnie :smirk:',
     ]
 
     if not is_female:
