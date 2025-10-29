@@ -3,7 +3,7 @@ import math
 import random
 import time
 from threading import Thread
-from typing import cast, Union
+from typing import cast, Union, Optional
 
 from bot.database.DbConnector import DbConnector
 from config import DbConfig
@@ -457,14 +457,9 @@ async def nameday(ctx):
 
 # command to get weather forecast for the given city
 @bot_client.command()
-async def wthr(ctx, city: str = 'Warszawa', days: int = 0):
-    global user_config
-    if ctx.channel.name not in user_config.bot_channel_names:
-        await ctx.reply(f'komendy {bot_client.command_prefix}wthr można używać tylko na kanale do tego przeznaczonym')
-        return
-
-    if days > 4:
-        await ctx.reply('Pogodę można sprawdzić maksymalnie na 4 dni')
+async def wthr(ctx, city: str = 'Warszawa', days: Optional[int] = None):
+    if days is not None and days > 5:
+        await ctx.reply('Pogodę można sprawdzić maksymalnie na 5 dni')
         return
 
     try:

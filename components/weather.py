@@ -1,60 +1,77 @@
+from urllib.error import HTTPError
+
 import requests
 
-from config import config
+API_URL = 'https://api.open-meteo.com/v1/forecast'
 
 
-def get_location_key(city):
-    url = 'http://dataservice.accuweather.com/locations/v1/cities/search'
+def get_city_info(city):
+    url = 'https://geocoding-api.open-meteo.com/v1/search'
 
     query_params = {
-        'apikey': config.ACCUWEATHER_API_KEY,
-        'q': city,
-        'language': 'pl-pl',
-        'details': 'true'
+        "name": city
     }
 
-    location_response = requests.get(url, params=query_params)
-    location_response.raise_for_status()
+    raw_response = requests.get(url, params=query_params)
+    raw_response.raise_for_status()
 
-    # check if location exists
-    if not location_response.json():
-        return {'cod': '404', 'message': 'city not found'}
+    location_response = raw_response.json()
 
-    location = location_response.json()[0]
-    location_key = location['Key']
-    return location_key
+    if 'results' not in location_response:
+        raise HTTPError(url=raw_response.url, code=404, msg=f"City '{city}' not found")
+
+    results = location_response['results']
+    if len(results) == 0:
+        raise HTTPError(url=raw_response.url, code=404, msg=f"City '{city}' not found")
+
+    city_info: dict = results[0]
+
+    return city_info
 
 
 def get_current_weather(city):
-    location_key = get_location_key(city)
-
-    current_conditions_url = f'http://dataservice.accuweather.com/currentconditions/v1/{location_key}'
+    city_info = get_city_info(city)
+    latitude = city_info['latitude']
+    longitude = city_info['longitude']
 
     query_params = {
-        'apikey': config.ACCUWEATHER_API_KEY,
-        'language': 'pl-pl',
-        'details': 'true'
+        "latitude": latitude,
+        "longitude": longitude,
+        "current": ["weather_code", "temperature_2m", "apparent_temperature", "precipitation", "surface_pressure",
+                    "relative_humidity_2m", "wind_speed_10m", "wind_direction_10m"],
     }
 
-    current_conditions_response = requests.get(current_conditions_url, params=query_params)
+    current_conditions_response = requests.get(API_URL, params=query_params)
     current_conditions_response.raise_for_status()
-    current_conditions = current_conditions_response.json()[0]
+    current_conditions = current_conditions_response.json()
     return current_conditions
 
 
-def get_15_day_forecast(city):
-    location_key = get_location_key(city)
-
-    forecast_url = f'http://dataservice.accuweather.com/forecasts/v1/daily/5day/{location_key}'
+def get_5_day_forecast(city):
+    city_info = get_city_info(city)
+    latitude = city_info['latitude']
+    longitude = city_info['longitude']
 
     query_params = {
-        'apikey': config.ACCUWEATHER_API_KEY,
-        'language': 'pl-pl',
-        'details': 'true',
-        'metric': 'true'
+        "latitude": latitude,
+        "longitude": longitude,
+        "forecast_days": 6,
+        "daily": ["weather_code", "temperature_2m_max", "temperature_2m_min", "sunrise", "sunset", "precipitation_sum",
+                  "precipitation_probability_max", "wind_speed_10m_max", "wind_direction_10m_dominant", "uv_index_max"],
     }
 
-    forecast_response = requests.get(forecast_url, params=query_params)
+    forecast_response = requests.get(API_URL, params=query_params)
     forecast_response.raise_for_status()
     forecast = forecast_response.json()
     return forecast
+
+
+def main():
+    city = "Sosnowiec"
+    print(get_city_info(city))
+    print(get_current_weather(city))
+    print(get_5_day_forecast(city))
+
+
+if __name__ == "__main__":
+    main()

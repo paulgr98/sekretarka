@@ -34,6 +34,7 @@ class DbConnector:
     async def connect(self):
         if self.session is None:
             try:
+                logger.info("Attempting DB connection...")
                 self.session = self.cluster.connect()
                 if self.keyspace:
                     self.session.set_keyspace(self.keyspace)
