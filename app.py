@@ -206,11 +206,10 @@ async def compliment(ctx, member=None):
     global user_config
     if ctx.channel.name in user_config.bot_channel_names:
         compliment.reset_cooldown(ctx)
-    # check for female_role role in user's roles to check if the user is a female
     if member is None:
         is_female = await is_current_user_female(ctx)
-        # get compliment list
-        compliments = get_compliment_list(ctx.author.display_name, is_female)
+        additional_info: dict = {"sunrise_time": util.get_tomorrow_sunrise()}
+        compliments = get_compliment_list(ctx.author.display_name, is_female, additional_info)
         await ctx.reply(random.choice(compliments))
         return
 
