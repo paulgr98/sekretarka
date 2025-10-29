@@ -4,7 +4,6 @@ import re
 
 import discord
 import pytz
-import tzdata
 from discord.ext import commands
 
 from weather import get_5_day_forecast
@@ -121,16 +120,19 @@ def generate_objects_hash(*objects_ids, include_date: bool = False, date: dt.dat
         hash_key.update(str(date_str).encode('utf-8'))
     return hash_key.hexdigest()
 
+
 def str_to_utc_datetime(dt_str: str) -> dt.datetime:
     utc_timezone = pytz.timezone('UTC')
     dt_obj = dt.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M')
     dt_obj = utc_timezone.localize(dt_obj)
     return dt_obj
 
+
 def cast_to_local_datetime(dt_obj: dt.datetime) -> dt.datetime:
     local_timezone = pytz.timezone('Europe/Warsaw')
     dt_obj = dt_obj.astimezone(local_timezone)
     return dt_obj
+
 
 def get_tomorrow_sunrise() -> str:
     wthr_json = get_5_day_forecast("Warsaw")
