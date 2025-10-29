@@ -57,7 +57,7 @@ def get_compliment_list(username: str, is_female: bool, additional_info: Optiona
         'Pocałuj mnie jeżeli się mylę, ale dinozaury nadal istnieją, prawda? :flushed:',
         f'Podobno jutro słońce ma wstać o '
         f'{additional_info["sunrise_time"] if (additional_info and "sunrise_time" in additional_info) else "06:00"}, '
-        f'ale coś im sie chyba pojebało, bo Ty nie wstajesz tak wcześnie',
+        f'ale coś im sie chyba pojebało, bo Ty nie wstajesz tak wcześnie :smirk:',
     ]
 
     if not is_female:
