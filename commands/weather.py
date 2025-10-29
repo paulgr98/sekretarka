@@ -7,6 +7,7 @@ from requests import HTTPError
 
 from bot.logger import logger
 from components.weather import get_current_weather, get_5_day_forecast
+from bot import utility
 
 
 class WeatherException(Exception):
@@ -132,11 +133,15 @@ def make_future_weather_embed(city: str, day_dict: dict[str, str], day_num: int)
     wind = f'{wind_speed}\n{wind_direction}'
 
     sunrise_iso = wthr_json["daily"]["sunrise"][day_num]
-    sunrise_local = dt.datetime.fromisoformat(sunrise_iso).strftime('%H:%M')
+    sunrise_utc_dt = utility.str_to_utc_datetime(sunrise_iso)
+    sunrise_local = utility.cast_to_local_datetime(sunrise_utc_dt).strftime('%H:%M')
     sunrise = f'Wschód: {sunrise_local}'
+
     sunset_iso = wthr_json["daily"]["sunset"][day_num]
-    sunset_local = dt.datetime.fromisoformat(sunset_iso).strftime('%H:%M')
+    sunset_utc_dt = utility.str_to_utc_datetime(sunset_iso)
+    sunset_local = utility.cast_to_local_datetime(sunset_utc_dt).strftime('%H:%M')
     sunset = f'Zachód: {sunset_local}'
+
     uv_index = f'Index UV: {wthr_json["daily"]["uv_index_max"][day_num]}'
     sun = f'{sunrise}\n{sunset}\n{uv_index}'
 
