@@ -7,7 +7,7 @@ from requests import HTTPError
 
 from bot.logger import logger
 from components.weather import get_current_weather, get_5_day_forecast
-import utility
+from bot import utility
 
 
 class WeatherException(Exception):
