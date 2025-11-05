@@ -5,6 +5,7 @@ from typing import Optional
 import discord
 from discord.ext import commands
 
+from bot import utility
 from components.meal_db_wrapper import MealDB
 
 
@@ -23,7 +24,7 @@ async def get_ingredients_and_measurements(meal_dict) -> list:
     return ingredients_and_measurements
 
 
-async def make_meal_embed(meal_dict):
+async def make_meal_embeds(meal_dict):
     discord_embed_field_limit = 1024
     if meal_dict is None:
         return None
@@ -39,11 +40,9 @@ async def make_meal_embed(meal_dict):
     embed.add_field(name='Składniki', value=ingredients_str, inline=False)
 
     instructions = meal_dict['strInstructions']
-    if len(instructions) > discord_embed_field_limit:
-        instructions = instructions[:discord_embed_field_limit - 3] + '...'
 
     embed.add_field(name='Instrukcja', value=instructions, inline=False)
-    return embed
+    return utility.split_embed(embed, discord_embed_field_limit)
 
 
 async def process_args(*args):
@@ -90,13 +89,13 @@ class MealCommand:
         self.ctx = ctx
         self.api = MealDB()
 
-    async def get_embed(self, *args) -> Optional[discord.Embed]:
+    async def get_embeds(self, *args) -> Optional[list[discord.Embed]]:
         options = await process_args(*args)
         if options is None:
             return None
         meal = await self.get_meal(options)
-        embed = await make_meal_embed(meal)
-        return embed
+        embeds = await make_meal_embeds(meal)
+        return embeds
 
     async def get_meal(self, options: dict[str, str]):
         meal = None

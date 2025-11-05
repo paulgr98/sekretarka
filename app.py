@@ -593,11 +593,12 @@ async def meal(ctx: commands.Context, *args: str):
         response = await meal_cmd.list_filter_options()
         await ctx.reply(response)
         return
-    random_meal = await meal_cmd.get_embed(*args)
-    if random_meal is None:
+    embeds = await meal_cmd.get_embeds(*args)
+    if embeds is None:
         await ctx.reply('Nie znaleziono posiłku, musisz głodować')
         return
-    await ctx.reply(embed=random_meal)
+    for embed in embeds:
+        await ctx.reply(embed=embed)
 
 
 # free epic store games
