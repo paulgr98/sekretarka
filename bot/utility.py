@@ -1,6 +1,7 @@
 import datetime as dt
 import hashlib
 import re
+from copy import deepcopy, copy
 
 import discord
 import pytz
@@ -60,6 +61,48 @@ def split_into_chunks(text: str, max_char_length: int) -> list[str]:
             current_chunk = word
     chunks.append(current_chunk)
     return chunks
+
+
+def split_embed(embed: discord.Embed, max_field_length: int = 1024) -> list[discord.Embed]:
+    if len(str(embed.to_dict())) <= max_field_length:
+        return [embed]
+
+    # split embed dict into more dicts of given max length
+    embeds = []
+    current_embed = make_embed_dict_copy_without_fields(embed)
+    for field in embed.fields:
+        if len(str(current_embed)) + len(field.name) + len(field.value) <= max_field_length:
+            current_embed['fields'].append({'name': field.name, 'value': field.value, 'inline': field.inline})
+        elif len(str(field.value)) >= max_field_length:
+            embeds.append(copy(current_embed))
+            prefix = "..."
+            postfix = "..."
+            field_value_chunks = split_into_chunks(text=field.value,
+                                                   max_char_length=max_field_length - len(prefix) - len(postfix))
+            for i, chunk in enumerate(field_value_chunks):
+                current_embed = make_embed_dict_copy_without_fields(embed)
+                if i == 0:
+                    new_field = {'name': field.name, 'value': chunk + postfix, 'inline': field.inline}
+                elif i == len(field_value_chunks) - 1:
+                    new_field = {'name': field.name, 'value': prefix + chunk, 'inline': field.inline}
+                else:
+                    new_field = {'name': field.name, 'value': prefix + chunk + postfix, 'inline': field.inline}
+                current_embed['fields'].append(new_field)
+                embeds.append(copy(current_embed))
+                current_embed = make_embed_dict_copy_without_fields(embed)
+        else:
+            embeds.append(copy(current_embed))
+            current_embed = make_embed_dict_copy_without_fields(embed)
+            current_embed['fields'].append({'name': field.name, 'value': field.value, 'inline': field.inline})
+
+    # back to embed class
+    return [discord.Embed.from_dict(embed_dict) for embed_dict in embeds]
+
+
+def make_embed_dict_copy_without_fields(embed: discord.Embed) -> dict:
+    embed_copy = deepcopy(embed)
+    embed_copy.clear_fields()
+    return dict(embed_copy.to_dict())
 
 
 async def add_role_for_user(ctx: commands.Context, role_name: str):
@@ -152,6 +195,27 @@ def main():
     print(hash3)
     hash4 = generate_objects_hash('123', '456', include_date=True)
     print(hash4)
+
+    LOREM_IPSUM = (
+        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut interdum auctor metus id consequat. Duis rhoncus odio diam, sed fermentum dui lacinia in. Duis gravida quis tellus id faucibus. Nunc maximus ipsum a interdum eleifend. Vestibulum interdum egestas malesuada. Morbi posuere sem non consequat tempor. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Sed posuere varius enim, posuere laoreet ligula convallis quis. Nullam vel ligula quis dolor ultrices ultrices eget id turpis. Mauris gravida sapien tempor, tristique dolor viverra, iaculis massa."
+
+        "Proin eu erat vel velit tristique tincidunt. Sed id felis libero. Morbi consequat tincidunt finibus. Proin nec mi consectetur, ornare libero eu, dictum metus. Nunc imperdiet ac mauris eget porta. Phasellus nec egestas felis. Mauris pulvinar at mi id accumsan. Cras volutpat ligula magna, in placerat massa viverra vitae."
+
+        "Sed rhoncus ligula ut ornare maximus. Praesent quis consectetur sapien, ac venenatis massa. Sed felis lectus, vehicula suscipit pulvinar porta, varius non erat. Quisque lobortis nec metus ut luctus. In et auctor nisi, sed sodales tellus. Suspendisse sodales mi sapien, ultricies iaculis metus malesuada quis. Vestibulum consectetur tempor purus. Proin consectetur suscipit dolor ac ornare. In hac habitasse platea dictumst. Praesent at porttitor metus, eget congue odio. Integer pulvinar elit quis augue fringilla dapibus."
+
+        "Quisque consectetur feugiat maximus. Aenean gravida magna libero, non pulvinar nisi mollis et. Sed eget blandit risus. Aliquam ut consectetur nibh. Curabitur at sapien ut elit tempus fringilla. Quisque accumsan placerat nibh, et aliquet arcu viverra accumsan. Sed consectetur mi ut elit vehicula, suscipit dapibus ligula dictum. Fusce malesuada vestibulum tristique. In magna magna, maximus eget cursus ac, aliquam quis est. Duis luctus eros sit amet ante scelerisque, vel laoreet tortor pellentesque. Praesent eget porta metus. Aliquam vel felis ut magna facilisis fermentum a quis lacus."
+
+        "Phasellus ligula libero, eleifend non metus id, convallis consequat nunc. Vestibulum suscipit justo ut imperdiet commodo. Integer ac sollicitudin nisl, id cursus nunc. Suspendisse fermentum rutrum augue id vestibulum. Proin molestie arcu eros. Aenean sed mi accumsan, commodo orci nec, lobortis sem. Donec nec eros ut turpis porttitor luctus. Vivamus in faucibus nibh. Donec ullamcorper molestie ex nec rhoncus. Suspendisse commodo sagittis arcu, in fringilla metus blandit ut. Ut auctor posuere nunc id scelerisque. Fusce gravida ex non commodo maximus. Etiam sit amet nunc vel dui rutrum pulvinar sit amet vitae dolor.")
+
+    test_embed = discord.Embed(title="Test Embed", description="This is a test embed.")
+    test_embed.add_field(name="Testr field", value="Test Value", inline=False)
+    test_embed.add_field(name="Testr LONG field", value="Test LONG Value", inline=False)
+    test_embed.add_field(name="Lorem", value=LOREM_IPSUM, inline=False)
+    test_embeds = split_embed(test_embed)
+    for embed in test_embeds:
+        print(embed.title)
+        print(embed.description)
+        print(embed.fields)
 
 
 if __name__ == '__main__':
