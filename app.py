@@ -587,6 +587,8 @@ async def meal(ctx: commands.Context, *args: str):
         options = meal_command.get_options()
         await ctx.reply(options)
         return
+    if not any(arg.startswith("--") for arg in args):
+        args = ("--name",) + args
     if "--list" in args:
         response = await meal_cmd.list_filter_options()
         await ctx.reply(response)

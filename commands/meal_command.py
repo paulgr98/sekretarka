@@ -100,7 +100,7 @@ class MealCommand:
 
     async def get_meal(self, options: dict[str, str]):
         meal = None
-        if "random" in options.keys():
+        if "random" in options.keys() or "random" in options.values():
             return self.api.get_random_meal()
 
         if "name" in options.keys():
