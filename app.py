@@ -5,6 +5,7 @@ import time
 from threading import Thread
 from typing import cast, Union, Optional
 
+import f1
 from bot.database.DbConnector import DbConnector
 from config import DbConfig
 
@@ -121,7 +122,7 @@ async def on_ready():
     if not background_tasks_started:
         background_tasks_started = True
         bot_client.loop.create_task(mr.schedule_morning_routine(bot_client, db_connector))
-        bot_client.loop.create_task(f1schedule.schedule_f1_notifications(bot_client))
+        bot_client.loop.create_task(f1schedule.schedule_f1_notifications(bot_client, db_connector))
         logger.info("Background tasks started")
 
 
@@ -802,9 +803,24 @@ def handle_gpt_args(ctx: commands.Context, *args: str, ):
 
 
 @bot_client.command('f1')
-async def f1_command(ctx: commands.Context):
-    embed = f1cmd.make_next_race_embed()
-    await ctx.reply("Następny wyścig", embed=embed)
+async def f1_command(ctx: commands.Context, action: str = None, channel: discord.TextChannel = None):
+    bad_usage_text = f"Poprawne użycie komendy to: {bot_client.command_prefix}f1 [add|remove] <#kanal_tekstowy>"
+    if not action and not channel:
+        embed = f1cmd.make_next_race_embed()
+        await ctx.reply("Następny wyścig", embed=embed)
+        return
+    if action not in ['add', 'remove']:
+        await ctx.reply(bad_usage_text)
+        return
+    if not channel or not isinstance(channel, discord.TextChannel):
+        await ctx.reply("Musisz podać poprawny kanał tekstowy.")
+        return
+    if action == 'add':
+        if await f1.add_f1_channel(db_connector, channel):
+            await ctx.reply(f'Kanał {channel.mention} został dodany do listy kanałów F1')
+    elif action == 'remove':
+        if await f1.remove_f1_channel(db_connector, channel):
+            await ctx.reply(f'Kanał {channel.mention} został usunięty z listy kanałów F1')
 
 
 # help command to show all commands

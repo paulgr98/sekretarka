@@ -6,8 +6,10 @@ from typing import Coroutine, Callable
 import discord
 import pytz
 
+from bot.database.DbConnector import DbConnector
+from bot.logger import logger
 from components.f1_api import F1
-from config import config as cfg
+from repositories.F1ChannelsByServerRepository import F1ChannelsByServerRepository
 
 
 def get_current_season():
@@ -33,7 +35,7 @@ def get_next_race(target_dt: dt.datetime):
     return next_race
 
 
-async def schedule_f1_notifications(client: discord.Client):
+async def schedule_f1_notifications(client: discord.Client, db_connector: DbConnector):
     now = get_now_time()
     race = get_next_race(now)
 
@@ -41,8 +43,8 @@ async def schedule_f1_notifications(client: discord.Client):
         return
 
     tasks = [
-        scheduler(client, get_qualification_time, qualifying_notification),
-        scheduler(client, get_race_time, race_notification)
+        scheduler(client, db_connector, get_qualification_time, qualifying_notification),
+        scheduler(client, db_connector, get_race_time, race_notification)
     ]
 
     if "SprintQualifying" in race:
@@ -134,8 +136,9 @@ def timedelta_to_str(dt_obj: dt.timedelta) -> str:
 
 
 async def scheduler(client: discord.Client,
+                    db_connector: DbConnector,
                     get_target_dt: Callable[[], dt.datetime],
-                    take_action: Callable[[discord.Client], Coroutine]) -> None:
+                    take_action: Callable[[discord.Client, DbConnector], Coroutine]) -> None:
     while True:
         target_dt = get_target_dt()
         target_dt -= dt.timedelta(minutes=15)
@@ -146,34 +149,69 @@ async def scheduler(client: discord.Client,
         await asyncio.sleep(wait_time)
         now = get_now_time()
         if now.day == target_dt.day and now.hour == target_dt.hour and now.minute == target_dt.minute:
-            await take_action(client)
+            await take_action(client, db_connector)
             wait_until_next_race_week = dt.timedelta(days=4).total_seconds()
             await asyncio.sleep(wait_until_next_race_week)
 
 
 async def race_notification(client: discord.Client) -> None:
-    await notification(client, 'Wyścig zaczyna się za 15 minut!')
+    await send_notification_all(client, 'Wyścig zaczyna się za 15 minut!')
 
 
 async def qualifying_notification(client: discord.Client) -> None:
-    await notification(client, 'Kwalifikacje zaczynają się za 15 minut!')
+    await send_notification_all(client, 'Kwalifikacje zaczynają się za 15 minut!')
 
 
 async def sprint_notification(client: discord.Client) -> None:
-    await notification(client, 'Sprint zaczyna się za 15 minut!')
+    await send_notification_all(client, 'Sprint zaczyna się za 15 minut!')
 
 
 async def sprint_qualifying_notification(client: discord.Client) -> None:
-    await notification(client, 'Kwalifikacje sprintu zaczynają się za 15 minut!')
+    await send_notification_all(client, 'Kwalifikacje sprintu zaczynają się za 15 minut!')
 
 
-async def notification(client: discord.Client, message: str) -> None:
-    channel = client.get_channel(cfg.F1_CHANNEL_ID)
-    # get f1_notify role
-    role = discord.utils.get(channel.guild.roles, name='f1_notify')
+async def add_f1_channel(db_connector: DbConnector, channel: discord.TextChannel) -> bool:
+    repo = F1ChannelsByServerRepository(db_connector)
+    try:
+        await repo.add_channel(channel.guild.id, channel.id)
+    except Exception as e:
+        logger.error(f"Error adding channel {channel.id}: {e}")
+        return False
+    return True
 
-    # send notification
-    await channel.send(f'{role.mention} {message}')
+
+async def remove_f1_channel(db_connector: DbConnector, channel: discord.TextChannel) -> bool:
+    repo = F1ChannelsByServerRepository(db_connector)
+    try:
+        await repo.remove_channel(channel.guild.id, channel.id)
+    except Exception as e:
+        logger.error(f"Error removing channel {channel.id}: {e}")
+        return False
+    return True
+
+
+async def get_f1_channels(bot_client: discord.Client, db_connector: DbConnector, server_id: int) -> list[
+    discord.TextChannel]:
+    repo = F1ChannelsByServerRepository(db_connector)
+    channels_ids = await repo.get_channels(server_id)
+    # remove potential duplicates just in case, IDK
+    unique_ids = list(dict.fromkeys(int(cid) for cid in channels_ids))
+    channels = [bot_client.get_channel(cid) for cid in unique_ids]
+    return [ch for ch in channels if ch]
+
+
+async def send_notification_all(client: discord.Client, message: str, db_connector: DbConnector):
+    for guild in client.guilds:
+        channels = await get_f1_channels(client, db_connector, guild.id)
+        if channels:
+            await notify(channels, message)
+
+
+async def notify(channels, message: str) -> None:
+    for channel in channels:
+        if channel:
+            role = discord.utils.get(channel.guild.roles, name='f1_notify')
+            await channel.send(f'{role.mention} {message}')
 
 
 if __name__ == '__main__':
