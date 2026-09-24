@@ -5,7 +5,6 @@ import time
 from threading import Thread
 from typing import cast, Union, Optional
 
-import f1
 from bot.database.DbConnector import DbConnector
 from config import DbConfig
 
@@ -44,7 +43,7 @@ from components import (
     pp_len,
     morning_routine as mr,
     random_yt,
-    f1 as f1schedule,
+    f1,
     astrology_api as astro_api
 )
 from components.compliments import get_compliment_list
