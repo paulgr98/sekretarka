@@ -121,7 +121,7 @@ async def on_ready():
     if not background_tasks_started:
         background_tasks_started = True
         bot_client.loop.create_task(mr.schedule_morning_routine(bot_client, db_connector))
-        bot_client.loop.create_task(f1schedule.schedule_f1_notifications(bot_client, db_connector))
+        bot_client.loop.create_task(f1.schedule_f1_notifications(bot_client, db_connector))
         logger.info("Background tasks started")
 
 
