@@ -15,6 +15,7 @@ def format_event_time(event_details) -> tuple:
     event_date = event_details.event['date']
     event_time = event_details.event['time']
     event_dt_local = f1.str_to_local_dt(event_date, event_time)
+
     event_date_str = event_dt_local.date().strftime('%d.%m.%Y')
     event_time_str = event_dt_local.time().strftime('%H:%M')
     event_day = day_names[event_dt_local.weekday()]
@@ -22,8 +23,13 @@ def format_event_time(event_details) -> tuple:
 
     event_name_str = f'{event_details.event_name}:\n'
     event_time_str = (f'- {event_date_str} ({event_day})\n'
-                      f'- godz. {event_time_str}\n'
-                      f'- za {event_time_left}')
+                      f'- godz. {event_time_str}\n')
+
+    if event_dt_local < event_details.current_dt:
+        event_time_str += '- Już było'
+    else:
+        event_time_str += f'- za {event_time_left}'
+
     return event_name_str, event_time_str
 
 
