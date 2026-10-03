@@ -48,10 +48,10 @@ async def schedule_f1_notifications(client: discord.Client, db_connector: DbConn
     ]
 
     if "SprintQualifying" in race:
-        tasks.append(scheduler(client, get_sprint_qualifying_time, sprint_qualifying_notification))
+        tasks.append(scheduler(client, db_connector, get_sprint_qualifying_time, sprint_qualifying_notification))
 
     if "Sprint" in race:
-        tasks.append(scheduler(client, get_sprint_time, sprint_notification))
+        tasks.append(scheduler(client, db_connector, get_sprint_time, sprint_notification))
 
     await asyncio.gather(*tasks)
 
@@ -154,20 +154,20 @@ async def scheduler(client: discord.Client,
             await asyncio.sleep(wait_until_next_race_week)
 
 
-async def race_notification(client: discord.Client) -> None:
-    await send_notification_all(client, 'Wyścig zaczyna się za 15 minut!')
+async def race_notification(client: discord.Client, db_connector: DbConnector) -> None:
+    await send_notification_all(client, 'Wyścig zaczyna się za 15 minut!', db_connector)
 
 
-async def qualifying_notification(client: discord.Client) -> None:
-    await send_notification_all(client, 'Kwalifikacje zaczynają się za 15 minut!')
+async def qualifying_notification(client: discord.Client, db_connector: DbConnector) -> None:
+    await send_notification_all(client, 'Kwalifikacje zaczynają się za 15 minut!', db_connector)
 
 
-async def sprint_notification(client: discord.Client) -> None:
-    await send_notification_all(client, 'Sprint zaczyna się za 15 minut!')
+async def sprint_notification(client: discord.Client, db_connector: DbConnector) -> None:
+    await send_notification_all(client, 'Sprint zaczyna się za 15 minut!', db_connector)
 
 
-async def sprint_qualifying_notification(client: discord.Client) -> None:
-    await send_notification_all(client, 'Kwalifikacje sprintu zaczynają się za 15 minut!')
+async def sprint_qualifying_notification(client: discord.Client, db_connector: DbConnector) -> None:
+    await send_notification_all(client, 'Kwalifikacje sprintu zaczynają się za 15 minut!', db_connector)
 
 
 async def add_f1_channel(db_connector: DbConnector, channel: discord.TextChannel) -> bool:
