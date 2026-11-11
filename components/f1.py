@@ -2,9 +2,9 @@ import asyncio
 import datetime as dt
 import json
 from typing import Coroutine, Callable
+from zoneinfo import ZoneInfo
 
 import discord
-import pytz
 
 from bot.database.DbConnector import DbConnector
 from bot.logger import logger
@@ -57,10 +57,8 @@ async def schedule_f1_notifications(client: discord.Client, db_connector: DbConn
 
 
 def get_now_time() -> dt.datetime:
-    local_timezone = pytz.timezone('Europe/Warsaw')
-    now = dt.datetime.now()
-    now = local_timezone.localize(now)
-    return now
+    local_timezone = ZoneInfo('Europe/Warsaw')
+    return dt.datetime.now(local_timezone)
 
 
 def get_race_time() -> dt.datetime:
@@ -104,17 +102,14 @@ def get_sprint_qualifying_time() -> dt.datetime:
 
 
 def str_to_local_dt(date: str, time: str) -> dt.datetime:
-    utc_timezone = pytz.timezone('UTC')
-
     dt_str = f'{date}T{time}'
-    dt_obj = dt.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%SZ')
-    dt_obj = utc_timezone.localize(dt_obj)
+    dt_obj = dt.datetime.strptime(dt_str, '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=ZoneInfo('UTC'))
     dt_obj = dt_to_local_dt(dt_obj)
     return dt_obj
 
 
 def dt_to_local_dt(dt_obj: dt.datetime) -> dt.datetime:
-    local_timezone = pytz.timezone('Europe/Warsaw')
+    local_timezone = ZoneInfo('Europe/Warsaw')
     dt_obj = dt_obj.astimezone(local_timezone)
     return dt_obj
 
@@ -194,7 +189,6 @@ async def get_f1_channels(bot_client: discord.Client, db_connector: DbConnector,
     discord.TextChannel]:
     repo = F1ChannelsByServerRepository(db_connector)
     channels_ids = await repo.get_channels(server_id)
-    # remove potential duplicates just in case, IDK
     unique_ids = list(dict.fromkeys(int(cid) for cid in channels_ids))
     channels = [bot_client.get_channel(cid) for cid in unique_ids]
     return [ch for ch in channels if ch]
